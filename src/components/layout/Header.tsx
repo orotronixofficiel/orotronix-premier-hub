@@ -119,7 +119,7 @@ export function Header() {
               />
             </div>
           </form>
-          <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
+          <Button asChild variant="ghost" size="icon" className="inline-flex">
             <Link to="/compte" aria-label="Mon compte">
               <UserRound className="h-5 w-5" />
             </Link>
