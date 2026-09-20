@@ -78,7 +78,7 @@ function CheckoutPage() {
       paymentMethod: "cod",
       customer: { fullName: fullName.trim(), phone: phone.trim(), city, address: address.trim(), notes },
     };
-    saveOrder(order);
+    void saveOrder(order);
     clear();
     navigate({ to: "/confirmation" });
   };
