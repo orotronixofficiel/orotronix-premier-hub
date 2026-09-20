@@ -25,5 +25,9 @@ const csrfMiddleware = createCsrfMiddleware({
 });
 
 export const startInstance = createStart(() => ({
+  // OROTRONIX is deployed as a client-first Cloudflare Pages site.
+  // Disable SSR for route components globally so browser-only UI primitives
+  // (Radix, localStorage, Supabase client) are never rendered on the server.
+  defaultSsr: false,
   requestMiddleware: [errorMiddleware, csrfMiddleware],
 }));
