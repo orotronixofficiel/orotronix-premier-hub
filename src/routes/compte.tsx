@@ -1,11 +1,11 @@
-export const Route = createFileRoute("/compte")({ component: ComptePage });
-
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { UserRound, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabaseAuth, supabaseConfigured, setSupabaseAccessToken } from "@/lib/supabase";
+
+export const Route = createFileRoute("/compte")({ component: ComptePage });
 
 export default function ComptePage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
