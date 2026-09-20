@@ -241,3 +241,49 @@ export function getProduct(slug: string): Product | undefined {
 export function getCategory(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
 }
+
+
+import { supabaseConfigured, supabaseRest } from "@/lib/supabase";
+
+const categoryImageBySlug: Record<CategorySlug, string> = {
+  smartphones: smartphonesImg,
+  "accessoires-telephone": accessoriesImg,
+  "accessoires-tv": tvImg,
+  offres: offersImg,
+};
+
+export async function loadRemoteCatalog(): Promise<{ products: Product[]; categories: Category[] }> {
+  if (!supabaseConfigured) return { products, categories };
+  const [rows, cats] = await Promise.all([
+    supabaseRest<Array<{
+      slug:string; name:string; brand:string|null; price:number; old_price:number|null;
+      image_url:string|null; short_description:string|null; description:string|null;
+      highlights:string[]; in_stock:boolean; featured:boolean;
+      category?: { slug:string; name:string; description:string|null; image_url:string|null } | null;
+    }>>("products", { query: "?select=slug,name,brand,price,old_price,image_url,short_description,description,highlights,in_stock,featured,category:categories(slug,name,description,image_url)&order=created_at.desc" }),
+    supabaseRest<Array<{slug:string;name:string;description:string|null;image_url:string|null}>>("categories", { query: "?select=slug,name,description,image_url&order=sort_order.asc" }),
+  ]);
+  const remoteCategories: Category[] = cats.map(c => ({
+    slug: c.slug as CategorySlug, name:c.name, description:c.description ?? "", image:c.image_url || categoryImageBySlug[c.slug as CategorySlug] || accessoriesImg
+  }));
+  const remoteProducts: Product[] = rows.map(p => ({
+    slug:p.slug, name:p.name, brand:p.brand ?? "", category:(p.category?.slug || "offres") as CategorySlug,
+    price:Number(p.price), oldPrice:p.old_price == null ? undefined : Number(p.old_price),
+    image:p.image_url || categoryImageBySlug[(p.category?.slug || "offres") as CategorySlug] || accessoriesImg,
+    shortDescription:p.short_description ?? "", description:p.description ?? "",
+    highlights:Array.isArray(p.highlights) ? p.highlights : [], inStock:p.in_stock, featured:p.featured
+  }));
+  return { products: remoteProducts, categories: remoteCategories };
+}
+
+export async function loadRemoteProduct(slug: string): Promise<Product | undefined> {
+  if (!supabaseConfigured) return getProduct(slug);
+  const rows = await supabaseRest<Array<{
+    slug:string; name:string; brand:string|null; price:number; old_price:number|null; image_url:string|null;
+    short_description:string|null; description:string|null; highlights:string[]; in_stock:boolean; featured:boolean;
+    category?: { slug:string } | null;
+  }>>("products", { query: "?select=slug,name,brand,price,old_price,image_url,short_description,description,highlights,in_stock,featured,category:categories(slug)&slug=eq."+encodeURIComponent(slug)+"&limit=1" });
+  const p=rows[0]; if(!p) return undefined;
+  const cat=(p.category?.slug || "offres") as CategorySlug;
+  return {slug:p.slug,name:p.name,brand:p.brand??"",category:cat,price:Number(p.price),oldPrice:p.old_price==null?undefined:Number(p.old_price),image:p.image_url||categoryImageBySlug[cat]||accessoriesImg,shortDescription:p.short_description??"",description:p.description??"",highlights:Array.isArray(p.highlights)?p.highlights:[],inStock:p.in_stock,featured:p.featured};
+}
