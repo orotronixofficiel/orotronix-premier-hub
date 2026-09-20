@@ -120,6 +120,7 @@ export interface FileRouteTypes {
     | '/panier'
     | '/reparation'
     | '/produit/$slug'
+    | '/admin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
