@@ -17,6 +17,7 @@ import { Route as PanierRouteImport } from './routes/panier'
 import { Route as ReparationRouteImport } from './routes/reparation'
 import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CompteRouteImport } from './routes/compte'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -53,6 +54,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompteRoute = CompteRouteImport.update({
+  id: '/compte',
+  path: '/compte',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProduitSlugRoute = ProduitSlugRouteImport.update({
   id: '/produit/$slug',
   path: '/produit/$slug',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/reparation': typeof ReparationRoute
   '/produit/$slug': typeof ProduitSlugRoute
   '/admin': typeof AdminRoute
+  '/compte': typeof CompteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -101,6 +108,7 @@ export interface FileRouteTypes {
     | '/reparation'
     | '/produit/$slug'
     | '/admin'
+    | '/compte'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +119,7 @@ export interface FileRouteTypes {
     | '/reparation'
     | '/produit/$slug'
     | '/admin'
+    | '/compte'
   id:
     | '__root__'
     | '/'
@@ -184,6 +193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compte': {
+      id: '/compte'
+      path: '/compte'
+      fullPath: '/compte'
+      preLoaderRoute: typeof CompteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produit/$slug': {
       id: '/produit/$slug'
       path: '/produit/$slug'
@@ -203,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReparationRoute: ReparationRoute,
   ProduitSlugRoute: ProduitSlugRoute,
   AdminRoute: AdminRoute,
+  CompteRoute: CompteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
