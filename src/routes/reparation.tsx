@@ -168,7 +168,7 @@ function RepairForm() {
       ...values,
       pickup,
     };
-    saveRepairRequest(request);
+    void saveRepairRequest(request);
     setSubmitted(request);
     toast.success("Demande enregistrée", { description: `Référence ${request.reference}` });
   };
