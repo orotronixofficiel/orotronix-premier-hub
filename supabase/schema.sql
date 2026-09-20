@@ -42,11 +42,27 @@ create table if not exists public.orders (
   notes text, created_at timestamptz not null default now()
 );
 
+create table if not exists public.admin_users (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
 alter table public.store_settings enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.repair_services enable row level security;
 alter table public.orders enable row level security;
+alter table public.admin_users enable row level security;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $
+  select exists (select 1 from public.admin_users where user_id = auth.uid());
+$;
 
 drop policy if exists "public read settings" on public.store_settings;
 create policy "public read settings" on public.store_settings for select using (true);
@@ -58,15 +74,18 @@ drop policy if exists "public read repairs" on public.repair_services;
 create policy "public read repairs" on public.repair_services for select using (active = true);
 
 drop policy if exists "admin settings" on public.store_settings;
-create policy "admin settings" on public.store_settings for all to authenticated using (true) with check (true);
+create policy "admin settings" on public.store_settings for all to authenticated using (public.is_admin()) with check (public.is_admin());
 drop policy if exists "admin categories" on public.categories;
-create policy "admin categories" on public.categories for all to authenticated using (true) with check (true);
+create policy "admin categories" on public.categories for all to authenticated using (public.is_admin()) with check (public.is_admin());
 drop policy if exists "admin products" on public.products;
-create policy "admin products" on public.products for all to authenticated using (true) with check (true);
+create policy "admin products" on public.products for all to authenticated using (public.is_admin()) with check (public.is_admin());
 drop policy if exists "admin repairs" on public.repair_services;
-create policy "admin repairs" on public.repair_services for all to authenticated using (true) with check (true);
+create policy "admin repairs" on public.repair_services for all to authenticated using (public.is_admin()) with check (public.is_admin());
 drop policy if exists "admin orders" on public.orders;
-create policy "admin orders" on public.orders for all to authenticated using (true) with check (true);
+create policy "admin orders" on public.orders for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "public create orders" on public.orders;
+create policy "public create orders" on public.orders for insert to anon, authenticated with check (true);
 
 insert into public.store_settings (store_name, whatsapp, phone)
 select 'OROTRONIX', '+212656566366', '+212656566366'
