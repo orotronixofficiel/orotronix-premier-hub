@@ -10,8 +10,17 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { SectionHeading } from "@/components/layout/Section";
 
 export const Route = createFileRoute("/produit/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params }) => {
+    // Supabase is the source of truth when configured. Keep the local
+    // catalog only as a fallback so products created/edited from Admin
+    // can always open their detail page.
+    let product;
+    try {
+      product = await loadRemoteProduct(params.slug);
+    } catch {
+      product = getProduct(params.slug);
+    }
+
     if (!product) throw notFound();
     return { product };
   },
