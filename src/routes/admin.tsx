@@ -15,7 +15,9 @@ type Product = { id: string; name: string; slug: string; price: number; in_stock
 type Order = { id: string; reference: string; customer_name: string; phone: string; total: number; status: string; created_at: string };
 
 function AdminPage() {
-  const [token, setToken] = useState<string | null>(() => sessionStorage.getItem("orotronix_admin_token"));
+  const [token, setToken] = useState<string | null>(() =>
+    typeof window !== "undefined" ? sessionStorage.getItem("orotronix_admin_token") : null
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
