@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { categories, products, type CategorySlug } from "@/data/catalog";
+import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { formatMAD } from "@/lib/format";
 
-type ShopSearch = { categorie?: CategorySlug; q?: string };
+type ShopSearch = { categorie?: string; q?: string };
 
 const MAX_PRICE = 15000;
 
@@ -24,9 +24,7 @@ export const Route = createFileRoute("/boutique")({
     const categorie = String(search.categorie ?? "");
     const q = String(search.q ?? "");
     return {
-      categorie: categories.some((c) => c.slug === categorie)
-        ? (categorie as CategorySlug)
-        : undefined,
+      categorie: categorie || undefined,
       q: q || undefined,
     };
   },
@@ -53,6 +51,9 @@ function ShopPage() {
   const navigate = useNavigate({ from: "/boutique" });
 
   const [query, setQuery] = useState(q ?? "");
+  const [catalogProducts, setCatalogProducts] = useState(fallbackProducts);
+  const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
+  useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [sort, setSort] = useState("pertinence");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -60,7 +61,7 @@ function ShopPage() {
   const activeQuery = (q ?? "").toLowerCase();
 
   const list = useMemo(() => {
-    let result = products.filter((p) => {
+    let result = catalogProducts.filter((p) => {
       if (categorie && p.category !== categorie) return false;
       if (p.price > maxPrice) return false;
       if (activeQuery) {
@@ -73,14 +74,14 @@ function ShopPage() {
     if (sort === "prix-decroissant") result = [...result].sort((a, b) => b.price - a.price);
     if (sort === "promos") result = [...result].sort((a, b) => Number(!!b.oldPrice) - Number(!!a.oldPrice));
     return result;
-  }, [categorie, activeQuery, maxPrice, sort]);
+  }, [catalogProducts, categorie, activeQuery, maxPrice, sort]);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
     navigate({ search: (prev) => ({ ...prev, q: query || undefined }) });
   };
 
-  const current = categories.find((c) => c.slug === categorie);
+  const current = catalogCategories.find((c) => c.slug === categorie);
 
   return (
     <div className="container-page py-10 lg:py-14">
@@ -108,7 +109,7 @@ function ShopPage() {
       {/* Catégories */}
       <div className="mt-6 flex flex-wrap gap-2">
         <CategoryChip active={!categorie} to={{}}>Tout</CategoryChip>
-        {categories.map((c) => (
+        {catalogCategories.map((c) => (
           <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
             {c.name}
           </CategoryChip>
