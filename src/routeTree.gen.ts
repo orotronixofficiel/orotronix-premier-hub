@@ -100,6 +100,7 @@ export interface FileRouteTypes {
     | '/panier'
     | '/reparation'
     | '/produit/$slug'
+    | '/admin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,6 +110,7 @@ export interface FileRouteTypes {
     | '/panier'
     | '/reparation'
     | '/produit/$slug'
+    | '/admin'
   id:
     | '__root__'
     | '/'
