@@ -146,6 +146,7 @@ function RepairForm() {
   const [pickup, setPickup] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState<RepairRequest | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const set = (key: keyof typeof values) => (value: string) =>
     setValues((v) => ({ ...v, [key]: value }));
@@ -164,19 +165,20 @@ function RepairForm() {
     return Object.keys(next).length === 0;
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       toast.error("Veuillez corriger les champs indiqués.");
       return;
     }
+    setSubmitting(true);
     const request: RepairRequest = {
       reference: makeReference("REP"),
       createdAt: new Date().toISOString(),
       ...values,
       pickup,
     };
-    void saveRepairRequest(request);
+    await saveRepairRequest(request);
     setSubmitted(request);
     toast.success("Demande enregistrée", { description: `Référence ${request.reference}` });
   };
@@ -268,8 +270,8 @@ function RepairForm() {
           </span>
         </label>
 
-        <Button type="submit" size="lg" className="w-full sm:w-auto sm:justify-self-start">
-          Envoyer la demande
+        <Button type="submit" size="lg" className="w-full sm:w-auto sm:justify-self-start" disabled={submitting}>
+          {submitting ? "Enregistrement…" : "Envoyer la demande"}
         </Button>
       </form>
     </section>
