@@ -22,6 +22,10 @@ import {
 import { formatMAD } from "@/lib/format";
 
 export const Route = createFileRoute("/reparation")({
+  // This page is entirely client-interactive and uses browser-side UI primitives.
+  // Keep its initial render out of TanStack Start SSR to avoid Cloudflare SSR/hydration
+  // failures on this route. Data loading already happens in useEffect on the client.
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Réparation téléphone au Maroc — OROTRONIX" },
@@ -74,7 +78,6 @@ function RepairPage() {
         </div>
       </section>
 
-      {/* TYPES DE REPARATION */}
       <section className="container-page py-16 lg:py-20">
         <SectionHeading
           eyebrow="Nos interventions"
@@ -100,7 +103,6 @@ function RepairPage() {
         </div>
       </section>
 
-      {/* RAMASSAGE */}
       <section id="ramassage" className="border-y border-border bg-surface/30">
         <div className="container-page py-16 lg:py-20">
           <SectionHeading
@@ -154,7 +156,7 @@ function RepairForm() {
   const validate = () => {
     const next: Record<string, string> = {};
     if (values.fullName.trim().length < 3) next.fullName = "Indiquez votre nom complet.";
-    if (!/^[0-9+\s]{9,15}$/.test(values.phone.trim())) next.phone = "Numéro de téléphone invalide.";
+    if (!/^[0-9+s]{9,15}$/.test(values.phone.trim())) next.phone = "Numéro de téléphone invalide.";
     if (!values.city) next.city = "Choisissez votre ville.";
     if (values.address.trim().length < 8) next.address = "Indiquez une adresse complète.";
     if (!values.brand) next.brand = "Choisissez la marque.";
@@ -172,15 +174,22 @@ function RepairForm() {
       return;
     }
     setSubmitting(true);
-    const request: RepairRequest = {
-      reference: makeReference("REP"),
-      createdAt: new Date().toISOString(),
-      ...values,
-      pickup,
-    };
-    await saveRepairRequest(request);
-    setSubmitted(request);
-    toast.success("Demande enregistrée", { description: `Référence ${request.reference}` });
+    try {
+      const request: RepairRequest = {
+        reference: makeReference("REP"),
+        createdAt: new Date().toISOString(),
+        ...values,
+        pickup,
+      };
+      await saveRepairRequest(request);
+      setSubmitted(request);
+      toast.success("Demande enregistrée", { description: `Référence ${request.reference}` });
+    } catch (error) {
+      console.error("OROTRONIX: repair request failed", error);
+      toast.error("Impossible d'enregistrer la demande. Veuillez réessayer.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
