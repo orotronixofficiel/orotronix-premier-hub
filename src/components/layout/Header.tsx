@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, ShoppingBag, X, Wrench } from "lucide-react";
+import { Menu, Search, ShoppingBag, X, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/cart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -120,8 +120,8 @@ export function Header() {
             </div>
           </form>
           <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
-            <Link to="/reparation" aria-label="Réparation">
-              <Wrench className="h-5 w-5" />
+            <Link to="/compte" aria-label="Mon compte">
+              <UserRound className="h-5 w-5" />
             </Link>
           </Button>
           <Link
