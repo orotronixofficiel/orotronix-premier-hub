@@ -16,6 +16,7 @@ import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as PanierRouteImport } from './routes/panier'
 import { Route as ReparationRouteImport } from './routes/reparation'
 import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
+import { Route as AdminRouteImport } from './routes/admin'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +48,11 @@ const ReparationRoute = ReparationRouteImport.update({
   path: '/reparation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProduitSlugRoute = ProduitSlugRouteImport.update({
   id: '/produit/$slug',
   path: '/produit/$slug',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/panier': typeof PanierRoute
   '/reparation': typeof ReparationRoute
   '/produit/$slug': typeof ProduitSlugRoute
+  '/admin': typeof AdminRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/panier': typeof PanierRoute
   '/reparation': typeof ReparationRoute
   '/produit/$slug': typeof ProduitSlugRoute
+  '/admin': typeof AdminRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/panier': typeof PanierRoute
   '/reparation': typeof ReparationRoute
   '/produit/$slug': typeof ProduitSlugRoute
+  '/admin': typeof AdminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -165,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReparationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produit/$slug': {
       id: '/produit/$slug'
       path: '/produit/$slug'
@@ -183,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   PanierRoute: PanierRoute,
   ReparationRoute: ReparationRoute,
   ProduitSlugRoute: ProduitSlugRoute,
+  AdminRoute: AdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
