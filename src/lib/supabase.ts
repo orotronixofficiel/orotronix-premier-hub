@@ -1,4 +1,4 @@
-const url = import.meta.env.VITE_SUPABASE_URL?.replace(/\\/$/, "");
+const url = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, "");
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabaseConfigured = Boolean(url && anonKey);
 let accessToken: string | null = null;
