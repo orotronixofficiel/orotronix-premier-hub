@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { BadgeCheck, CheckCircle2, Clock, Phone, Truck, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import repairImg from "@/assets/repair.jpg";
-import { moroccanCities, phoneBrands, repairTypes } from "@/data/repair";
+import { moroccanCities, phoneBrands, repairTypes as fallbackRepairTypes } from "@/data/repair";
+import { supabaseConfigured, supabaseRest } from "@/lib/supabase";
 import { makeReference, saveRepairRequest, type RepairRequest } from "@/lib/orders";
 import { SectionHeading } from "@/components/layout/Section";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,13 @@ export const Route = createFileRoute("/reparation")({
 });
 
 function RepairPage() {
+  const [repairTypes, setRepairTypes] = useState(fallbackRepairTypes);
+  useEffect(() => {
+    if (!supabaseConfigured) return;
+    void supabaseRest<Array<{id:string;slug:string;name:string;description:string|null;price_from:number;duration:string|null;active:boolean}>>("repair_services", { query: "?select=*&active=eq.true&order=sort_order.asc" })
+      .then(rows => setRepairTypes(rows.map(r => ({ id:r.slug, name:r.name, description:r.description ?? "", from:Number(r.price_from), duration:r.duration ?? "" }))))
+      .catch(() => {});
+  }, []);
   return (
     <div>
       <section className="border-b border-border">
