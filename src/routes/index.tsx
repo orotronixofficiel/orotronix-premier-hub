@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 import heroImg from "@/assets/hero-phone.jpg";
 import repairImg from "@/assets/repair.jpg";
-import { categories, products } from "@/data/catalog";
+import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog } from "@/data/catalog";
 import { repairTypes } from "@/data/repair";
 import { ProductCard } from "@/components/product/ProductCard";
 import { SectionHeading } from "@/components/layout/Section";
@@ -38,8 +39,11 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const featured = products.filter((p) => p.featured).slice(0, 4);
-  const offers = products.filter((p) => p.oldPrice).slice(0, 4);
+  const [catalogProducts, setCatalogProducts] = useState(fallbackProducts);
+  const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
+  useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
+  const featured = catalogProducts.filter((p) => p.featured).slice(0, 4);
+  const offers = catalogProducts.filter((p) => p.oldPrice).slice(0, 4);
 
   return (
     <>
@@ -125,7 +129,7 @@ function HomePage() {
       <section className="container-page py-6 lg:py-10">
         <SectionHeading eyebrow="Catalogue" title="Nos catégories" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          {categories.map((c) => (
+          {catalogCategories.map((c) => (
             <Link
               key={c.slug}
               to="/boutique"

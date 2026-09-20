@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BadgeCheck, Minus, Plus, ShieldCheck, Truck, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import { getProduct, products } from "@/data/catalog";
+import { getProduct, products as fallbackProducts, loadRemoteProduct, loadRemoteCatalog } from "@/data/catalog";
 import { formatMAD } from "@/lib/format";
 import { useCart } from "@/context/cart";
 import { Button } from "@/components/ui/button";
@@ -33,11 +33,14 @@ export const Route = createFileRoute("/produit/$slug")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const initialProduct = Route.useLoaderData().product;
+  const [product, setProduct] = useState(initialProduct);
+  const [allProducts, setAllProducts] = useState(fallbackProducts);
   const { addItem } = useCart();
+  useEffect(() => { void Promise.all([loadRemoteProduct(initialProduct.slug), loadRemoteCatalog()]).then(([p, data]) => { if (p) setProduct(p); setAllProducts(data.products); }).catch(() => {}); }, [initialProduct.slug]);
   const [quantity, setQuantity] = useState(1);
 
-  const related = products
+  const related = allProducts
     .filter((p) => p.category === product.category && p.slug !== product.slug)
     .slice(0, 4);
 

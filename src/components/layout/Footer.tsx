@@ -14,7 +14,7 @@ export function Footer() {
           </p>
           <div className="mt-5 flex gap-3">
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/orotronixofficiel"
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram"
@@ -23,7 +23,7 @@ export function Footer() {
               <Instagram className="h-4 w-4" />
             </a>
             <a
-              href="https://facebook.com"
+              href="https://facebook.com/orotronixofficiel"
               target="_blank"
               rel="noreferrer"
               aria-label="Facebook"
@@ -59,28 +59,28 @@ export function Footer() {
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
               <Phone className="mt-0.5 h-4 w-4 text-gold" />
-              <a href="tel:+212600000000" className="hover:text-gold">+212 6 00 00 00 00</a>
+              <a href="tel:+212656566366" className="hover:text-gold">+212 6 56 56 63 66</a>
             </li>
             <li className="flex items-start gap-2">
               <Mail className="mt-0.5 h-4 w-4 text-gold" />
-              <a href="mailto:contact@orotronix.ma" className="hover:text-gold">contact@orotronix.ma</a>
+              <a href="mailto:contact@orotronix.com" className="hover:text-gold">contact@orotronix.com</a>
             </li>
             <li className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 text-gold" />
-              <span>Casablanca, Maroc</span>
+              <span>Kasba, Rue 21, N°10, Mohammedia 28800, Maroc</span>
             </li>
             <li className="flex items-start gap-2">
               <Clock className="mt-0.5 h-4 w-4 text-gold" />
-              <span>Lun – Sam : 9h00 – 20h00</span>
+              <span>Lun – Dim : 10h00 – 22h00</span>
             </li>
-            <li className="text-xs">www.orotronix.ma</li>
+            <li className="text-xs">www.orotronix.com</li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-border/70 py-5">
         <p className="container-page text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} OROTRONIX. Tous droits réservés. Les coordonnées affichées sont provisoires.
+          © {new Date().getFullYear()} OROTRONIX. Tous droits réservés. 
         </p>
       </div>
     </footer>

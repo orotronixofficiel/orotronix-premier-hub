@@ -41,6 +41,7 @@ function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -62,12 +63,13 @@ function CheckoutPage() {
     return Object.keys(next).length === 0;
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       toast.error("Veuillez corriger les champs indiqués.");
       return;
     }
+    setSubmitting(true);
     const order: Order = {
       reference: makeReference(),
       createdAt: new Date().toISOString(),
@@ -78,7 +80,7 @@ function CheckoutPage() {
       paymentMethod: "cod",
       customer: { fullName: fullName.trim(), phone: phone.trim(), city, address: address.trim(), notes },
     };
-    saveOrder(order);
+    await saveOrder(order);
     clear();
     navigate({ to: "/confirmation" });
   };
@@ -159,7 +161,7 @@ function CheckoutPage() {
               <dt>Total à payer</dt><dd className="text-gold">{formatMAD(total)}</dd>
             </div>
           </dl>
-          <Button type="submit" size="lg" className="mt-6 w-full">Confirmer la commande</Button>
+          <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting}>{submitting ? "Enregistrement…" : "Confirmer la commande"}</Button>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-gold" /> Aucun paiement en ligne requis
           </p>

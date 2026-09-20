@@ -1,5 +1,6 @@
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { CartItem } from "@/context/cart";
+import { supabaseConfigured, supabaseRest } from "@/lib/supabase";
 
 export type Customer = {
   fullName: string;
@@ -30,10 +31,19 @@ export function makeReference(prefix = "ORO") {
   return `${prefix}-${stamp}-${rand}`;
 }
 
-export function saveOrder(order: Order) {
+export async function saveOrder(order: Order) {
   writeJSON(LAST_ORDER_KEY, order);
   const all = readJSON<Order[]>(ORDERS_KEY, []);
   writeJSON(ORDERS_KEY, [order, ...all].slice(0, 50));
+  if (supabaseConfigured) {
+    try {
+      await supabaseRest("orders", { method: "POST", body: {
+        reference: order.reference, customer_name: order.customer.fullName, phone: order.customer.phone,
+        address: order.customer.address, city: order.customer.city, items: order.items, total: order.total,
+        status: "pending_whatsapp", notes: order.customer.notes || null
+      }, prefer: "return=minimal" });
+    } catch (error) { console.error("OROTRONIX: Supabase order save failed", error); }
+  }
 }
 
 export function getLastOrder(): Order | null {
@@ -57,7 +67,18 @@ export type RepairRequest = {
 
 const REPAIRS_KEY = "orotronix.repairs.v1";
 
-export function saveRepairRequest(request: RepairRequest) {
+export async function saveRepairRequest(request: RepairRequest) {
   const all = readJSON<RepairRequest[]>(REPAIRS_KEY, []);
   writeJSON(REPAIRS_KEY, [request, ...all].slice(0, 50));
+  if (supabaseConfigured) {
+    try {
+      await supabaseRest("orders", { method: "POST", body: {
+        reference: request.reference, customer_name: request.fullName, phone: request.phone,
+        address: request.address, city: request.city,
+        items: [{ type: "repair", brand: request.brand, model: request.model, problemType: request.problemType,
+          problemDescription: request.problemDescription, pickup: request.pickup }],
+        total: 0, status: "pending_whatsapp", notes: request.notes || null
+      }, prefer: "return=minimal" });
+    } catch (error) { console.error("OROTRONIX: Supabase repair save failed", error); }
+  }
 }
