@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, X, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
@@ -20,6 +20,18 @@ export function Header() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const syncAuth = () => setLoggedIn(Boolean(sessionStorage.getItem("orotronix_user_token")));
+    syncAuth();
+    window.addEventListener("orotronix-auth-change", syncAuth);
+    window.addEventListener("storage", syncAuth);
+    return () => {
+      window.removeEventListener("orotronix-auth-change", syncAuth);
+      window.removeEventListener("storage", syncAuth);
+    };
+  }, []);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
