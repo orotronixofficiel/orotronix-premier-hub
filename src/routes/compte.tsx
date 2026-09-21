@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { UserRound, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { refreshSupabaseSession, supabaseAuth, supabaseConfigured, setSupabaseAccessToken } from "@/lib/supabase";
+import { supabaseAuth, supabaseConfigured, setSupabaseAccessToken } from "@/lib/supabase";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
 
@@ -14,25 +14,6 @@ export default function ComptePage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const boot = async () => {
-      const refreshToken = typeof window !== "undefined"
-        ? sessionStorage.getItem("orotronix_user_refresh_token")
-        : null;
-
-      // Never trust a stale access token alone. Only an active refresh token
-      // that successfully refreshes the Supabase session counts as logged in.
-      if (!refreshToken) return;
-
-      const refreshed = await refreshSupabaseSession();
-      if (!refreshed) return;
-
-      setSupabaseAccessToken(refreshed);
-      navigate({ to: "/boutique", replace: true });
-    };
-    void boot();
-  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
