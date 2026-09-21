@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { UserRound, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { refreshSupabaseSession, supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken } from "@/lib/supabase";
+import { refreshSupabaseSession, supabaseAuth, supabaseConfigured, setSupabaseAccessToken } from "@/lib/supabase";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
 
@@ -23,13 +23,7 @@ export default function ComptePage() {
       if (!token) return;
       setSupabaseAccessToken(token);
       setLoggedIn(true);
-      try {
-        const rows = await supabaseRest<Array<{reference:string; total:number; status:string; created_at:string}>>("orders", {
-          query: "?select=reference,total,status,created_at&order=created_at.desc&limit=20",
-        });
-        setOrders(rows);
-      } catch {}
-    };
+  };
     void boot();
   }, []);
 
