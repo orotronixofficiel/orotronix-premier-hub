@@ -49,8 +49,9 @@ function AdminPage() {
     setProducts(p); setCategories(c); setRepairs(r); setOrders(o); setSettings(s[0] ?? null);
   } catch(e){setError(e instanceof Error?e.message:"Erreur de chargement");} finally{setLoading(false);} };
 
-  useEffect(()=>{if(token){setSupabaseAccessToken(token);void load();}},[token]);
-  const login=async(e:React.FormEvent)=>{e.preventDefault();setError("");try{const d=await supabaseAuth("token?grant_type=password",{email,password});sessionStorage.setItem("orotronix_admin_token",d.access_token);setSupabaseAccessToken(d.access_token);setToken(d.access_token);}catch(e){setError(e instanceof Error?e.message:"Connexion impossible");}};
+  const verifyAdmin=async()=>{ const ok=await supabaseRest<boolean>("rpc/is_admin",{method:"POST",body:{}}); if(!ok) throw new Error("Accès administrateur refusé."); return true; };
+  useEffect(()=>{if(token){setSupabaseAccessToken(token);void verifyAdmin().then(()=>load()).catch(()=>{sessionStorage.removeItem("orotronix_admin_token");setSupabaseAccessToken(null);setToken(null);setError("Ce compte n’a pas les droits administrateur.");});}},[token]);
+  const login=async(e:React.FormEvent)=>{e.preventDefault();setError("");try{const d=await supabaseAuth("token?grant_type=password",{email,password});setSupabaseAccessToken(d.access_token);await verifyAdmin();sessionStorage.setItem("orotronix_admin_token",d.access_token);setToken(d.access_token);}catch(e){setError(e instanceof Error?e.message:"Connexion impossible");}};
   const logout=()=>{sessionStorage.removeItem("orotronix_admin_token");setSupabaseAccessToken(null);setToken(null);};
 
   if(!supabaseConfigured)return <Shell><Panel><h1 className="font-display text-2xl font-semibold">Administration OROTRONIX</h1><p className="mt-3 text-sm text-muted-foreground">Ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans Cloudflare Pages.</p><Link className="mt-6 inline-block text-sm text-gold" to="/">← Retour au site</Link></Panel></Shell>;
