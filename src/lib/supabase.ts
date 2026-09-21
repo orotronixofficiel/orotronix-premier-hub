@@ -58,6 +58,39 @@ export async function supabaseAuth(path: string, body: unknown) {
   return data as { access_token: string; refresh_token?: string; user?: { email?: string } };
 }
 
+
+export async function supabaseOAuth(provider: "google" | "facebook") {
+  if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
+  const redirectTo = window.location.origin + "/compte";
+  const response = await fetch(
+    url + "/auth/v1/authorize?provider=" + provider + "&redirect_to=" + encodeURIComponent(redirectTo),
+    {
+      method: "GET",
+      headers: { apikey: anonKey },
+      redirect: "manual",
+    },
+  );
+  if (response.type === "opaqueredirect" || response.status === 0 || response.status === 302 || response.status === 303) {
+    throw new Error("redirect");
+  }
+  const location = response.headers.get("location");
+  if (location) {
+    window.location.assign(location);
+    return;
+  }
+  throw new Error("Impossible de démarrer la connexion " + provider + ".");
+}
+
+export async function supabaseCurrentUser(token: string) {
+  if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
+  const response = await fetch(url + "/auth/v1/user", {
+    headers: { apikey: anonKey, Authorization: "Bearer " + token },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Impossible de récupérer le profil.");
+  return data as { email?: string; user_metadata?: { full_name?: string; name?: string } };
+}
+
 export async function supabasePublicRest<T = unknown>(table: string, options: {
   method?: "GET" | "POST" | "PATCH" | "DELETE"; query?: string; body?: unknown; prefer?: string;
 } = {}): Promise<T> {
