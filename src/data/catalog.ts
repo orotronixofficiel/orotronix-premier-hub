@@ -53,6 +53,7 @@ export type Product = {
   inStock: boolean;
   featured?: boolean;
   visible?: boolean;
+  sortOrder?: number;
 };
 
 export const products: Product[] = [
@@ -259,9 +260,9 @@ export async function loadRemoteCatalog(): Promise<{ products: Product[]; catego
     supabaseRest<Array<{
       slug:string; name:string; brand:string|null; price:number; old_price:number|null;
       image_url:string|null; short_description:string|null; description:string|null;
-      highlights:string[]; in_stock:boolean; featured:boolean; visible:boolean;
+      highlights:string[]; in_stock:boolean; featured:boolean; visible:boolean; sort_order:number; sort_order:number;
       category?: { slug:string; name:string; description:string|null; image_url:string|null } | null;
-    }>>("products", { query: "?select=slug,name,brand,price,old_price,image_url,short_description,description,highlights,in_stock,featured,visible,category:categories(slug,name,description,image_url)&order=created_at.desc" }),
+    }>>("products", { query: "?select=slug,name,brand,price,old_price,image_url,short_description,description,highlights,in_stock,featured,visible,sort_order,category:categories(slug,name,description,image_url)&order=created_at.desc" }),
     supabaseRest<Array<{slug:string;name:string;description:string|null;image_url:string|null}>>("categories", { query: "?select=slug,name,description,image_url&order=sort_order.asc" }),
   ]);
   const remoteCategories: Category[] = cats.map(c => ({
@@ -272,7 +273,7 @@ export async function loadRemoteCatalog(): Promise<{ products: Product[]; catego
     price:Number(p.price), oldPrice:p.old_price == null ? undefined : Number(p.old_price),
     image:p.image_url || categoryImageBySlug[(p.category?.slug || "offres") as CategorySlug] || accessoriesImg,
     shortDescription:p.short_description ?? "", description:p.description ?? "",
-    highlights:Array.isArray(p.highlights) ? p.highlights : [], inStock:p.in_stock, featured:p.featured, visible:p.visible
+    highlights:Array.isArray(p.highlights) ? p.highlights : [], inStock:p.in_stock, featured:p.featured, visible:p.visible, sortOrder:p.sort_order
   }));
   return { products: remoteProducts, categories: remoteCategories };
 }
@@ -286,5 +287,5 @@ export async function loadRemoteProduct(slug: string): Promise<Product | undefin
   }>>("products", { query: "?select=slug,name,brand,price,old_price,image_url,short_description,description,highlights,in_stock,featured,category:categories(slug)&slug=eq."+encodeURIComponent(slug)+"&limit=1" });
   const p=rows[0]; if(!p) return undefined;
   const cat=(p.category?.slug || "offres") as CategorySlug;
-  return {slug:p.slug,name:p.name,brand:p.brand??"",category:cat,price:Number(p.price),oldPrice:p.old_price==null?undefined:Number(p.old_price),image:p.image_url||categoryImageBySlug[cat]||accessoriesImg,shortDescription:p.short_description??"",description:p.description??"",highlights:Array.isArray(p.highlights)?p.highlights:[],inStock:p.in_stock,featured:p.featured,visible:p.visible};
+  return {slug:p.slug,name:p.name,brand:p.brand??"",category:cat,price:Number(p.price),oldPrice:p.old_price==null?undefined:Number(p.old_price),image:p.image_url||categoryImageBySlug[cat]||accessoriesImg,shortDescription:p.short_description??"",description:p.description??"",highlights:Array.isArray(p.highlights)?p.highlights:[],inStock:p.in_stock,featured:p.featured,visible:p.visible,sortOrder:p.sort_order};
 }
