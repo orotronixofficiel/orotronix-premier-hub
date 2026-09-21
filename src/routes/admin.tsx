@@ -36,7 +36,7 @@ function AdminPage() {
   const [settings,setSettings]=useState<Settings|null>(null); const [editing,setEditing]=useState<Omit<Product,"id"> & {id?:string}>(emptyProduct);
   const [editingRepair,setEditingRepair]=useState<Omit<Repair,"id"> & {id?:string}>(emptyRepair);
   const [editingCategory,setEditingCategory]=useState<Omit<Category,"id"> & {id?:string}>(emptyCategory);
-  const [message,setMessage]=useState("");
+  const [message,setMessage]=useState(""); const [selectedProducts,setSelectedProducts]=useState<string[]>([]); const [productBulkBusy,setProductBulkBusy]=useState(false);
 
   const load=async()=>{ setLoading(true); setError(""); try {
     const [p,c,r,o,s]=await Promise.all([
