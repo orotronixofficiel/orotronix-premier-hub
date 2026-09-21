@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { UserRound, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabaseAuth, supabaseConfigured, setSupabaseAccessToken } from "@/lib/supabase";
+import { refreshSupabaseSession, supabaseAuth, supabaseConfigured, setSupabaseAccessToken } from "@/lib/supabase";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
 
@@ -13,6 +13,10 @@ export default function ComptePage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    void refreshSupabaseSession();
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +30,7 @@ export default function ComptePage() {
       } else {
         const session = await supabaseAuth("token?grant_type=password", { email, password });
         setSupabaseAccessToken(session.access_token);
-        sessionStorage.setItem("orotronix_user_token", session.access_token);
+        sessionStorage.setItem("orotronix_user_token", session.access_token);\n        if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
         setMessage("Connexion réussie.");
       }
     } catch (error) {
