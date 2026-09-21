@@ -77,7 +77,7 @@ function ConfirmationPage() {
       <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
         <Button asChild><Link to="/boutique">Continuer mes achats</Link></Button>
         <Button asChild variant="outline">
-          <a href="tel:+212600000000"><Phone className="mr-2 h-4 w-4" /> Contacter OROTRONIX</a>
+          <a href="tel:+212656566366"><Phone className="mr-2 h-4 w-4" /> Contacter OROTRONIX</a>
         </Button>
       </div>
     </div>
