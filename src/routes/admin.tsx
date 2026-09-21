@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken } from "@/lib/supabase";
+import { supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken, uploadSupabaseStorage } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Administration | OROTRONIX" }, { name: "robots", content: "noindex,nofollow" }] }),
