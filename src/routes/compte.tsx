@@ -33,7 +33,7 @@ export default function ComptePage() {
         setMessage("Compte créé. Vérifiez votre e-mail si la confirmation est activée.");
       } else {
         const session = await supabaseAuth("token?grant_type=password", { email, password });
-        setSupabaseAccessToken(session.access_token);
+        setSupabaseAccessToken(session.access_token);\n        sessionStorage.setItem("orotronix_user_email", email.trim());
         sessionStorage.setItem("orotronix_user_token", session.access_token);
         if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
         setMessage("Connexion réussie.");
