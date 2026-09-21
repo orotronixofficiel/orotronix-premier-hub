@@ -17,10 +17,18 @@ export default function ComptePage() {
 
   useEffect(() => {
     const boot = async () => {
+      const refreshToken = typeof window !== "undefined"
+        ? sessionStorage.getItem("orotronix_user_refresh_token")
+        : null;
+
+      // Never trust a stale access token alone. Only an active refresh token
+      // that successfully refreshes the Supabase session counts as logged in.
+      if (!refreshToken) return;
+
       const refreshed = await refreshSupabaseSession();
-      const token = refreshed || (typeof window !== "undefined" ? sessionStorage.getItem("orotronix_user_token") : null);
-      if (!token) return;
-      setSupabaseAccessToken(token);
+      if (!refreshed) return;
+
+      setSupabaseAccessToken(refreshed);
       navigate({ to: "/boutique", replace: true });
     };
     void boot();
