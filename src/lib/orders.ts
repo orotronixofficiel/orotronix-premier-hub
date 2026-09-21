@@ -1,6 +1,6 @@
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { CartItem } from "@/context/cart";
-import { supabaseConfigured, supabaseRest } from "@/lib/supabase";
+import { supabaseConfigured, supabasePublicRest, supabaseRest } from "@/lib/supabase";
 
 export type Customer = {
   fullName: string;
@@ -37,7 +37,7 @@ export async function saveOrder(order: Order): Promise<void> {
   writeJSON(ORDERS_KEY, [order, ...all].slice(0, 50));
   if (supabaseConfigured) {
     try {
-      await supabaseRest("orders", { method: "POST", body: {
+      await supabasePublicRest("orders", { method: "POST", body: {
         reference: order.reference, customer_name: order.customer.fullName, phone: order.customer.phone,
         address: order.customer.address, city: order.customer.city, items: order.items, total: order.total,
         status: "pending_whatsapp", notes: order.customer.notes || null
