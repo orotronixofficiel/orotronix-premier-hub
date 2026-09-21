@@ -8,6 +8,7 @@ import {
   supabaseConfigured,
   supabaseUpdatePassword,
   setSupabaseAccessToken,
+  notifyAuthChanged,
 } from "@/lib/supabase";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
@@ -90,6 +91,8 @@ export default function ComptePage() {
         if (session.refresh_token) {
           sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
         }
+        setLoggedIn(true);
+        notifyAuthChanged();
         await navigate({ to: "/boutique", replace: true });
       }
     } catch (error) {
@@ -105,6 +108,7 @@ export default function ComptePage() {
     sessionStorage.removeItem("orotronix_user_email");
     setSupabaseAccessToken(null);
     setLoggedIn(false);
+    notifyAuthChanged();
     setMessage("Vous êtes déconnecté.");
   };
 

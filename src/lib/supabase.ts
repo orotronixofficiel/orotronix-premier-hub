@@ -7,6 +7,10 @@ export function setSupabaseAccessToken(token: string | null) {
   accessToken = token;
 }
 
+export function notifyAuthChanged() {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("orotronix-auth-change"));
+}
+
 export function getSupabaseUserId(): string | null {
   if (typeof window === "undefined") return null;
   const token = sessionStorage.getItem("orotronix_user_token");
