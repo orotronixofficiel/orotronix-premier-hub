@@ -86,7 +86,7 @@ function CheckoutPage() {
       navigate({ to: "/confirmation" });
     } catch (error) {
       console.error("OROTRONIX: commande non enregistrée", error);
-      toast.error("La commande n’a pas pu être enregistrée. Vérifiez votre connexion et réessayez.");
+      toast.error(error instanceof Error ? `Commande non enregistrée : ${error.message}` : "La commande n’a pas pu être enregistrée.");
     } finally {
       setSubmitting(false);
     }
