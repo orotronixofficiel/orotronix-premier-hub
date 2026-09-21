@@ -25,7 +25,7 @@ export default function ComptePage() {
     try {
       if (!supabaseConfigured) throw new Error("Le compte client sera disponible après la configuration de Supabase.");
       if (mode === "signup") {
-        await supabaseAuth("signup", { email, password });
+        await supabaseAuth("signup", {\n          email,\n          password,\n          redirect_to: "https://www.orotronix.com/compte",\n        });
         setMessage("Compte créé. Vérifiez votre e-mail si la confirmation est activée.");
       } else {
         const session = await supabaseAuth("token?grant_type=password", { email, password });
