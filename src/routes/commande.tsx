@@ -35,7 +35,7 @@ function CheckoutPage() {
   const { items, subtotal, shipping, total, clear } = useCart();
   const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState("");
+  const [fullName, setFullName] = useState("");\n  const [customerEmail, setCustomerEmail] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("orotronix_user_email") || "" : "");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
@@ -78,7 +78,7 @@ function CheckoutPage() {
       shipping,
       total,
       paymentMethod: "cod",
-      customer: { fullName: fullName.trim(), phone: phone.trim(), city, address: address.trim(), notes },
+      customer: { fullName: fullName.trim(), email: customerEmail.trim(), phone: phone.trim(), city, address: address.trim(), notes },
     };
     try {
       await saveOrder(order);
@@ -104,7 +104,7 @@ function CheckoutPage() {
           <section className="rounded-xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold">Vos informations</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <Field label="Nom complet" error={errors.fullName} id="fullName">
+              <Field label="E-mail" id="customerEmail">\n                <Input id="customerEmail" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="exemple@email.com" className="bg-surface" />\n              </Field>\n              <Field label="Nom complet" error={errors.fullName} id="fullName">
                 <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ex. Yassine El Amrani" className="bg-surface" />
               </Field>
               <Field label="Téléphone" error={errors.phone} id="phone">
