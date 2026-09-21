@@ -224,39 +224,6 @@ export default function ComptePage() {
           </div>
         ) : (
           <>
-            {isAuthForm && (
-              <>
-                <div className="grid gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11 w-full justify-center gap-3 border-border bg-background/40 hover:border-gold/40 hover:bg-background/70"
-                    disabled={loading || oauthLoading !== null}
-                    onClick={() => loginWithOAuth("google")}
-                  >
-                    <GoogleMark />
-                    {oauthLoading === "google" ? "Connexion à Google…" : "Continuer avec Google"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11 w-full justify-center gap-3 border-border bg-background/40 hover:border-gold/40 hover:bg-background/70"
-                    disabled={loading || oauthLoading !== null}
-                    onClick={() => loginWithOAuth("facebook")}
-                  >
-                    <FacebookMark />
-                    {oauthLoading === "facebook" ? "Connexion à Facebook…" : "Continuer avec Facebook"}
-                  </Button>
-                </div>
-
-                <div className="my-6 flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Ou avec e-mail</span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
-              </>
-            )}
-
             <form onSubmit={submit} className="space-y-4">
               {mode !== "reset" && (
                 <div>
@@ -342,6 +309,39 @@ export default function ComptePage() {
                         : "Modifier le mot de passe"}
               </Button>
             </form>
+
+            {isAuthForm && (
+              <>
+                <div className="my-6 flex items-center gap-3" aria-hidden="true">
+                  <div className="h-px flex-1 bg-gold/50" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/80">Ou continuer avec</span>
+                  <div className="h-px flex-1 bg-gold/50" />
+                </div>
+
+                <div className="grid gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 w-full justify-center gap-3 border-border bg-background/40 hover:border-gold/40 hover:bg-background/70"
+                    disabled={loading || oauthLoading !== null}
+                    onClick={() => loginWithOAuth("google")}
+                  >
+                    <GoogleMark />
+                    {oauthLoading === "google" ? "Connexion à Google…" : "Continuer avec Google"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 w-full justify-center gap-3 border-border bg-background/40 hover:border-gold/40 hover:bg-background/70"
+                    disabled={loading || oauthLoading !== null}
+                    onClick={() => loginWithOAuth("facebook")}
+                  >
+                    <FacebookMark />
+                    {oauthLoading === "facebook" ? "Connexion à Facebook…" : "Continuer avec Facebook"}
+                  </Button>
+                </div>
+              </>
+            )}
 
             {message && (
               <p
