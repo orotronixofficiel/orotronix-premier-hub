@@ -65,3 +65,50 @@ export async function supabaseRest<T = unknown>(table: string, options: {
   if (response.status === 204) return undefined as T;
   return await response.json() as T;
 }
+
+export async function uploadSupabaseStorage(file: File, folder = "products"): Promise<string> {
+  if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
+  if (!accessToken) throw new Error("Session administrateur expirée. Reconnectez-vous.");
+  if (!file.type.startsWith("image/")) throw new Error("Veuillez sélectionner une image.");
+  if (file.size > 8 * 1024 * 1024) throw new Error("L'image doit faire au maximum 8 Mo.");
+
+  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const safeExtension = extension.replace(/[^a-z0-9]/g, "") || "jpg";
+  const filename = (globalThis.crypto?.randomUUID?.() || Date.now().toString()) + "." + safeExtension;
+  const path = folder + "/" + filename;
+
+  let response = await fetch(url + "/storage/v1/object/orotronix-media/" + path, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: "Bearer " + accessToken,
+      "Content-Type": file.type,
+      "x-upsert": "false",
+    },
+    body: file,
+  });
+
+  if (response.status === 401) {
+    const refreshed = await refreshSupabaseSession();
+    if (refreshed) {
+      accessToken = refreshed;
+      response = await fetch(url + "/storage/v1/object/orotronix-media/" + path, {
+        method: "POST",
+        headers: {
+          apikey: anonKey,
+          Authorization: "Bearer " + accessToken,
+          "Content-Type": file.type,
+          "x-upsert": "false",
+        },
+        body: file,
+      });
+    }
+  }
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || "Échec de l'upload de l'image.");
+  }
+
+  return url + "/storage/v1/object/public/orotronix-media/" + path;
+}
