@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { UserRound, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,12 @@ export default function ComptePage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setLoggedIn(Boolean(sessionStorage.getItem("orotronix_user_token")));
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +53,7 @@ export default function ComptePage() {
     sessionStorage.removeItem("orotronix_user_refresh_token");
     sessionStorage.removeItem("orotronix_user_email");
     setSupabaseAccessToken(null);
+    setLoggedIn(false);
     setMessage("Vous êtes déconnecté.");
   };
 
@@ -66,7 +72,7 @@ export default function ComptePage() {
           </p>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        {loggedIn ? (\n          <div className="space-y-4">\n            <p className="rounded-md border border-border p-4 text-center text-sm text-muted-foreground">\n              Vous êtes connecté à votre compte OROTRONIX.\n            </p>\n            <Button type="button" variant="outline" className="w-full" onClick={logout}>\n              Se déconnecter\n            </Button>\n          </div>\n        ) : (\n          <form onSubmit={submit} className="space-y-4">
           <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Adresse e-mail" />
           <Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
           <Button type="submit" className="w-full" disabled={loading}>
