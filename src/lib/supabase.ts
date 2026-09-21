@@ -7,6 +7,18 @@ export function setSupabaseAccessToken(token: string | null) {
   accessToken = token;
 }
 
+export function getSupabaseUserId(): string | null {
+  if (typeof window === "undefined") return null;
+  const token = sessionStorage.getItem("orotronix_user_token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) as { sub?: string };
+    return payload.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function refreshSupabaseSession(): Promise<string | null> {
   if (!supabaseConfigured || typeof window === "undefined") return null;
   const refreshToken = sessionStorage.getItem("orotronix_user_refresh_token");
