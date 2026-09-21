@@ -57,7 +57,9 @@ export async function supabasePublicRest<T = unknown>(table: string, options: {
     ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
   });
   if (!response.ok) throw new Error((await response.text()) || "Supabase HTTP " + response.status);
-  if (response.status === 204) return undefined as T;
+  if (response.status === 204 || response.status === 201 || response.status === 202) return undefined as T;
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) return undefined as T;
   return await response.json() as T;
 }
 
