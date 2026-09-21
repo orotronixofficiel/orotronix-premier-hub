@@ -145,3 +145,19 @@ export async function uploadSupabaseStorage(file: File, folder = "products"): Pr
 
   return url + "/storage/v1/object/public/orotronix-media/" + path;
 }
+
+export async function supabaseUpdatePassword(password: string, token: string) {
+  if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
+  const response = await fetch(url + "/auth/v1/user", {
+    method: "PUT",
+    headers: {
+      apikey: anonKey,
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Impossible de modifier le mot de passe.");
+  return data;
+}
