@@ -13,7 +13,6 @@ export default function ComptePage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,8 +21,8 @@ export default function ComptePage() {
       const token = refreshed || (typeof window !== "undefined" ? sessionStorage.getItem("orotronix_user_token") : null);
       if (!token) return;
       setSupabaseAccessToken(token);
-      setLoggedIn(true);
-  };
+      navigate({ to: "/boutique", replace: true });
+    };
     void boot();
   }, []);
 
@@ -46,14 +45,7 @@ export default function ComptePage() {
         sessionStorage.setItem("orotronix_user_email", email.trim());
         sessionStorage.setItem("orotronix_user_token", session.access_token);
         if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
-        setMessage("Connexion réussie.");
-        setLoggedIn(true);
-        try {
-          const rows = await supabaseRest<Array<{reference:string; total:number; status:string; created_at:string}>>("orders", {
-            query: "?select=reference,total,status,created_at&order=created_at.desc&limit=20",
-          });
-          setOrders(rows);
-        } catch {}
+        await navigate({ to: "/boutique", replace: true });
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Une erreur est survenue.");
@@ -67,14 +59,9 @@ export default function ComptePage() {
     sessionStorage.removeItem("orotronix_user_refresh_token");
     sessionStorage.removeItem("orotronix_user_email");
     setSupabaseAccessToken(null);
-    setLoggedIn(false);
-    setOrders([]);
     setMessage("Vous êtes déconnecté.");
   };
 
-  if (loggedIn) {
-    return null;
-  }
   return (
     <main className="container-page py-16">
       <div className="mx-auto max-w-md rounded-xl border border-border bg-surface/60 p-8 shadow-xl">
