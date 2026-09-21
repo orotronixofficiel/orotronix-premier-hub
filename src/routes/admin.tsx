@@ -12,13 +12,13 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Product = { id:string; name:string; slug:string; brand:string|null; category_id:string|null; price:number; old_price:number|null; image_url:string|null; short_description:string|null; description:string|null; highlights:string[]; in_stock:boolean; featured:boolean; stock_quantity:number; low_stock_threshold:number; visible:boolean };
+type Product = { id:string; name:string; slug:string; brand:string|null; category_id:string|null; price:number; old_price:number|null; image_url:string|null; short_description:string|null; description:string|null; highlights:string[]; in_stock:boolean; featured:boolean; stock_quantity:number; low_stock_threshold:number; visible:boolean; sort_order:number };
 type Category = { id:string; slug:string; name:string; description:string|null; image_url:string|null; sort_order:number };
 type Repair = { id:string; slug:string; name:string; description:string|null; price_from:number; duration:string|null; active:boolean; sort_order:number };
 type OrderItem = { id?:string; name?:string; quantity?:number; price?:number; image_url?:string|null }; type Order = { id:string; reference:string; customer_name:string; phone:string; address?:string|null; city?:string|null; items:OrderItem[]; total:number; status:string; created_at:string; notes:string|null };
 type Settings = { id:string; store_name:string; whatsapp:string; phone:string; address:string; hours:string; banner:string|null };
 
-const emptyProduct: Omit<Product,"id"> = { name:"",slug:"",brand:"",category_id:null,price:0,old_price:null,image_url:"",short_description:"",description:"",highlights:[],in_stock:true,featured:false,stock_quantity:0,low_stock_threshold:2,visible:true };
+const emptyProduct: Omit<Product,"id"> = { name:"",slug:"",brand:"",category_id:null,price:0,old_price:null,image_url:"",short_description:"",description:"",highlights:[],in_stock:true,featured:false,stock_quantity:0,low_stock_threshold:2,visible:true,sort_order:0 };
 const emptyRepair: Omit<Repair,"id"> = { name:"",slug:"",description:"",price_from:0,duration:"",active:true,sort_order:0 };
 const emptyCategory: Omit<Category,"id"> = { name:"",slug:"",description:"",image_url:"",sort_order:0 };
 
@@ -40,7 +40,7 @@ function AdminPage() {
 
   const load=async()=>{ setLoading(true); setError(""); try {
     const [p,c,r,o,s]=await Promise.all([
-      supabaseRest<Product[]>("products",{query:"?select=*&order=created_at.desc"}),
+      supabaseRest<Product[]>("products",{query:"?select=*&order=sort_order.asc,created_at.desc"}),
       supabaseRest<Category[]>("categories",{query:"?select=*&order=sort_order.asc"}),
       supabaseRest<Repair[]>("repair_services",{query:"?select=*&order=sort_order.asc"}),
       supabaseRest<Order[]>("orders",{query:"?select=id,reference,customer_name,phone,address,city,items,total,status,created_at,notes&order=created_at.desc&limit=50"}),
