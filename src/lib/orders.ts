@@ -4,6 +4,7 @@ import { supabaseConfigured, supabasePublicRest, supabaseRest } from "@/lib/supa
 
 export type Customer = {
   fullName: string;
+  email?: string;
   phone: string;
   city: string;
   address: string;
@@ -38,9 +39,14 @@ export async function saveOrder(order: Order): Promise<void> {
   const all = readJSON<Order[]>(ORDERS_KEY, []);
   writeJSON(ORDERS_KEY, [order, ...all].slice(0, 50));
   if (supabaseConfigured) {
+    if (typeof window !== "undefined") {
+      const savedToken = sessionStorage.getItem("orotronix_user_token");
+      if (savedToken) setSupabaseAccessToken(savedToken);
+    }
     const payload = {
       reference: order.reference,
       customer_name: order.customer.fullName.trim(),
+      email: order.customer.email?.trim() || null,
       phone,
       address: order.customer.address.trim(),
       city: order.customer.city,
@@ -50,7 +56,9 @@ export async function saveOrder(order: Order): Promise<void> {
       notes: order.customer.notes?.trim() || null,
     };
     try {
-      await supabasePublicRest("orders", { method: "POST", body: payload, prefer: "return=minimal" });
+      const hasUserSession = typeof window !== "undefined" && Boolean(sessionStorage.getItem("orotronix_user_token"));
+      if (hasUserSession) await supabaseRest("orders", { method: "POST", body: payload, prefer: "return=minimal" });
+      else await supabasePublicRest("orders", { method: "POST", body: payload, prefer: "return=minimal" });
     } catch (error) { console.error("OROTRONIX: Supabase order save failed", error); throw error; }
   }
 }
