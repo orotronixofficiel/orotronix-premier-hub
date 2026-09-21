@@ -1,6 +1,6 @@
--- Normalize the production orders phone column.
--- The application schema uses public.orders.phone. Older/manual Supabase
--- deployments may still have customer_phone, which causes NOT NULL failures.
+-- OROTRONIX production compatibility migration for legacy orders.phone naming.
+-- The application uses public.orders.phone.
+-- Some older Supabase deployments may still have customer_phone as a NOT NULL column.
 
 do $$
 begin
