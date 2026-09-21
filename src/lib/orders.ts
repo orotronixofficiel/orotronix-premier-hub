@@ -31,7 +31,7 @@ export function makeReference(prefix = "ORO") {
   return `${prefix}-${stamp}-${rand}`;
 }
 
-export async function saveOrder(order: Order) {
+export async function saveOrder(order: Order): Promise<void> {
   writeJSON(LAST_ORDER_KEY, order);
   const all = readJSON<Order[]>(ORDERS_KEY, []);
   writeJSON(ORDERS_KEY, [order, ...all].slice(0, 50));
@@ -42,7 +42,7 @@ export async function saveOrder(order: Order) {
         address: order.customer.address, city: order.customer.city, items: order.items, total: order.total,
         status: "pending_whatsapp", notes: order.customer.notes || null
       }, prefer: "return=minimal" });
-    } catch (error) { console.error("OROTRONIX: Supabase order save failed", error); }
+    } catch (error) { console.error("OROTRONIX: Supabase order save failed", error); throw error; }
   }
 }
 
