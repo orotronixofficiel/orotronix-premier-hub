@@ -58,6 +58,29 @@ export async function supabaseAuth(path: string, body: unknown) {
   return data as { access_token: string; refresh_token?: string; user?: { email?: string } };
 }
 
+
+export function startSupabaseOAuth(provider: "google" | "facebook") {
+  if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
+  const redirectTo = window.location.origin + "/compte";
+  const authUrl =
+    url +
+    "/auth/v1/authorize?provider=" +
+    provider +
+    "&redirect_to=" +
+    encodeURIComponent(redirectTo);
+  window.location.assign(authUrl);
+}
+
+export async function supabaseCurrentUser(token: string) {
+  if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
+  const response = await fetch(url + "/auth/v1/user", {
+    headers: { apikey: anonKey, Authorization: "Bearer " + token },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Impossible de récupérer le profil.");
+  return data as { email?: string; user_metadata?: { full_name?: string; name?: string } };
+}
+
 export async function supabasePublicRest<T = unknown>(table: string, options: {
   method?: "GET" | "POST" | "PATCH" | "DELETE"; query?: string; body?: unknown; prefer?: string;
 } = {}): Promise<T> {
