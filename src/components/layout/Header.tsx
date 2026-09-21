@@ -119,11 +119,14 @@ export function Header() {
               />
             </div>
           </form>
-          <Button asChild variant="ghost" size="icon" className="inline-flex">
-            <Link to="/compte" aria-label="Mon compte">
-              <UserRound className="h-5 w-5" />
-            </Link>
-          </Button>
+          <Link
+            to="/compte"
+            aria-label="Se connecter ou créer un compte"
+            title="Se connecter / Créer un compte"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border transition-colors hover:border-gold/60 hover:text-gold"
+          >
+            <UserRound className="h-5 w-5" />
+          </Link>
           <Link
             to="/panier"
             aria-label="Panier"
