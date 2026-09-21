@@ -25,12 +25,17 @@ export default function ComptePage() {
     try {
       if (!supabaseConfigured) throw new Error("Le compte client sera disponible après la configuration de Supabase.");
       if (mode === "signup") {
-        await supabaseAuth("signup", {\n          email,\n          password,\n          redirect_to: "https://www.orotronix.com/compte",\n        });
+        await supabaseAuth("signup", {
+          email,
+          password,
+          redirect_to: "https://www.orotronix.com/compte",
+        });
         setMessage("Compte créé. Vérifiez votre e-mail si la confirmation est activée.");
       } else {
         const session = await supabaseAuth("token?grant_type=password", { email, password });
         setSupabaseAccessToken(session.access_token);
-        sessionStorage.setItem("orotronix_user_token", session.access_token);\n        if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
+        sessionStorage.setItem("orotronix_user_token", session.access_token);
+        if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
         setMessage("Connexion réussie.");
       }
     } catch (error) {
