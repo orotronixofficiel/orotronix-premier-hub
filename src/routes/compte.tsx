@@ -72,7 +72,17 @@ export default function ComptePage() {
           </p>
         </div>
 
-        {loggedIn ? (\n          <div className="space-y-4">\n            <p className="rounded-md border border-border p-4 text-center text-sm text-muted-foreground">\n              Vous êtes connecté à votre compte OROTRONIX.\n            </p>\n            <Button type="button" variant="outline" className="w-full" onClick={logout}>\n              Se déconnecter\n            </Button>\n          </div>\n        ) : (\n          <form onSubmit={submit} className="space-y-4">
+        {loggedIn ? (
+          <div className="space-y-4">
+            <p className="rounded-md border border-border p-4 text-center text-sm text-muted-foreground">
+              Vous êtes connecté à votre compte OROTRONIX.
+            </p>
+            <Button type="button" variant="outline" className="w-full" onClick={logout}>
+              Se déconnecter
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={submit} className="space-y-4">
           <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Adresse e-mail" />
           <Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
           <Button type="submit" className="w-full" disabled={loading}>
