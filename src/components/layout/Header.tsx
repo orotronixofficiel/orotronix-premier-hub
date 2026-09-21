@@ -58,6 +58,14 @@ export function Header() {
                   className="bg-surface"
                 />
               </form>
+              <Link
+                to="/compte"
+                onClick={() => setOpen(false)}
+                className="mb-3 flex items-center gap-3 rounded-md border border-border px-3 py-3 font-display text-base text-foreground transition-colors hover:border-gold/60 hover:text-gold"
+              >
+                <UserRound className="h-5 w-5" />
+                <span>Se connecter / Créer un compte</span>
+              </Link>
               <nav className="flex flex-col gap-1">
                 {navLinks.map((link) => (
                   <Link
