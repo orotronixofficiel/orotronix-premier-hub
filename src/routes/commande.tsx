@@ -80,9 +80,16 @@ function CheckoutPage() {
       paymentMethod: "cod",
       customer: { fullName: fullName.trim(), phone: phone.trim(), city, address: address.trim(), notes },
     };
-    await saveOrder(order);
-    clear();
-    navigate({ to: "/confirmation" });
+    try {
+      await saveOrder(order);
+      clear();
+      navigate({ to: "/confirmation" });
+    } catch (error) {
+      console.error("OROTRONIX: commande non enregistrée", error);
+      toast.error("La commande n’a pas pu être enregistrée. Vérifiez votre connexion et réessayez.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
