@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BarChart3, CheckCircle2, Clock3, LockKeyhole, LogOut, Package, RefreshCw, Save, ShoppingBag, Trash2, Wrench } from "lucide-react";
+import { BarChart3, CheckCircle2, Clock3, Copy, LockKeyhole, LogOut, Package, RefreshCw, Save, ShoppingBag, Trash2, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
