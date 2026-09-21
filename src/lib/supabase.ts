@@ -42,6 +42,25 @@ export async function supabaseAuth(path: string, body: unknown) {
   return data as { access_token: string; refresh_token?: string; user?: { email?: string } };
 }
 
+export async function supabasePublicRest<T = unknown>(table: string, options: {
+  method?: "GET" | "POST" | "PATCH" | "DELETE"; query?: string; body?: unknown; prefer?: string;
+} = {}): Promise<T> {
+  if (!supabaseConfigured) throw new Error("Supabase n'est pas configuré.");
+  const response = await fetch(url + "/rest/v1/" + table + (options.query ?? ""), {
+    method: options.method ?? "GET",
+    headers: {
+      apikey: anonKey!,
+      Authorization: "Bearer " + anonKey!,
+      "Content-Type": "application/json",
+      ...(options.prefer ? { Prefer: options.prefer } : {}),
+    },
+    ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
+  });
+  if (!response.ok) throw new Error((await response.text()) || "Supabase HTTP " + response.status);
+  if (response.status === 204) return undefined as T;
+  return await response.json() as T;
+}
+
 export async function supabaseRest<T = unknown>(table: string, options: {
   method?: "GET" | "POST" | "PATCH" | "DELETE"; query?: string; body?: unknown; prefer?: string;
 } = {}): Promise<T> {
