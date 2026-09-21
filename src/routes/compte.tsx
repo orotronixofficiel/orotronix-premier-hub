@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { UserRound, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getSupabaseUserId, refreshSupabaseSession, supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken } from "@/lib/supabase";
+import { refreshSupabaseSession, supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken } from "@/lib/supabase";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
 
@@ -54,6 +54,12 @@ export default function ComptePage() {
         if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
         setMessage("Connexion réussie.");
         setLoggedIn(true);
+        try {
+          const rows = await supabaseRest<Array<{reference:string; total:number; status:string; created_at:string}>>("orders", {
+            query: "?select=reference,total,status,created_at&order=created_at.desc&limit=20",
+          });
+          setOrders(rows);
+        } catch {}
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Une erreur est survenue.");
