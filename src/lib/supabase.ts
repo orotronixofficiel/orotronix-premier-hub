@@ -59,26 +59,16 @@ export async function supabaseAuth(path: string, body: unknown) {
 }
 
 
-export async function supabaseOAuth(provider: "google" | "facebook") {
+export function startSupabaseOAuth(provider: "google" | "facebook") {
   if (!supabaseConfigured || !url || !anonKey) throw new Error("Supabase n'est pas configuré.");
   const redirectTo = window.location.origin + "/compte";
-  const response = await fetch(
-    url + "/auth/v1/authorize?provider=" + provider + "&redirect_to=" + encodeURIComponent(redirectTo),
-    {
-      method: "GET",
-      headers: { apikey: anonKey },
-      redirect: "manual",
-    },
-  );
-  if (response.type === "opaqueredirect" || response.status === 0 || response.status === 302 || response.status === 303) {
-    throw new Error("redirect");
-  }
-  const location = response.headers.get("location");
-  if (location) {
-    window.location.assign(location);
-    return;
-  }
-  throw new Error("Impossible de démarrer la connexion " + provider + ".");
+  const authUrl =
+    url +
+    "/auth/v1/authorize?provider=" +
+    provider +
+    "&redirect_to=" +
+    encodeURIComponent(redirectTo);
+  window.location.assign(authUrl);
 }
 
 export async function supabaseCurrentUser(token: string) {
