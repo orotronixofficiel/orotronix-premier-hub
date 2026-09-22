@@ -208,6 +208,10 @@ export default function ComptePage() {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    if (loggedIn && userId) void loadAccount();
+  }, [loggedIn, userId]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
