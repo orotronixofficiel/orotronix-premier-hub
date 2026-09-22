@@ -38,14 +38,17 @@ export function Header() {
       }
     };
 
+    const handleAuthChange = () => void syncAuth();
+    const handleStorage = () => void syncAuth();
+
     void syncAuth();
-    window.addEventListener("orotronix-auth-change", () => void syncAuth());
-    window.addEventListener("storage", () => void syncAuth());
+    window.addEventListener("orotronix-auth-change", handleAuthChange);
+    window.addEventListener("storage", handleStorage);
 
     return () => {
       active = false;
-      window.removeEventListener("orotronix-auth-change", () => void syncAuth());
-      window.removeEventListener("storage", () => void syncAuth());
+      window.removeEventListener("orotronix-auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
