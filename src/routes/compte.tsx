@@ -223,7 +223,7 @@ export default function ComptePage() {
       if (!supabaseConfigured) throw new Error("Le compte client sera disponible après la configuration de Supabase.");
 
       if (mode === "forgot") {
-        await supabaseAuth("recover", { email: email.trim(), redirect_to: window.location.origin + "/compte" });
+        await supabaseAuth("recover", {\n          email: email.trim(),\n          redirect_to: "https://www.orotronix.com/compte",\n        });
         setMessage("Si cette adresse est associée à un compte, un e-mail de réinitialisation va être envoyé.");
       } else if (mode === "reset") {
         if (!recoveryToken) throw new Error("Le lien de réinitialisation est invalide ou expiré.");
