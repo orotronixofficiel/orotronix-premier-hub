@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { BadgeCheck, Minus, Plus, ShieldCheck, Truck, ShoppingBag } from "lucide-react";
+import { BadgeCheck, Heart, Minus, Plus, ShieldCheck, Truck, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { getProduct, products as fallbackProducts, loadRemoteProduct, loadRemoteCatalog } from "@/data/catalog";
 import { formatMAD } from "@/lib/format";
@@ -8,6 +8,7 @@ import { useCart } from "@/context/cart";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product/ProductCard";
 import { SectionHeading } from "@/components/layout/Section";
+import { setSupabaseAccessToken, supabaseRest } from "@/lib/supabase";
 
 export const Route = createFileRoute("/produit/$slug")({
   loader: async ({ params }) => {
@@ -48,6 +49,26 @@ function ProductPage() {
   const { addItem } = useCart();
   useEffect(() => { void Promise.all([loadRemoteProduct(initialProduct.slug), loadRemoteCatalog()]).then(([p, data]) => { if (p) setProduct(p); setAllProducts(data.products); }).catch(() => {}); }, [initialProduct.slug]);
   const [quantity, setQuantity] = useState(1);
+  const [favorite, setFavorite] = useState(false);
+  const [favoriteBusy, setFavoriteBusy] = useState(false);
+  useEffect(() => {
+    const token = sessionStorage.getItem("orotronix_user_token");
+    if (!token) return;
+    setSupabaseAccessToken(token);
+    void supabaseRest<boolean>("rpc/customer_has_favorite", { method: "POST", body: { p_slug: product.slug } }).then(setFavorite).catch(() => {});
+  }, [product.slug]);
+  const toggleFavorite = async () => {
+    const token = sessionStorage.getItem("orotronix_user_token");
+    if (!token) { toast.info("Connectez-vous pour enregistrer vos favoris."); return; }
+    setFavoriteBusy(true);
+    try {
+      setSupabaseAccessToken(token);
+      const next = await supabaseRest<boolean>("rpc/toggle_customer_favorite", { method: "POST", body: { p_slug: product.slug } });
+      setFavorite(next);
+      toast.success(next ? "Ajouté aux favoris" : "Retiré des favoris");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Impossible de modifier le favori."); }
+    finally { setFavoriteBusy(false); }
+  };
 
   const related = allProducts
     .filter((p) => p.category === product.category && p.slug !== product.slug)
