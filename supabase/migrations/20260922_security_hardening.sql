@@ -40,7 +40,6 @@ set search_path = ''
 as $$
 declare
   v_user_id uuid := auth.uid();
-  v_item jsonb;
   v_slug text;
   v_qty integer;
   v_product public.products%rowtype;
@@ -74,11 +73,12 @@ begin
     raise exception 'Panier invalide';
   end if;
 
-  for v_item in select * from jsonb_array_elements(p_items)
+  for v_slug, v_qty in
+    select nullif(trim(x.value->>'slug'), '') as slug,
+           sum((x.value->>'quantity')::integer)::integer as quantity
+    from jsonb_array_elements(p_items) as x(value)
+    group by nullif(trim(x.value->>'slug'), '')
   loop
-    v_slug := nullif(trim(v_item->>'slug'), '');
-    v_qty := (v_item->>'quantity')::integer;
-
     if v_slug is null or v_qty is null or v_qty < 1 or v_qty > 100 then
       raise exception 'Article du panier invalide';
     end if;
