@@ -1,6 +1,6 @@
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { CartItem } from "@/context/cart";
-import { supabaseConfigured, supabaseRpc, supabasePublicRest } from "@/lib/supabase";
+import { setSupabaseAccessToken, supabaseConfigured, supabaseRpc } from "@/lib/supabase";
 
 export type Customer = {
   fullName: string;
@@ -106,13 +106,23 @@ export async function saveRepairRequest(request: RepairRequest) {
   const all = readJSON<RepairRequest[]>(REPAIRS_KEY, []);
   writeJSON(REPAIRS_KEY, [request, ...all].slice(0, 50));
   if (supabaseConfigured) {
+    if (typeof window !== "undefined") {
+      const savedToken = sessionStorage.getItem("orotronix_user_token");
+      if (savedToken) setSupabaseAccessToken(savedToken);
+    }
     try {
       await supabaseRpc("create_repair_request", {
-        reference: request.reference, customer_name: request.fullName.trim(), phone,
-        address: request.address.trim(), city: request.city,
-        items: [{ type: "repair", brand: request.brand, model: request.model, problemType: request.problemType,
-          problemDescription: request.problemDescription, pickup: request.pickup }],
-        total: 0, status: "pending_whatsapp", notes: request.notes?.trim() || null
+        p_reference: request.reference,
+        p_customer_name: request.fullName.trim(),
+        p_phone: phone,
+        p_address: request.address.trim(),
+        p_city: request.city,
+        p_brand: request.brand,
+        p_model: request.model,
+        p_problem_type: request.problemType,
+        p_problem_description: request.problemDescription,
+        p_notes: request.notes?.trim() || null,
+        p_pickup: request.pickup,
       });
     } catch (error) { console.error("OROTRONIX: Supabase repair save failed", error); }
   }
