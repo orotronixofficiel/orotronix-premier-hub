@@ -114,6 +114,8 @@ insert into public.customer_notification_preferences (user_id)
 select u.id from auth.users u
 on conflict (user_id) do nothing;
 
+drop function if exists public.admin_list_customers();
+
 create or replace function public.admin_list_customers()
 returns table (
   id uuid,
