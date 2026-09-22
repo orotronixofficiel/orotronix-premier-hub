@@ -145,6 +145,11 @@ function ProductPage() {
             </Button>
           </div>
 
+          <Button type="button" variant="outline" className="mt-3 w-full sm:w-auto" onClick={() => void toggleFavorite()} disabled={favoriteBusy}>
+            <Heart className={`mr-2 h-4 w-4 ${favorite ? "fill-current text-gold" : ""}`} />
+            {favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          </Button>
+
           <div className="mt-8 grid gap-3 rounded-xl border border-border bg-card p-5 sm:grid-cols-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Truck className="h-4 w-4 text-gold" /> Livraison partout au Maroc
