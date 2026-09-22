@@ -87,7 +87,15 @@ function CheckoutPage() {
       navigate({ to: "/confirmation" });
     } catch (error) {
       console.error("OROTRONIX: commande non enregistrée", error);
-      toast.error("Impossible d’enregistrer la commande pour le moment. Vérifiez votre numéro de téléphone et réessayez.");
+      const message = error instanceof Error ? error.message : String(error);
+
+      if (message.includes("Stock insuffisant")) {
+        toast.error("Désolé, ce produit est en rupture de stock ou la quantité demandée n’est plus disponible. Veuillez modifier votre panier et réessayer.");
+      } else if (message.includes("Produit indisponible")) {
+        toast.error("Désolé, un produit de votre panier n’est plus disponible. Veuillez modifier votre panier et réessayer.");
+      } else {
+        toast.error("Impossible d’enregistrer la commande pour le moment. Veuillez réessayer dans quelques instants.");
+      }
     } finally {
       setSubmitting(false);
     }
