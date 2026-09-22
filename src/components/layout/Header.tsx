@@ -6,6 +6,7 @@ import { useCart } from "@/context/cart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { refreshSupabaseSession } from "@/lib/supabase";
 
 const navLinks = [
   { to: "/boutique", label: "Boutique" },
@@ -23,13 +24,28 @@ export function Header() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    const syncAuth = () => setLoggedIn(Boolean(sessionStorage.getItem("orotronix_user_token")));
-    syncAuth();
-    window.addEventListener("orotronix-auth-change", syncAuth);
-    window.addEventListener("storage", syncAuth);
+    let active = true;
+
+    const syncAuth = async () => {
+      if (!active) return;
+      const token = sessionStorage.getItem("orotronix_user_token");
+      setLoggedIn(Boolean(token));
+
+      if (token) {
+        const refreshed = await refreshSupabaseSession();
+        if (!active) return;
+        setLoggedIn(Boolean(refreshed || sessionStorage.getItem("orotronix_user_token")));
+      }
+    };
+
+    void syncAuth();
+    window.addEventListener("orotronix-auth-change", () => void syncAuth());
+    window.addEventListener("storage", () => void syncAuth());
+
     return () => {
-      window.removeEventListener("orotronix-auth-change", syncAuth);
-      window.removeEventListener("storage", syncAuth);
+      active = false;
+      window.removeEventListener("orotronix-auth-change", () => void syncAuth());
+      window.removeEventListener("storage", () => void syncAuth());
     };
   }, []);
 
