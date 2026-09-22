@@ -1,6 +1,6 @@
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { CartItem } from "@/context/cart";
-import { supabaseConfigured, supabasePublicRest, supabaseRest } from "@/lib/supabase";
+import { supabaseConfigured, supabaseRpc, supabasePublicRest } from "@/lib/supabase";
 
 export type Customer = {
   fullName: string;
@@ -35,32 +35,48 @@ export function makeReference(prefix = "ORO") {
 export async function saveOrder(order: Order): Promise<void> {
   const phone = order.customer.phone.trim();
   if (!phone) throw new Error("Le numéro de téléphone est requis pour enregistrer la commande.");
-  writeJSON(LAST_ORDER_KEY, order);
-  const all = readJSON<Order[]>(ORDERS_KEY, []);
-  writeJSON(ORDERS_KEY, [order, ...all].slice(0, 50));
+
+  let localOrder = order;
+
   if (supabaseConfigured) {
     if (typeof window !== "undefined") {
       const savedToken = sessionStorage.getItem("orotronix_user_token");
       if (savedToken) setSupabaseAccessToken(savedToken);
     }
-    const payload = {
-      reference: order.reference,
-      customer_name: order.customer.fullName.trim(),
-      email: order.customer.email?.trim() || null,
-      phone,
-      address: order.customer.address.trim(),
-      city: order.customer.city,
-      items: order.items,
-      total: order.total,
-      status: "pending_whatsapp",
-      notes: order.customer.notes?.trim() || null,
+
+    const result = await supabaseRpc<{
+      id: string;
+      reference: string;
+      subtotal: number;
+      shipping: number;
+      total: number;
+      status: string;
+    }>("create_order", {
+      p_reference: order.reference,
+      p_customer_name: order.customer.fullName.trim(),
+      p_email: order.customer.email?.trim() || null,
+      p_phone: phone,
+      p_address: order.customer.address.trim(),
+      p_city: order.customer.city,
+      p_items: order.items.map((item) => ({
+        slug: item.slug,
+        quantity: item.quantity,
+      })),
+      p_notes: order.customer.notes?.trim() || null,
+    });
+
+    localOrder = {
+      ...order,
+      subtotal: Number(result.subtotal),
+      shipping: Number(result.shipping),
+      total: Number(result.total),
+      items: order.items.map((item) => ({ ...item })),
     };
-    try {
-      const hasUserSession = typeof window !== "undefined" && Boolean(sessionStorage.getItem("orotronix_user_token"));
-      if (hasUserSession) await supabaseRest("orders", { method: "POST", body: payload, prefer: "return=minimal" });
-      else await supabasePublicRest("orders", { method: "POST", body: payload, prefer: "return=minimal" });
-    } catch (error) { console.error("OROTRONIX: Supabase order save failed", error); throw error; }
   }
+
+  writeJSON(LAST_ORDER_KEY, localOrder);
+  const all = readJSON<Order[]>(ORDERS_KEY, []);
+  writeJSON(ORDERS_KEY, [localOrder, ...all].slice(0, 50));
 }
 
 export function getLastOrder(): Order | null {
@@ -91,13 +107,13 @@ export async function saveRepairRequest(request: RepairRequest) {
   writeJSON(REPAIRS_KEY, [request, ...all].slice(0, 50));
   if (supabaseConfigured) {
     try {
-      await supabaseRest("orders", { method: "POST", body: {
+      await supabaseRpc("create_repair_request", {
         reference: request.reference, customer_name: request.fullName.trim(), phone,
         address: request.address.trim(), city: request.city,
         items: [{ type: "repair", brand: request.brand, model: request.model, problemType: request.problemType,
           problemDescription: request.problemDescription, pickup: request.pickup }],
         total: 0, status: "pending_whatsapp", notes: request.notes?.trim() || null
-      }, prefer: "return=minimal" });
+      });
     } catch (error) { console.error("OROTRONIX: Supabase repair save failed", error); }
   }
 }
