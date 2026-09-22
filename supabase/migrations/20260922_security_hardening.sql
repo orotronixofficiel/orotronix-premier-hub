@@ -7,7 +7,7 @@ create policy "public read products"
 on public.products
 for select
 to anon, authenticated
-using (visible = true or public.is_admin());
+using (visible = true);
 
 -- Customers may only create orders for themselves. The RPC below is the preferred
 -- creation path and direct table INSERT is disabled afterwards.
