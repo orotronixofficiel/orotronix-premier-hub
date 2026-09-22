@@ -81,6 +81,26 @@ export async function supabaseCurrentUser(token: string) {
   return data as { email?: string; user_metadata?: { full_name?: string; name?: string } };
 }
 
+export async function supabaseRpc<T = unknown>(functionName: string, body: Record<string, unknown>): Promise<T> {
+  if (!supabaseConfigured) throw new Error("Supabase n'est pas configuré.");
+  const makeRequest = () => fetch(url + "/rest/v1/rpc/" + encodeURIComponent(functionName), {
+    method: "POST",
+    headers: {
+      apikey: anonKey!,
+      Authorization: "Bearer " + (accessToken || anonKey!),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  let response = await makeRequest();
+  if (response.status === 401 && accessToken) {
+    const refreshed = await refreshSupabaseSession();
+    if (refreshed) response = await makeRequest();
+  }
+  if (!response.ok) throw new Error((await response.text()) || "Supabase HTTP " + response.status);
+  return await response.json() as T;
+}
+
 export async function supabasePublicRest<T = unknown>(table: string, options: {
   method?: "GET" | "POST" | "PATCH" | "DELETE"; query?: string; body?: unknown; prefer?: string;
 } = {}): Promise<T> {
