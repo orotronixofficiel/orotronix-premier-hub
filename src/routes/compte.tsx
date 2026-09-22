@@ -36,6 +36,8 @@ import {
   supabaseUpdateUser,
 } from "@/lib/supabase";
 import { formatMAD } from "@/lib/format";
+import { loadRemoteProduct } from "@/data/catalog";
+import { useCart } from "@/context/cart";
 import { moroccanCities } from "@/data/repair";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
@@ -530,8 +532,10 @@ function AccountProfileCard({ editing, form, setForm, onEdit, onCancel, onSave, 
 function Info({ label, value }: { label: string; value: string }) { return <div><p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p><p className="mt-1 text-sm">{value}</p></div>; }
 
 function OrdersPanel({ orders }: { orders: CustomerOrder[] }) {
+  const { addItem } = useCart();
+  const [buying, setBuying] = useState<string | null>(null);
   const statusMap: Record<string,string> = { pending_whatsapp:"Nouvelle", confirmed:"Confirmée", processing:"En préparation", shipped:"Expédiée", completed:"Livrée", cancelled:"Annulée" };
-  return <div className="rounded-xl border border-border bg-card p-6"><div className="flex items-center gap-3"><Package className="h-5 w-5 text-gold" /><h2 className="font-display text-xl font-semibold">Mes commandes</h2></div>{orders.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">Aucune commande pour le moment.</p> : <div className="mt-5 space-y-3">{orders.map(o=><div key={o.id} className="rounded-lg border border-border p-4"><div className="flex flex-wrap justify-between gap-3"><div><p className="font-semibold">{o.reference}</p><p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("fr-MA")}</p></div><div className="text-right"><p className="text-gold">{formatMAD(Number(o.total))}</p><p className="text-xs text-muted-foreground">{statusMap[o.status] || o.status}</p></div></div><ul className="mt-3 space-y-1 text-sm text-muted-foreground">{(o.items || []).map((i,index)=><li key={index}>{i.name} × {i.quantity}</li>)}</ul></div>)}</div>}</div>;
+  return <div className="rounded-xl border border-border bg-card p-6"><div className="flex items-center gap-3"><Package className="h-5 w-5 text-gold" /><h2 className="font-display text-xl font-semibold">Mes commandes</h2></div>{orders.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">Aucune commande pour le moment.</p> : <div className="mt-5 space-y-3">{orders.map(o=><div key={o.id} className="rounded-lg border border-border p-4"><div className="flex flex-wrap justify-between gap-3"><div><p className="font-semibold">{o.reference}</p><p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("fr-MA")}</p></div><div className="text-right"><p className="text-gold">{formatMAD(Number(o.total))}</p><p className="text-xs text-muted-foreground">{statusMap[o.status] || o.status}</p></div></div><ul className="mt-3 space-y-1 text-sm text-muted-foreground">{(o.items || []).map((i,index)=><li key={index}>{i.name} × {i.quantity}</li>)}</ul>{o.items.some(i => i.slug) && <Button variant="outline" size="sm" className="mt-3" disabled={buying===o.id} onClick={async()=>{setBuying(o.id);try{for(const item of o.items){if(!item.slug)continue;const p=await loadRemoteProduct(item.slug);if(p) addItem(p,Number(item.quantity)||1);}toast.success("Produits ajoutés au panier");}catch{toast.error("Impossible de recharger certains produits.");}finally{setBuying(null);}}}>{buying===o.id?"Ajout…":"Racheter ces produits"}</Button>}</div>)}</div>}</div>;
 }
 
 function AddressesPanel({ addresses, onAdd, onEdit, onDelete, onDefault, showForm, form, setForm, onSave, onCancel, saving }: any) {
