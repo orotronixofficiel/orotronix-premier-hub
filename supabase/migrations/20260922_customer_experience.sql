@@ -247,3 +247,65 @@ for each row execute function public.touch_customer_profile();
 drop trigger if exists customer_notifications_touch on public.customer_notification_preferences;
 create trigger customer_notifications_touch before update on public.customer_notification_preferences
 for each row execute function public.touch_customer_profile();
+
+
+create or replace function public.toggle_customer_favorite(p_slug text)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_product_id uuid;
+  v_exists boolean;
+begin
+  if v_user_id is null then
+    raise exception 'Connexion requise';
+  end if;
+
+  select id into v_product_id
+  from public.products
+  where slug = trim(p_slug) and visible = true;
+
+  if v_product_id is null then
+    raise exception 'Produit indisponible';
+  end if;
+
+  select exists(
+    select 1 from public.customer_favorites
+    where user_id = v_user_id and product_id = v_product_id
+  ) into v_exists;
+
+  if v_exists then
+    delete from public.customer_favorites where user_id = v_user_id and product_id = v_product_id;
+    return false;
+  end if;
+
+  insert into public.customer_favorites(user_id, product_id) values(v_user_id, v_product_id)
+  on conflict do nothing;
+  return true;
+end;
+$$;
+
+create or replace function public.customer_has_favorite(p_slug text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists(
+    select 1
+    from public.customer_favorites f
+    join public.products p on p.id = f.product_id
+    where f.user_id = auth.uid()
+      and p.slug = trim(p_slug)
+      and p.visible = true
+  );
+$$;
+
+revoke execute on function public.toggle_customer_favorite(text) from public, anon;
+grant execute on function public.toggle_customer_favorite(text) to authenticated;
+revoke execute on function public.customer_has_favorite(text) from public, anon;
+grant execute on function public.customer_has_favorite(text) to authenticated;
