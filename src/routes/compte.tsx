@@ -198,6 +198,7 @@ export default function ComptePage() {
           notifyAuthChanged();
           window.history.replaceState({}, document.title, window.location.pathname);
           await loadAccount();
+          await navigate({ to: "/boutique" });
         } catch (error) {
           sessionStorage.removeItem("orotronix_user_token");
           sessionStorage.removeItem("orotronix_user_refresh_token");
@@ -259,6 +260,7 @@ export default function ComptePage() {
         setLoggedIn(true);
         notifyAuthChanged();
         await loadAccount();
+        await navigate({ to: "/boutique" });
       }
     } catch (error) {
       const raw = error instanceof Error ? error.message : "Une erreur est survenue.";
