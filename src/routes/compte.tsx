@@ -85,7 +85,6 @@ export default function ComptePage() {
   const [mode, setMode] = useState<AccountMode>("login");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -242,13 +241,11 @@ export default function ComptePage() {
         setMessage("Mot de passe modifié avec succès. Vous pouvez maintenant vous connecter.");
       } else if (mode === "signup") {
         if (fullName.trim().length < 3) throw new Error("Indiquez votre nom complet.");
-        if (!/^[0-9+\s]{9,15}$/.test(phone.trim())) throw new Error("Numéro de téléphone invalide.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         if (password !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas.");
         await supabaseAuth("signup", {
           email: email.trim(),
           password,
-          data: { full_name: fullName.trim(), phone: phone.trim() },
           redirect_to: window.location.origin + "/compte",
         });
         setMessage("Compte créé. Vérifiez votre e-mail pour confirmer votre adresse.");
@@ -485,7 +482,6 @@ export default function ComptePage() {
         <form onSubmit={submit} className="space-y-4">
           {mode === "signup" && <>
             <Field label="Nom complet" id="signup-name"><Input id="signup-name" required value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Ex. Yassine El Amrani" /></Field>
-            <Field label="Téléphone" id="signup-phone"><Input id="signup-phone" required value={phone} onChange={e => setPhone(e.target.value)} placeholder="06 00 00 00 00" inputMode="tel" /></Field>
           </>}
           {mode !== "reset" && <Field label="Adresse e-mail" id="account-email"><Input id="account-email" type="email" required autoComplete="email" inputMode="email" spellCheck={false} value={email} onChange={e => setEmail(e.target.value)} placeholder="vous@exemple.com" /></Field>}
           {(mode === "login" || mode === "signup" || mode === "reset") && (
