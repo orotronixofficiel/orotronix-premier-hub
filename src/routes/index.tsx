@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -39,7 +39,20 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const navigate = useNavigate();
   const [catalogProducts, setCatalogProducts] = useState(fallbackProducts);
+
+  useEffect(() => {
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const recoveryPending = window.localStorage.getItem("orotronix_recovery_pending") === "1";
+    if (hash.get("type") === "recovery" && hash.get("access_token")) {
+      window.location.replace("/compte" + window.location.hash);
+      return;
+    }
+    if (recoveryPending) {
+      void navigate({ to: "/compte" });
+    }
+  }, [navigate]);
   const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
   useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
   const featured = catalogProducts.filter((p) => p.featured).slice(0, 4);
