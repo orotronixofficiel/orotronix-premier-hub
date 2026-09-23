@@ -165,7 +165,8 @@ export default function ComptePage() {
       }
 
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-      const type = hash.get("type");
+      const query = new URLSearchParams(window.location.search);
+      const type = hash.get("type") || query.get("type");
       const accessToken = hash.get("access_token");
       const refreshToken = hash.get("refresh_token");
 
@@ -177,6 +178,7 @@ export default function ComptePage() {
         setLoggedIn(false);
         setMode("reset");
         setMessage("Choisissez votre nouveau mot de passe.");
+        window.localStorage.removeItem("orotronix_recovery_pending");
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
       }
@@ -223,12 +225,14 @@ export default function ComptePage() {
       if (!supabaseConfigured) throw new Error("Le compte client sera disponible après la configuration de Supabase.");
 
       if (mode === "forgot") {
+        if (typeof window !== "undefined") window.localStorage.setItem("orotronix_recovery_pending", "1");
         await supabaseAuth("recover", { email: email.trim(), redirect_to: "https://www.orotronix.com/compte" });
         setMessage("Si cette adresse est associée à un compte, un e-mail de réinitialisation va être envoyé.");
       } else if (mode === "reset") {
         if (!recoveryToken) throw new Error("Le lien de réinitialisation est invalide ou expiré.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         await supabaseUpdatePassword(password, recoveryToken);
+        if (typeof window !== "undefined") window.localStorage.removeItem("orotronix_recovery_pending");
         sessionStorage.removeItem("orotronix_user_token");
         sessionStorage.removeItem("orotronix_user_refresh_token");
         setSupabaseAccessToken(null);
