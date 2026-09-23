@@ -42,7 +42,7 @@ import { moroccanCities } from "@/data/repair";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
 
-type AccountMode = "login" | "signup" | "forgot" | "reset";
+type AccountMode = "login" | "signup" | "forgot" | "reset" | "confirmed";
 type OAuthProvider = "google" | "facebook";
 type Profile = {
   user_id: string;
@@ -186,16 +186,35 @@ export default function ComptePage() {
       if (accessToken) {
         try {
           setSupabaseAccessToken(accessToken);
-          sessionStorage.setItem("orotronix_user_token", accessToken);
-          if (refreshToken) sessionStorage.setItem("orotronix_user_refresh_token", refreshToken);
           const user = await supabaseCurrentUser(accessToken);
           if (!active) return;
+
           if (user.email) {
             setEmail(user.email);
             sessionStorage.setItem("orotronix_user_email", user.email);
           }
           const name = user.user_metadata?.full_name || user.user_metadata?.name;
           if (name) sessionStorage.setItem("orotronix_user_name", name);
+
+          // A signup confirmation callback is a verification event, not a normal login.
+          // Show the dedicated confirmation state instead of sending the user back to Login
+          // or silently redirecting to the shop.
+          if (type === "signup") {
+            sessionStorage.removeItem("orotronix_user_token");
+            sessionStorage.removeItem("orotronix_user_refresh_token");
+            setSupabaseAccessToken(null);
+            setLoggedIn(false);
+            setMode("confirmed");
+            setSignupPending(false);
+            setMessage("");
+            notifyAuthChanged();
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+          }
+
+          // OAuth callbacks continue with the existing logged-in flow.
+          sessionStorage.setItem("orotronix_user_token", accessToken);
+          if (refreshToken) sessionStorage.setItem("orotronix_user_refresh_token", refreshToken);
           setLoggedIn(true);
           notifyAuthChanged();
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -205,7 +224,7 @@ export default function ComptePage() {
           sessionStorage.removeItem("orotronix_user_token");
           sessionStorage.removeItem("orotronix_user_refresh_token");
           setSupabaseAccessToken(null);
-          setMessage(error instanceof Error ? error.message : "La connexion sociale a échoué.");
+          setMessage(error instanceof Error ? error.message : "La confirmation du compte a échoué.");
         }
       }
     };
@@ -468,8 +487,37 @@ export default function ComptePage() {
     );
   }
 
-  const title = mode === "signup" ? "Créer un compte" : mode === "forgot" ? "Mot de passe oublié" : mode === "reset" ? "Nouveau mot de passe" : "Mon compte";
+  const title = mode === "signup" ? "Créer un compte" : mode === "forgot" ? "Mot de passe oublié" : mode === "reset" ? "Nouveau mot de passe" : mode === "confirmed" ? "Compte confirmé" : "Mon compte";
   const isAuthForm = mode === "login" || mode === "signup";
+
+  if (mode === "confirmed") {
+    return (
+      <main className="container-page py-16">
+        <div className="mx-auto max-w-md rounded-xl border border-border bg-surface/60 p-6 text-center shadow-xl sm:p-8">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold">
+            <CheckCircle2 className="h-7 w-7" />
+          </div>
+          <h1 className="font-display text-3xl text-foreground">Compte confirmé</h1>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Votre adresse e-mail <span className="font-medium text-foreground">{email}</span> a été confirmée avec succès.
+          </p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Votre compte OROTRONIX est maintenant vérifié. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.
+          </p>
+          <Button
+            type="button"
+            className="mt-6 h-11 w-full"
+            onClick={() => { setMode("login"); setMessage(""); setPassword(""); }}
+          >
+            Se connecter
+          </Button>
+          <div className="mt-7 border-t border-border pt-5 text-center">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-gold">Retour à l'accueil</Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (signupPending) {
     return (
@@ -483,7 +531,7 @@ export default function ComptePage() {
             Votre compte a bien été créé. Nous avons envoyé un e-mail de confirmation à <span className="font-medium text-foreground">{email}</span>.
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Cliquez sur le bouton de confirmation dans l’e-mail. Après confirmation, vous serez automatiquement redirigé vers la boutique OROTRONIX.
+            Cliquez sur le bouton de confirmation dans l’e-mail. Après confirmation, vous serez redirigé vers la page de confirmation de votre compte.
           </p>
           <Button type="button" variant="outline" className="mt-6 w-full" onClick={resendVerification}>
             Renvoyer l’e-mail de confirmation
