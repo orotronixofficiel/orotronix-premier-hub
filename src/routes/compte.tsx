@@ -263,10 +263,14 @@ export default function ComptePage() {
         if (fullName.trim().length < 3) throw new Error("Indiquez votre nom complet.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         if (password !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas.");
+        const emailRedirectTo = window.location.origin + "/compte";
         await supabaseAuth("signup", {
           email: email.trim(),
           password,
-          redirect_to: window.location.origin + "/compte",
+          // Keep both forms for compatibility with the GoTrue REST endpoint
+          // and ensure the confirmation email uses /compte instead of the Site URL.
+          redirect_to: emailRedirectTo,
+          options: { email_redirect_to: emailRedirectTo },
         });
         setMessage("");
         setSignupPending(true);
