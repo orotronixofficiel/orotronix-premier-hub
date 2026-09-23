@@ -267,9 +267,7 @@ export default function ComptePage() {
         await supabaseAuth("signup", {
           email: email.trim(),
           password,
-          // Keep both forms for compatibility with the GoTrue REST endpoint
-          // and ensure the confirmation email uses /compte instead of the Site URL.
-          redirect_to: emailRedirectTo,
+          // GoTrue's signup options use email_redirect_to for the confirmation destination.
           options: { email_redirect_to: emailRedirectTo },
         });
         setMessage("");
