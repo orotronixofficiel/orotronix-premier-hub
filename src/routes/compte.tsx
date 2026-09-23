@@ -93,6 +93,7 @@ export default function ComptePage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [recoveryToken, setRecoveryToken] = useState("");
+  const [signupPending, setSignupPending] = useState(false);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -248,8 +249,8 @@ export default function ComptePage() {
           password,
           redirect_to: window.location.origin + "/compte",
         });
-        setMessage("Compte créé. Vérifiez votre e-mail pour confirmer votre adresse.");
-        setMode("login");
+        setMessage("");
+        setSignupPending(true);
         setPassword("");
         setConfirmPassword("");
       } else {
@@ -469,6 +470,38 @@ export default function ComptePage() {
 
   const title = mode === "signup" ? "Créer un compte" : mode === "forgot" ? "Mot de passe oublié" : mode === "reset" ? "Nouveau mot de passe" : "Mon compte";
   const isAuthForm = mode === "login" || mode === "signup";
+
+  if (signupPending) {
+    return (
+      <main className="container-page py-16">
+        <div className="mx-auto max-w-md rounded-xl border border-border bg-surface/60 p-6 text-center shadow-xl sm:p-8">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold">
+            <CheckCircle2 className="h-7 w-7" />
+          </div>
+          <h1 className="font-display text-3xl text-foreground">Vérifiez votre e-mail</h1>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Votre compte a bien été créé. Nous avons envoyé un e-mail de confirmation à <span className="font-medium text-foreground">{email}</span>.
+          </p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Cliquez sur le bouton de confirmation dans l’e-mail. Après confirmation, vous serez automatiquement redirigé vers la boutique OROTRONIX.
+          </p>
+          <Button type="button" variant="outline" className="mt-6 w-full" onClick={resendVerification}>
+            Renvoyer l’e-mail de confirmation
+          </Button>
+          <button
+            type="button"
+            className="mt-4 text-sm text-muted-foreground hover:text-gold"
+            onClick={() => { setSignupPending(false); setMode("login"); setMessage(""); }}
+          >
+            Retour à la connexion
+          </button>
+          <div className="mt-7 border-t border-border pt-5">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-gold">Retour à l'accueil</Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="container-page py-16">
