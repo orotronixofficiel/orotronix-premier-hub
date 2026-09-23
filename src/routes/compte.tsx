@@ -94,6 +94,7 @@ export default function ComptePage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [recoveryToken, setRecoveryToken] = useState("");
   const [signupPending, setSignupPending] = useState(false);
+  const [existingAccount, setExistingAccount] = useState(false);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -263,11 +264,19 @@ export default function ComptePage() {
         if (fullName.trim().length < 3) throw new Error("Indiquez votre nom complet.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         if (password !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas.");
-        await supabaseAuth("signup", {
+        const signup = await supabaseAuth("signup", {
           email: email.trim(),
           password,
           redirect_to: window.location.origin + "/compte",
         });
+        const identities = signup.user && "identities" in signup.user ? signup.user.identities : undefined;
+        if (Array.isArray(identities) && identities.length === 0) {
+          setExistingAccount(true);
+          setSignupPending(false);
+          setMessage("Ce compte existe déjà. Connectez-vous avec votre mot de passe ou utilisez « Mot de passe oublié ? » si nécessaire.");
+          return;
+        }
+        setExistingAccount(false);
         setMessage("");
         setSignupPending(true);
         setPassword("");
@@ -514,6 +523,28 @@ export default function ComptePage() {
           <div className="mt-7 border-t border-border pt-5 text-center">
             <Link to="/" className="text-sm text-muted-foreground hover:text-gold">Retour à l'accueil</Link>
           </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (existingAccount) {
+    return (
+      <main className="container-page py-16">
+        <div className="mx-auto max-w-md rounded-xl border border-border bg-surface/60 p-6 text-center shadow-xl sm:p-8">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold">
+            <LogIn className="h-7 w-7" />
+          </div>
+          <h1 className="font-display text-3xl text-foreground">Compte déjà enregistré</h1>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Cette adresse e-mail est déjà associée à un compte OROTRONIX.
+          </p>
+          <Button type="button" className="mt-6 h-11 w-full" onClick={() => { setExistingAccount(false); setMode("login"); setMessage(""); setPassword(""); }}>
+            Se connecter
+          </Button>
+          <button type="button" className="mt-4 text-sm text-muted-foreground hover:text-gold" onClick={() => { setExistingAccount(false); setMode("forgot"); setMessage(""); setPassword(""); }}>
+            Mot de passe oublié ?
+          </button>
         </div>
       </main>
     );
