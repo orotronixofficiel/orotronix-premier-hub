@@ -273,26 +273,14 @@ export default function ComptePage() {
         if (fullName.trim().length < 3) throw new Error("Indiquez votre nom complet.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         if (password !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas.");
-        const signup = await supabaseAuth("signup", {
-          email: email.trim(),
-          password,
-          redirect_to: window.location.origin + "/compte",
-        });
-
-        // With email obfuscation enabled, Supabase can intentionally return
-        // the same signup shape for an existing confirmed account. The reliable
-        // client-side distinction is to test the submitted credentials:
-        // confirmed account => password grant succeeds;
-        // unconfirmed/new account => password grant returns email_not_confirmed.
+        // Check the credentials first. A confirmed existing account can be
+        // detected reliably without triggering a second signup request.
         try {
           const existingSession = await supabaseAuth("token?grant_type=password", {
             email: email.trim().toLowerCase(),
             password,
           });
           if (existingSession?.access_token) {
-            // Do not call the unauthenticated REST signout endpoint here.
-            // The credential check is only used to detect an already-confirmed
-            // account; we intentionally discard the returned session locally.
             setSupabaseAccessToken(null);
             setSignupPending(false);
             setPassword("");
@@ -301,12 +289,19 @@ export default function ComptePage() {
             return;
           }
         } catch (loginCheckError) {
-          const loginCheckMessage = loginCheckError instanceof Error ? loginCheckError.message : "";
-          if (!loginCheckMessage.toLowerCase().includes("email not confirmed")) {
-            // Keep the normal signup flow for a genuinely new account.
-            // Other errors are not treated as proof that the account exists.
+          const loginCheckMessage = loginCheckError instanceof Error ? loginCheckError.message.toLowerCase() : "";
+          // "email not confirmed" means the account exists but still needs
+          // verification. Other login errors are allowed to continue to signup.
+          if (loginCheckMessage.includes("email not confirmed")) {
+            // Continue with the normal signup/resend flow below.
           }
         }
+
+        await supabaseAuth("signup", {
+          email: email.trim(),
+          password,
+          redirect_to: window.location.origin + "/compte",
+        });
 
         setMessage("");
         setSignupPending(true);
