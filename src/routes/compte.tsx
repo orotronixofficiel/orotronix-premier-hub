@@ -271,9 +271,24 @@ export default function ComptePage() {
         });
         const identities = signup.user && "identities" in signup.user ? signup.user.identities : undefined;
         if (Array.isArray(identities) && identities.length === 0) {
-          setExistingAccount(true);
-          setSignupPending(false);
-          setMessage("Ce compte existe déjà. Connectez-vous avec votre mot de passe ou utilisez « Mot de passe oublié ? » si nécessaire.");
+          // Supabase obfuscates duplicate signups. If the existing account is still
+          // unconfirmed, explicitly resend the signup confirmation email.
+          try {
+            await supabaseAuth("resend", {
+              type: "signup",
+              email: email.trim(),
+              options: { email_redirect_to: window.location.origin + "/compte" },
+            });
+            setExistingAccount(false);
+            setSignupPending(true);
+            setMessage("");
+            setPassword("");
+            setConfirmPassword("");
+          } catch {
+            setExistingAccount(true);
+            setSignupPending(false);
+            setMessage("Ce compte existe déjà. Connectez-vous avec votre mot de passe ou utilisez « Mot de passe oublié ? » si nécessaire.");
+          }
           return;
         }
         setExistingAccount(false);
