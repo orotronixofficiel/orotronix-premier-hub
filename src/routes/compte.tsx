@@ -278,6 +278,19 @@ export default function ComptePage() {
           password,
           redirect_to: window.location.origin + "/compte",
         });
+
+        // Supabase may return an obfuscated/fake user for an already confirmed
+        // account when email confirmations are enabled. Do not show the
+        // "check your email" screen in that case.
+        const returnedUser = signup?.user as { identities?: unknown[] } | undefined;
+        if (returnedUser && Array.isArray(returnedUser.identities) && returnedUser.identities.length === 0) {
+          setSignupPending(false);
+          setPassword("");
+          setConfirmPassword("");
+          setMessage("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
+          return;
+        }
+
         setMessage("");
         setSignupPending(true);
         setPassword("");
