@@ -83,15 +83,20 @@ export async function supabaseCurrentUser(token: string) {
 
 export async function supabaseRpc<T = unknown>(functionName: string, body: Record<string, unknown>): Promise<T> {
   if (!supabaseConfigured) throw new Error("Supabase n'est pas configuré.");
-  const makeRequest = () => fetch(url + "/rest/v1/rpc/" + encodeURIComponent(functionName), {
-    method: "POST",
-    headers: {
-      apikey: anonKey!,
-      Authorization: "Bearer " + (accessToken || anonKey!),
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  const makeRequest = () => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    return fetch(url + "/rest/v1/rpc/" + encodeURIComponent(functionName), {
+      method: "POST",
+      headers: {
+        apikey: anonKey!,
+        Authorization: "Bearer " + (accessToken || anonKey!),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    }).finally(() => window.clearTimeout(timeout));
+  };
   let response = await makeRequest();
   if (response.status === 401 && accessToken) {
     const refreshed = await refreshSupabaseSession();
