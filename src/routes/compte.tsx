@@ -94,7 +94,6 @@ export default function ComptePage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [recoveryToken, setRecoveryToken] = useState("");
   const [signupPending, setSignupPending] = useState(false);
-  const [existingAccount, setExistingAccount] = useState(false);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -154,15 +153,25 @@ export default function ComptePage() {
     const handleAuthCallback = async () => {
       const stored = sessionStorage.getItem("orotronix_user_token");
       if (stored) {
-        setSupabaseAccessToken(stored);
-        setLoggedIn(true);
         const user = await supabaseCurrentUser(stored).catch(() => null);
-        if (user?.email) { setEmail(user.email); sessionStorage.setItem("orotronix_user_email", user.email); }
-        if (user?.user_metadata?.full_name || user?.user_metadata?.name) {
-          const name = user.user_metadata.full_name || user.user_metadata.name || "";
-          sessionStorage.setItem("orotronix_user_name", name);
+        if (user?.email) {
+          setSupabaseAccessToken(stored);
+          setLoggedIn(true);
+          setEmail(user.email);
+          sessionStorage.setItem("orotronix_user_email", user.email);
+          if (user.user_metadata?.full_name || user.user_metadata?.name) {
+            const name = user.user_metadata.full_name || user.user_metadata.name || "";
+            sessionStorage.setItem("orotronix_user_name", name);
+          }
+          if (active) await loadAccount();
+        } else {
+          sessionStorage.removeItem("orotronix_user_token");
+          sessionStorage.removeItem("orotronix_user_refresh_token");
+          sessionStorage.removeItem("orotronix_user_email");
+          sessionStorage.removeItem("orotronix_user_name");
+          setSupabaseAccessToken(null);
+          setLoggedIn(false);
         }
-        if (active) await loadAccount();
       }
 
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -269,27 +278,21 @@ export default function ComptePage() {
           password,
           redirect_to: window.location.origin + "/compte",
         });
-        const identities = signup.user && "identities" in signup.user ? signup.user.identities : undefined;
-        if (Array.isArray(identities) && identities.length === 0) {
-          setExistingAccount(true);
-          setSignupPending(false);
-          setMessage("Ce compte existe déjà. Connectez-vous avec votre mot de passe ou utilisez « Mot de passe oublié ? » si nécessaire.");
-          return;
-        }
-        setExistingAccount(false);
         setMessage("");
         setSignupPending(true);
         setPassword("");
         setConfirmPassword("");
       } else {
-        const session = await supabaseAuth("token?grant_type=password", { email: email.trim(), password });
+        const loginEmail = email.trim().toLowerCase();
+        if (!loginEmail || !password) throw new Error("Veuillez renseigner votre e-mail et votre mot de passe.");
+        const session = await supabaseAuth("token?grant_type=password", { email: loginEmail, password });
+        if (!session.access_token) throw new Error("Connexion impossible : session Supabase invalide.");
         setSupabaseAccessToken(session.access_token);
-        sessionStorage.setItem("orotronix_user_email", email.trim());
+        sessionStorage.setItem("orotronix_user_email", loginEmail);
         sessionStorage.setItem("orotronix_user_token", session.access_token);
         if (session.refresh_token) sessionStorage.setItem("orotronix_user_refresh_token", session.refresh_token);
         setLoggedIn(true);
         notifyAuthChanged();
-        await loadAccount();
         await navigate({ to: "/boutique" });
       }
     } catch (error) {
@@ -523,28 +526,6 @@ export default function ComptePage() {
           <div className="mt-7 border-t border-border pt-5 text-center">
             <Link to="/" className="text-sm text-muted-foreground hover:text-gold">Retour à l'accueil</Link>
           </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (existingAccount) {
-    return (
-      <main className="container-page py-16">
-        <div className="mx-auto max-w-md rounded-xl border border-border bg-surface/60 p-6 text-center shadow-xl sm:p-8">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold">
-            <LogIn className="h-7 w-7" />
-          </div>
-          <h1 className="font-display text-3xl text-foreground">Compte déjà enregistré</h1>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Cette adresse e-mail est déjà associée à un compte OROTRONIX.
-          </p>
-          <Button type="button" className="mt-6 h-11 w-full" onClick={() => { setExistingAccount(false); setMode("login"); setMessage(""); setPassword(""); }}>
-            Se connecter
-          </Button>
-          <button type="button" className="mt-4 text-sm text-muted-foreground hover:text-gold" onClick={() => { setExistingAccount(false); setMode("forgot"); setMessage(""); setPassword(""); }}>
-            Mot de passe oublié ?
-          </button>
         </div>
       </main>
     );
