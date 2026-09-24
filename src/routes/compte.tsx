@@ -96,6 +96,7 @@ export default function ComptePage() {
   const [recoveryToken, setRecoveryToken] = useState("");
   const [signupPending, setSignupPending] = useState(false);
   const [signupNotice, setSignupNotice] = useState("");
+  const [authError, setAuthError] = useState("");
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -317,7 +318,9 @@ export default function ComptePage() {
       }
     } catch (error) {
       const raw = error instanceof Error ? error.message : "Une erreur est survenue.";
-      setMessage(raw.includes("Invalid login credentials") ? "E-mail ou mot de passe incorrect." : raw);
+      const friendly = raw.includes("Invalid login credentials") ? "E-mail ou mot de passe incorrect." : raw;
+      setMessage("");
+      setAuthError(friendly);
     } finally {
       setLoading(false);
     }
@@ -585,6 +588,18 @@ export default function ComptePage() {
 
   return (
     <>
+      {authError && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm" role="alertdialog" aria-modal="true" aria-labelledby="auth-error-title">
+          <div className="w-full max-w-md rounded-2xl border border-gold/40 bg-[#0b0b0b] p-6 text-center shadow-2xl shadow-black/50 sm:p-8">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-red-500/40 text-red-400">
+              <span className="text-2xl font-semibold">!</span>
+            </div>
+            <h2 id="auth-error-title" className="font-display text-2xl text-foreground">Vérifiez vos informations</h2>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">{authError}</p>
+            <Button type="button" className="mt-6 h-11 w-full" onClick={() => setAuthError("")}>Compris</Button>
+          </div>
+        </div>
+      )}
       {signupNotice && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="signup-notice-title">
           <div className="w-full max-w-md rounded-2xl border border-gold/50 bg-[#0b0b0b] p-6 text-center shadow-2xl shadow-black/50 sm:p-8">
