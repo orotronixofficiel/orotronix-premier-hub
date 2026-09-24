@@ -276,7 +276,7 @@ export default function ComptePage() {
         const signup = await supabaseAuth("signup", {
           email: email.trim(),
           password,
-          redirect_to: window.location.origin + "/compte",
+          email_redirect_to: window.location.origin + "/compte",
         });
         setMessage("");
         setSignupPending(true);
