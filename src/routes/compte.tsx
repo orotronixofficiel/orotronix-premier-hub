@@ -271,15 +271,17 @@ export default function ComptePage() {
         setPassword("");
         setMessage("Mot de passe modifié avec succès. Vous pouvez maintenant vous connecter.");
       } else if (mode === "signup") {
+        setSignupPending(false);
         if (fullName.trim().length < 3) throw new Error("Indiquez votre nom complet.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         if (password !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas.");
         // Check the account state directly before signup. This distinguishes
         // an already-confirmed account even when Supabase Auth obfuscates
         // existing-user responses.
-        const alreadyConfirmed = await supabaseRpc<boolean>("check_email_confirmation", {
+        const alreadyConfirmedResult = await supabaseRpc<boolean | string>("check_email_confirmation", {
           p_email: email.trim().toLowerCase(),
         });
+        const alreadyConfirmed = alreadyConfirmedResult === true || alreadyConfirmedResult === "true";
         if (alreadyConfirmed) {
           setSignupPending(false);
           setPassword("");
@@ -294,7 +296,7 @@ export default function ComptePage() {
           redirect_to: window.location.origin + "/compte",
         });
 
-        setMessage("");
+        setMessage("Votre compte a bien été créé. Un e-mail de confirmation a été envoyé à " + email.trim() + ".");
         setSignupPending(true);
         setPassword("");
         setConfirmPassword("");
