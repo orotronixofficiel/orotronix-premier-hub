@@ -29,6 +29,7 @@ import {
   startSupabaseOAuth,
   supabaseAuth,
   supabaseConfigured,
+  supabaseRpc,
   supabaseCurrentUser,
   supabaseRest,
   supabaseSignOut,
