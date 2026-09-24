@@ -276,7 +276,7 @@ export default function ComptePage() {
         const signup = await supabaseAuth("signup", {
           email: email.trim(),
           password,
-          email_redirect_to: window.location.origin + "/compte",
+          redirect_to: window.location.origin + "/compte",
         });
         setMessage("");
         setSignupPending(true);
@@ -361,7 +361,7 @@ export default function ComptePage() {
   const resendVerification = async () => {
     if (!email) return;
     try {
-      await supabaseAuth("resend", { type: "signup", email: email.trim(), options: { email_redirect_to: window.location.origin + "/compte" } });
+      await supabaseAuth("resend", { type: "signup", email: email.trim(), options: { redirect_to: window.location.origin + "/compte" } });
       toast.success("E-mail de confirmation renvoyé.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Impossible de renvoyer l'e-mail."); }
   };
