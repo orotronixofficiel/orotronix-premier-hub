@@ -290,7 +290,10 @@ export default function ComptePage() {
             password,
           });
           if (existingSession?.access_token) {
-            await supabaseAuth("signout", {});
+            // Do not call the unauthenticated REST signout endpoint here.
+            // The credential check is only used to detect an already-confirmed
+            // account; we intentionally discard the returned session locally.
+            setSupabaseAccessToken(null);
             setSignupPending(false);
             setPassword("");
             setConfirmPassword("");
