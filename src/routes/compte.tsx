@@ -273,28 +273,18 @@ export default function ComptePage() {
         if (fullName.trim().length < 3) throw new Error("Indiquez votre nom complet.");
         if (password.length < 8) throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
         if (password !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas.");
-        // Check the credentials first. A confirmed existing account can be
-        // detected reliably without triggering a second signup request.
-        try {
-          const existingSession = await supabaseAuth("token?grant_type=password", {
-            email: email.trim().toLowerCase(),
-            password,
-          });
-          if (existingSession?.access_token) {
-            setSupabaseAccessToken(null);
-            setSignupPending(false);
-            setPassword("");
-            setConfirmPassword("");
-            setMessage("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
-            return;
-          }
-        } catch (loginCheckError) {
-          const loginCheckMessage = loginCheckError instanceof Error ? loginCheckError.message.toLowerCase() : "";
-          // "email not confirmed" means the account exists but still needs
-          // verification. Other login errors are allowed to continue to signup.
-          if (loginCheckMessage.includes("email not confirmed")) {
-            // Continue with the normal signup/resend flow below.
-          }
+        // Check the account state directly before signup. This distinguishes
+        // an already-confirmed account even when Supabase Auth obfuscates
+        // existing-user responses.
+        const alreadyConfirmed = await supabaseRpc<boolean>("check_email_confirmation", {
+          p_email: email.trim().toLowerCase(),
+        });
+        if (alreadyConfirmed) {
+          setSignupPending(false);
+          setPassword("");
+          setConfirmPassword("");
+          setMessage("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
+          return;
         }
 
         await supabaseAuth("signup", {
