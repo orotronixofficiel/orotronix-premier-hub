@@ -95,6 +95,7 @@ export default function ComptePage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [recoveryToken, setRecoveryToken] = useState("");
   const [signupPending, setSignupPending] = useState(false);
+  const [signupNotice, setSignupNotice] = useState("");
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -286,7 +287,8 @@ export default function ComptePage() {
           setSignupPending(false);
           setPassword("");
           setConfirmPassword("");
-          setMessage("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
+          setMessage("");
+          setSignupNotice("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
           return;
         }
 
@@ -582,7 +584,23 @@ export default function ComptePage() {
   }
 
   return (
-    <main className="container-page py-16">
+    <>
+      {signupNotice && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="signup-notice-title">
+          <div className="w-full max-w-md rounded-2xl border border-gold/50 bg-[#0b0b0b] p-6 text-center shadow-2xl shadow-black/50 sm:p-8">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-gold/60 text-gold">
+              <CheckCircle2 className="h-8 w-8" />
+            </div>
+            <h2 id="signup-notice-title" className="font-display text-2xl text-foreground">Compte déjà confirmé</h2>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">{signupNotice}</p>
+            <Button type="button" className="mt-6 h-11 w-full" onClick={() => { setSignupNotice(""); setMode("login"); setMessage(""); setPassword(""); setConfirmPassword(""); }}>
+              Se connecter
+            </Button>
+            <button type="button" className="mt-4 text-sm text-muted-foreground hover:text-gold" onClick={() => setSignupNotice("")}>Fermer</button>
+          </div>
+        </div>
+      )}
+      <main className="container-page py-16">
       <div className="mx-auto max-w-md rounded-xl border border-border bg-surface/60 p-6 shadow-xl sm:p-8">
         <div className="mb-7 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold"><UserRound className="h-7 w-7" /></div>
@@ -623,7 +641,8 @@ export default function ComptePage() {
         {mode !== "reset" && <div className="mt-6 flex items-center justify-center gap-3 text-sm"><button type="button" onClick={() => { setMode("login"); setMessage(""); setPassword(""); setConfirmPassword(""); }} className={mode === "login" ? "text-gold" : "text-muted-foreground hover:text-foreground"}><LogIn className="mr-1 inline h-4 w-4" />Connexion</button><span className="text-border">|</span><button type="button" onClick={() => { setMode("signup"); setMessage(""); setPassword(""); setConfirmPassword(""); }} className={mode === "signup" ? "text-gold" : "text-muted-foreground hover:text-foreground"}><UserPlus className="mr-1 inline h-4 w-4" />Inscription</button></div>}
         <div className="mt-7 border-t border-border pt-5 text-center"><Link to="/" className="text-sm text-muted-foreground hover:text-gold">Retour à l'accueil</Link></div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
 
