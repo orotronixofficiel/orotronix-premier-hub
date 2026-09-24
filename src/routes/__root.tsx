@@ -130,6 +130,16 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    if (typeof window === "undefined" || window.location.pathname !== "/") return;
+    const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const type = params.get("type");
+    const hasAuthCallback = Boolean(params.get("access_token")) && (type === "signup" || type === "recovery");
+    if (hasAuthCallback) {
+      window.location.replace("/compte" + window.location.search + window.location.hash);
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
