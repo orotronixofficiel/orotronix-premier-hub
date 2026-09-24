@@ -279,16 +279,30 @@ export default function ComptePage() {
           redirect_to: window.location.origin + "/compte",
         });
 
-        // Supabase may return an obfuscated/fake user for an already confirmed
-        // account when email confirmations are enabled. Do not show the
-        // "check your email" screen in that case.
-        const returnedUser = signup?.user as { identities?: unknown[] } | undefined;
-        if (returnedUser && Array.isArray(returnedUser.identities) && returnedUser.identities.length === 0) {
-          setSignupPending(false);
-          setPassword("");
-          setConfirmPassword("");
-          setMessage("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
-          return;
+        // With email obfuscation enabled, Supabase can intentionally return
+        // the same signup shape for an existing confirmed account. The reliable
+        // client-side distinction is to test the submitted credentials:
+        // confirmed account => password grant succeeds;
+        // unconfirmed/new account => password grant returns email_not_confirmed.
+        try {
+          const existingSession = await supabaseAuth("token?grant_type=password", {
+            email: email.trim().toLowerCase(),
+            password,
+          });
+          if (existingSession?.access_token) {
+            await supabaseAuth("signout", {});
+            setSignupPending(false);
+            setPassword("");
+            setConfirmPassword("");
+            setMessage("Ce compte est déjà confirmé. Vous pouvez vous connecter avec votre e-mail et votre mot de passe.");
+            return;
+          }
+        } catch (loginCheckError) {
+          const loginCheckMessage = loginCheckError instanceof Error ? loginCheckError.message : "";
+          if (!loginCheckMessage.toLowerCase().includes("email not confirmed")) {
+            // Keep the normal signup flow for a genuinely new account.
+            // Other errors are not treated as proof that the account exists.
+          }
         }
 
         setMessage("");
