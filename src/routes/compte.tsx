@@ -299,10 +299,7 @@ export default function ComptePage() {
         await supabaseAuth("signup", {
           email: email.trim().toLowerCase(),
           password,
-          options: {
-            data: { full_name: fullName.trim() },
-            emailRedirectTo: window.location.origin + "/compte",
-          },
+          data: { full_name: fullName.trim() },
           redirect_to: window.location.origin + "/compte",
         });
 
