@@ -1,14 +1,16 @@
 import { Link } from "@tanstack/react-router";
 
+const LOGO_WORDMARK =
+  "https://qeqqfelebzxwupsqyzbz.supabase.co/storage/v1/object/public/orotronix-media/Branding/Picsart_26-09-25_21-06-06-191.png";
+
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <Link to="/" className={`group inline-flex items-center gap-2 ${className}`}>
-      <span className="flex h-9 w-9 items-center justify-center rounded-md border border-gold/40 bg-surface-2 font-display text-lg font-bold text-gold">
-        O
-      </span>
-      <span className="font-display text-lg font-semibold tracking-[0.28em] text-foreground">
-        ORO<span className="text-gold">TRONIX</span>
-      </span>
+    <Link to="/" className={"group inline-flex items-center " + className}>
+      <img
+        src={LOGO_WORDMARK}
+        alt="OROTRONIX"
+        className="h-8 w-auto max-w-[190px] object-contain sm:h-9 sm:max-w-[220px]"
+      />
     </Link>
   );
 }
