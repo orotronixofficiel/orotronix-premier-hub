@@ -31,6 +31,7 @@ import {
   supabaseConfigured,
   supabaseRpc,
   supabaseCurrentUser,
+  restoreSupabaseSession,
   supabaseRest,
   supabaseSignOut,
   supabaseUpdatePassword,
@@ -97,6 +98,7 @@ export default function ComptePage() {
   const [signupPending, setSignupPending] = useState(false);
   const [signupNotice, setSignupNotice] = useState("");
   const [authError, setAuthError] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -156,9 +158,10 @@ export default function ComptePage() {
     const handleAuthCallback = async () => {
       const stored = sessionStorage.getItem("orotronix_user_token");
       if (stored) {
-        const user = await supabaseCurrentUser(stored).catch(() => null);
-        if (user?.email) {
-          setSupabaseAccessToken(stored);
+        const restoredToken = await restoreSupabaseSession();
+        const user = restoredToken ? await supabaseCurrentUser(restoredToken).catch(() => null) : null;
+        if (user?.email && restoredToken) {
+          setSupabaseAccessToken(restoredToken);
           setLoggedIn(true);
           setEmail(user.email);
           sessionStorage.setItem("orotronix_user_email", user.email);
@@ -294,8 +297,12 @@ export default function ComptePage() {
         }
 
         await supabaseAuth("signup", {
-          email: email.trim(),
+          email: email.trim().toLowerCase(),
           password,
+          options: {
+            data: { full_name: fullName.trim() },
+            emailRedirectTo: window.location.origin + "/compte",
+          },
           redirect_to: window.location.origin + "/compte",
         });
 
@@ -382,11 +389,20 @@ export default function ComptePage() {
   };
 
   const resendVerification = async () => {
-    if (!email) return;
+    if (!email || resendLoading) return;
+    setResendLoading(true);
     try {
-      await supabaseAuth("resend", { type: "signup", email: email.trim(), options: { redirect_to: window.location.origin + "/compte" } });
+      await supabaseAuth("resend", {
+        type: "signup",
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: window.location.origin + "/compte", redirect_to: window.location.origin + "/compte" },
+      });
       toast.success("E-mail de confirmation renvoyé.");
-    } catch (error) { toast.error(error instanceof Error ? error.message : "Impossible de renvoyer l'e-mail."); }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Impossible de renvoyer l'e-mail.");
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   const saveAddress = async () => {
