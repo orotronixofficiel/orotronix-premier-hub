@@ -48,11 +48,24 @@ export async function refreshSupabaseSession(): Promise<string | null> {
 
 export async function supabaseAuth(path: string, body: unknown) {
   if (!supabaseConfigured) throw new Error("Supabase n'est pas configuré.");
-  const response = await fetch(url + "/auth/v1/" + path, {
-    method: "POST",
-    headers: { apikey: anonKey!, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15000);
+  let response: Response;
+  try {
+    response = await fetch(url + "/auth/v1/" + path, {
+      method: "POST",
+      headers: { apikey: anonKey!, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("La connexion a pris trop de temps. Vérifiez votre connexion Internet et réessayez.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
   const data = await response.json();
   if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Erreur Supabase");
   return data as { access_token: string; refresh_token?: string; user?: { email?: string } };
@@ -78,7 +91,25 @@ export async function supabaseCurrentUser(token: string) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Impossible de récupérer le profil.");
-  return data as { email?: string; user_metadata?: { full_name?: string; name?: string } };
+  return data as { id?: string; email?: string; user_metadata?: { full_name?: string; name?: string; avatar_url?: string } };
+}
+
+export async function restoreSupabaseSession(): Promise<string | null> {
+  if (!supabaseConfigured || typeof window === "undefined") return null;
+  const savedToken = sessionStorage.getItem("orotronix_user_token");
+  if (!savedToken) return await refreshSupabaseSession();
+
+  try {
+    const user = await supabaseCurrentUser(savedToken);
+    if (user?.id) {
+      accessToken = savedToken;
+      return savedToken;
+    }
+  } catch {
+    // The access token may have expired. Try the refresh token once.
+  }
+
+  return await refreshSupabaseSession();
 }
 
 export async function supabaseRpc<T = unknown>(functionName: string, body: Record<string, unknown>): Promise<T> {
