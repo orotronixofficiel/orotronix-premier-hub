@@ -63,7 +63,7 @@ export function Header() {
       <div className="hidden border-b border-border/50 py-2 text-center text-xs text-muted-foreground md:block">
         Livraison partout au Maroc • Paiement à la livraison • Ramassage et retour à domicile pour vos réparations
       </div>
-      <div className="container-page flex h-16 items-center justify-between gap-4">
+      <div className="container-page relative flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -123,6 +123,9 @@ export function Header() {
               </Button>
             </SheetContent>
           </Sheet>
+        </div>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <Logo />
         </div>
 
@@ -146,7 +149,7 @@ export function Header() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
           <form onSubmit={submitSearch} className="hidden xl:block">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
