@@ -356,7 +356,7 @@ function saveAutoTranslationCache() {
 
 function shouldAutoTranslate(value: string) {
   if (!value || value.length < 3 || value.length > 500) return false;
-  if (/^https?:\\/\\//i.test(value) || /@/.test(value)) return false;
+  if (value.startsWith("http://") || value.startsWith("https://") || value.includes("@")) return false;
   if (/^[\\d\\s.,:+%€$MAD/-]+$/.test(value)) return false;
   if (/^[A-Z0-9._-]{2,20}$/.test(value) && !/[a-z]/.test(value)) return false;
   return true;
