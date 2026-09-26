@@ -17,7 +17,7 @@ const navLinks = [
 ] as const;
 
 const languages = [
-  { code: "MA", label: "Français", flag: "🇲🇦" },
+  { code: "AR", label: "العربية", flag: "🇲🇦" },
   { code: "FR", label: "Français", flag: "🇫🇷" },
   { code: "EN", label: "English", flag: "🇬🇧" },
 ] as const;
@@ -27,7 +27,7 @@ export function Header() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("MA");
+  const [selectedLanguage, setSelectedLanguage] = useState("AR");
   const [query, setQuery] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -144,7 +144,7 @@ export function Header() {
             </button>
 
             {languageOpen && (
-              <div className="absolute left-0 top-12 z-[60] flex gap-2 rounded-lg border border-border bg-background p-2 shadow-xl">
+              <div className="absolute left-0 top-12 z-[60] flex min-w-32 flex-col gap-1 rounded-lg border border-border bg-background p-2 shadow-xl">
                 {languages.map((language) => (
                   <button
                     key={language.code}
@@ -155,9 +155,10 @@ export function Header() {
                       setSelectedLanguage(language.code);
                       setLanguageOpen(false);
                     }}
-                    className={`inline-flex h-10 w-10 items-center justify-center rounded-md border text-lg transition-colors hover:border-gold/60 hover:bg-surface ${selectedLanguage === language.code ? "border-gold bg-surface" : "border-border"}`}
+                    className={`flex h-10 w-full items-center gap-3 rounded-md border px-3 text-sm font-medium transition-colors hover:border-gold/60 hover:bg-surface ${selectedLanguage === language.code ? "border-gold bg-surface text-gold" : "border-border text-foreground"}`}
                   >
-                    <span aria-hidden="true">{language.flag}</span>
+                    <span aria-hidden="true" className="text-lg">{language.flag}</span>
+                    <span>{language.code}</span>
                   </button>
                 ))}
               </div>
