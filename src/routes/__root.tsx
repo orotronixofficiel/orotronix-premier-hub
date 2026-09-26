@@ -132,6 +132,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    initLanguage();
+  }, []);
+
+  useEffect(() => {
     if (typeof window === "undefined" || window.location.pathname !== "/") return;
     const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const type = params.get("type");
