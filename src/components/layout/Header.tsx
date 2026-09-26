@@ -154,6 +154,7 @@ export function Header() {
                     title={language.label}
                     onClick={() => {
                       setSelectedLanguage(language.code);
+                      setLanguage(language.code);
                       setLanguageOpen(false);
                     }}
                     className={`flex h-10 w-full items-center gap-3 rounded-md border px-3 text-sm font-medium transition-colors hover:border-gold/60 hover:bg-surface ${selectedLanguage === language.code ? "border-gold bg-surface text-gold" : "border-border text-foreground"}`}
