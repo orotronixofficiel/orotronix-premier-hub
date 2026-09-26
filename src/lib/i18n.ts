@@ -120,6 +120,47 @@ const translations: Record<LanguageCode, TranslationMap> = {
     "Retour": "رجوع",
     "Fermer": "إغلاق",
     "En savoir plus": "معرفة المزيد",
+    "Accessoires téléphone": "إكسسوارات الهاتف",
+    "Accessoires TV": "إكسسوارات التلفاز",
+    "Mon panier": "سلتي",
+    "Service de réparation": "خدمة الإصلاح",
+    "Ramassage & livraison": "الاستلام والتوصيل",
+    "Contact": "اتصل بنا",
+    "Tous droits réservés.": "جميع الحقوق محفوظة.",
+    "Trier": "ترتيب",
+    "Filtres": "الفلاتر",
+    "Prix maximum": "الحد الأقصى للسعر",
+    "Référence": "المرجع",
+    "Date": "التاريخ",
+    "Offerte": "مجانية",
+    "Commande confirmée": "تم تأكيد الطلب",
+    "Merci ! Notre équipe vous appelle pour confirmer la livraison et le créneau de passage.": "شكراً لك! سيتصل بك فريقنا لتأكيد التوصيل وموعد التسليم.",
+    "Continuer mes achats": "متابعة التسوق",
+    "Contacter OROTRONIX": "الاتصال بـ OROTRONIX",
+    "Imprimer / PDF": "طباعة / PDF",
+    "Aucune commande récente trouvée sur cet appareil.": "لم يتم العثور على أي طلب حديث على هذا الجهاز.",
+    "Profil": "الملف الشخصي",
+    "Mes informations": "معلوماتي",
+    "Modifier": "تعديل",
+    "Téléphone": "الهاتف",
+    "Ville": "المدينة",
+    "Choisir une ville": "اختر مدينة",
+    "Principale": "رئيسي",
+    "Livraison": "التوصيل",
+    "Ajouter": "إضافة",
+    "Libellé": "التسمية",
+    "Adresse complète": "العنوان الكامل",
+    "Adresse principale": "العنوان الرئيسي",
+    "Sécurité": "الأمان",
+    "Gardez un mot de passe unique et difficile à deviner.": "استخدم كلمة مرور فريدة يصعب تخمينها.",
+    "Nouveau mot de passe": "كلمة المرور الجديدة",
+    "Confirmation": "التأكيد",
+    "Modifier le mot de passe": "تغيير كلمة المرور",
+    "Mises à jour de commande": "تحديثات الطلب",
+    "Offres et promotions": "العروض والتخفيضات",
+    "Alertes de sécurité": "تنبيهات الأمان",
+    "Connexion sociale": "تسجيل الدخول الاجتماعي",
+    "Ou continuer avec": "أو المتابعة باستخدام",
   },
   EN: {
     "Boutique": "Shop",
@@ -237,6 +278,47 @@ const translations: Record<LanguageCode, TranslationMap> = {
     "Retour": "Back",
     "Fermer": "Close",
     "En savoir plus": "Learn more",
+    "Accessoires téléphone": "Phone accessories",
+    "Accessoires TV": "TV accessories",
+    "Mon panier": "My cart",
+    "Service de réparation": "Repair service",
+    "Ramassage & livraison": "Pickup & delivery",
+    "Contact": "Contact",
+    "Tous droits réservés.": "All rights reserved.",
+    "Trier": "Sort",
+    "Filtres": "Filters",
+    "Prix maximum": "Maximum price",
+    "Référence": "Reference",
+    "Date": "Date",
+    "Offerte": "Free",
+    "Commande confirmée": "Order confirmed",
+    "Merci ! Notre équipe vous appelle pour confirmer la livraison et le créneau de passage.": "Thank you! Our team will call you to confirm delivery and the delivery time.",
+    "Continuer mes achats": "Continue shopping",
+    "Contacter OROTRONIX": "Contact OROTRONIX",
+    "Imprimer / PDF": "Print / PDF",
+    "Aucune commande récente trouvée sur cet appareil.": "No recent order was found on this device.",
+    "Profil": "Profile",
+    "Mes informations": "My information",
+    "Modifier": "Edit",
+    "Téléphone": "Phone",
+    "Ville": "City",
+    "Choisir une ville": "Choose a city",
+    "Principale": "Primary",
+    "Livraison": "Delivery",
+    "Ajouter": "Add",
+    "Libellé": "Label",
+    "Adresse complète": "Full address",
+    "Adresse principale": "Primary address",
+    "Sécurité": "Security",
+    "Gardez un mot de passe unique et difficile à deviner.": "Use a unique password that is difficult to guess.",
+    "Nouveau mot de passe": "New password",
+    "Confirmation": "Confirmation",
+    "Modifier le mot de passe": "Change password",
+    "Mises à jour de commande": "Order updates",
+    "Offres et promotions": "Offers and promotions",
+    "Alertes de sécurité": "Security alerts",
+    "Connexion sociale": "Social sign-in",
+    "Ou continuer avec": "Or continue with",
   },
 };
 
@@ -247,12 +329,80 @@ let observer: MutationObserver | null = null;
 let translating = false;
 const originalText = new WeakMap<Text, string>();
 
+function normalizeKey(value: string) {
+  return value
+    .replace(/[’]/g, "'")
+    .replace(/…/g, "...")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const dynamicTranslations: Record<LanguageCode, Array<[RegExp, (match: RegExpMatchArray) => string]>> = {
+  FR: [],
+  AR: [
+    [/^(\\d+) produits?$/i, (m) => `${m[1]} منتج${m[0].toLowerCase().includes("produits") ? "ات" : ""}`],
+    [/^Recherche\s*:\s*«\s*(.*?)\s*»$/i, (m) => `البحث: « ${m[1]} »`],
+    [/^Ajouter (.+) au panier$/i, (m) => `أضف ${m[1]} إلى السلة`],
+    [/^Connectez-vous pour enregistrer vos favoris\.?$/i, () => "سجّل الدخول لحفظ منتجاتك المفضلة."],
+    [/^Ajouté au panier$/i, () => "تمت الإضافة إلى السلة"],
+    [/^Ajouté aux favoris$/i, () => "تمت الإضافة إلى المفضلة"],
+    [/^Retiré des favoris$/i, () => "تمت الإزالة من المفضلة"],
+    [/^Impossible de modifier le favori\.?$/i, () => "تعذر تعديل المفضلة."],
+    [/^Veuillez patienter…$/i, () => "يرجى الانتظار…"],
+    [/^Connexion à Google…$/i, () => "جارٍ تسجيل الدخول عبر Google…"],
+    [/^Connexion à Facebook…$/i, () => "جارٍ تسجيل الدخول عبر Facebook…"],
+    [/^Continuer avec Google$/i, () => "المتابعة باستخدام Google"],
+    [/^Continuer avec Facebook$/i, () => "المتابعة باستخدام Facebook"],
+    [/^Choisir une ville$/i, () => "اختر مدينة"],
+    [/^Non renseigné(?:e)?$/i, () => "غير محدد"],
+    [/^Modifier (.+)$/i, (m) => `تعديل ${m[1]}`],
+    [/^Nouvelle adresse$/i, () => "عنوان جديد"],
+    [/^Modifier l'adresse$/i, () => "تعديل العنوان"],
+    [/^Définir comme principale$/i, () => "تعيين كعنوان رئيسي"],
+    [/^Produits ajoutés au panier$/i, () => "تمت إضافة المنتجات إلى السلة"],
+    [/^Impossible de recharger certains produits\.?$/i, () => "تعذر إعادة تحميل بعض المنتجات."],
+  ],
+  EN: [
+    [/^(\\d+) produits?$/i, (m) => `${m[1]} product${m[0].toLowerCase().includes("produits") ? "s" : ""}`],
+    [/^Recherche\s*:\s*«\s*(.*?)\s*»$/i, (m) => `Search: “${m[1]}”`],
+    [/^Ajouter (.+) au panier$/i, (m) => `Add ${m[1]} to cart`],
+    [/^Connectez-vous pour enregistrer vos favoris\.?$/i, () => "Sign in to save your favorites."],
+    [/^Ajouté au panier$/i, () => "Added to cart"],
+    [/^Ajouté aux favoris$/i, () => "Added to favorites"],
+    [/^Retiré des favoris$/i, () => "Removed from favorites"],
+    [/^Impossible de modifier le favori\.?$/i, () => "Unable to update favorite."],
+    [/^Veuillez patienter…$/i, () => "Please wait…"],
+    [/^Connexion à Google…$/i, () => "Signing in with Google…"],
+    [/^Connexion à Facebook…$/i, () => "Signing in with Facebook…"],
+    [/^Continuer avec Google$/i, () => "Continue with Google"],
+    [/^Continuer avec Facebook$/i, () => "Continue with Facebook"],
+    [/^Choisir une ville$/i, () => "Choose a city"],
+    [/^Non renseigné(?:e)?$/i, () => "Not provided"],
+    [/^Modifier (.+)$/i, (m) => `Edit ${m[1]}`],
+    [/^Nouvelle adresse$/i, () => "New address"],
+    [/^Modifier l'adresse$/i, () => "Edit address"],
+    [/^Définir comme principale$/i, () => "Set as primary"],
+    [/^Produits ajoutés au panier$/i, () => "Products added to cart"],
+    [/^Impossible de recharger certains produits\.?$/i, () => "Unable to reload some products."],
+  ],
+};
+
 function translateString(value: string, language: LanguageCode) {
   const leading = value.match(/^\s*/)?.[0] ?? "";
   const trailing = value.match(/\s*$/)?.[0] ?? "";
   const core = value.trim();
-  const translated = language === "FR" ? core : (translations[language][core] ?? core);
-  return leading + translated + trailing;
+  if (language === "FR") return value;
+
+  const normalized = normalizeKey(core);
+  const direct = translations[language][core] ?? translations[language][normalized];
+  if (direct) return leading + direct + trailing;
+
+  for (const [pattern, translator] of dynamicTranslations[language]) {
+    const match = normalized.match(pattern);
+    if (match) return leading + translator(match) + trailing;
+  }
+
+  return value;
 }
 
 function translateElement(root: Node, language: LanguageCode) {
