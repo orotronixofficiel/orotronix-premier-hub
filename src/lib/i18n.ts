@@ -400,7 +400,8 @@ async function autoTranslateUnknownText(root: Node, language: LanguageCode) {
     if (translated !== original.trim() && textNode.isConnected) {
       const leading = original.match(/^\\s*/)?.[0] ?? "";
       const trailing = original.match(/\\s*$/)?.[0] ?? "";
-      textNode.nodeValue = leading + translated + trailing;\n      autoTranslatedLanguage.set(textNode, language);
+      textNode.nodeValue = leading + translated + trailing;
+      autoTranslatedLanguage.set(textNode, language);
     }
   }
 }
@@ -545,7 +546,8 @@ export function initLanguage() {
     for (const mutation of mutations) {
       for (const node of Array.from(mutation.addedNodes)) {
         if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) {
-          translateElement(node, currentLanguage);\n          void autoTranslateUnknownText(node, currentLanguage);
+          translateElement(node, currentLanguage);
+          void autoTranslateUnknownText(node, currentLanguage);
         }
       }
     }
