@@ -63,8 +63,8 @@ export function Header() {
       <div className="hidden border-b border-border/50 py-2 text-center text-xs text-muted-foreground md:block">
         Livraison partout au Maroc • Paiement à la livraison • Ramassage et retour à domicile pour vos réparations
       </div>
-      <div className="container-page relative flex h-16 items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="container-page relative grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4">
+        <div className="flex items-center">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button
@@ -123,33 +123,33 @@ export function Header() {
               </Button>
             </SheetContent>
           </Sheet>
+
+          <nav className="hidden items-center gap-7 lg:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                search={"search" in link ? link.search : {}}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-gold"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link
+              to="/boutique"
+              search={{ categorie: "offres" }}
+              className="text-sm font-medium text-gold"
+            >
+              Offres
+            </Link>
+          </nav>
         </div>
 
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="justify-self-center">
           <Logo />
         </div>
 
-        <nav className="hidden items-center gap-7 lg:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.to}
-              search={"search" in link ? link.search : {}}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-gold"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link
-            to="/boutique"
-            search={{ categorie: "offres" }}
-            className="text-sm font-medium text-gold"
-          >
-            Offres
-          </Link>
-        </nav>
-
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           <form onSubmit={submitSearch} className="hidden xl:block">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
