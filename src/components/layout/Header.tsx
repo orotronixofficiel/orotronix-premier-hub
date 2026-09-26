@@ -75,9 +75,13 @@ export function Header() {
               </button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[85vw] max-w-sm border-border bg-background p-6">
-              <div className="mb-8 flex items-center justify-between">
+              <div className="relative mb-8 flex items-center justify-center">
                 <Logo />
-                <button aria-label="Fermer" onClick={() => setOpen(false)}>
+                <button
+                  aria-label="Fermer"
+                  onClick={() => setOpen(false)}
+                  className="absolute right-0"
+                >
                   <X className="h-5 w-5 text-muted-foreground" />
                 </button>
               </div>
