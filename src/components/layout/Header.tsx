@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { refreshSupabaseSession } from "@/lib/supabase";
+import { getLanguage, setLanguage, type LanguageCode } from "@/lib/i18n";
 
 const navLinks = [
   { to: "/boutique", label: "Boutique" },
@@ -27,7 +28,7 @@ export function Header() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("AR");
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(() => getLanguage());
   const [query, setQuery] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
 
