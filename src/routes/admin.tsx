@@ -23,7 +23,7 @@ const emptyRepair: Omit<Repair,"id"> = { name:"",slug:"",description:"",price_fr
 const emptyCategory: Omit<Category,"id"> = { name:"",slug:"",description:"",image_url:"",sort_order:0 };
 
 function AdminPage() {
-  const [token,setToken]=useState<string|null>(() => typeof window !== "undefined" ? sessionStorage.getItem("orotronix_admin_token") : null);
+  const [token,setToken]=useState<string|null>(() => typeof window !== "undefined" ? (sessionStorage.getItem("orotronix_admin_token") || sessionStorage.getItem("orotronix_user_token")) : null);
   const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [error,setError]=useState(""); const [loading,setLoading]=useState(false);
   const [tab,setTab]=useState("dashboard");
   const [customers,setCustomers]=useState<Array<{id:string;email:string|null;created_at:string;last_sign_in_at:string|null;full_name:string|null;phone:string|null;city:string|null;order_count:number;total_spent:number;last_order_at:string|null}>>([]);
