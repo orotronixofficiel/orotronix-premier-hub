@@ -176,7 +176,8 @@ const STORAGE_KEY = "orotronix_language";
 
 let currentLanguage: LanguageCode = "FR";
 let observer: MutationObserver | null = null;
-let translating = false;\nconst originalText = new WeakMap<Text, string>();
+let translating = false;
+const originalText = new WeakMap<Text, string>();
 
 function translateString(value: string, language: LanguageCode) {
   const leading = value.match(/^\s*/)?.[0] ?? "";
