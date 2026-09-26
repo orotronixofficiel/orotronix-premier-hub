@@ -329,6 +329,7 @@ let observer: MutationObserver | null = null;
 let translating = false;
 const originalText = new WeakMap<Text, string>();
 const autoTranslationCache = new Map<string, string>();
+const autoTranslatedLanguage = new WeakMap<Text, LanguageCode>();
 const AUTO_CACHE_KEY = "orotronix_auto_translation_cache";
 
 function loadAutoTranslationCache() {
@@ -391,7 +392,7 @@ async function autoTranslateUnknownText(root: Node, language: LanguageCode) {
     const parent = textNode.parentElement;
     if (!parent || ["SCRIPT", "STYLE", "NOSCRIPT"].includes(parent.tagName)) return false;
     const original = originalText.get(textNode) ?? textNode.nodeValue ?? "";
-    return shouldAutoTranslate(original.trim()) && !translations[language][normalizeKey(original.trim())] && !dynamicTranslations[language].some(([pattern]) => pattern.test(normalizeKey(original.trim())));
+    return shouldAutoTranslate(original.trim()) && autoTranslatedLanguage.get(textNode) !== language && !translations[language][normalizeKey(original.trim())] && !dynamicTranslations[language].some(([pattern]) => pattern.test(normalizeKey(original.trim())));
   });
   for (const textNode of pending) {
     const original = originalText.get(textNode) ?? textNode.nodeValue ?? "";
@@ -399,7 +400,7 @@ async function autoTranslateUnknownText(root: Node, language: LanguageCode) {
     if (translated !== original.trim() && textNode.isConnected) {
       const leading = original.match(/^\\s*/)?.[0] ?? "";
       const trailing = original.match(/\\s*$/)?.[0] ?? "";
-      textNode.nodeValue = leading + translated + trailing;
+      textNode.nodeValue = leading + translated + trailing;\n      autoTranslatedLanguage.set(textNode, language);
     }
   }
 }
