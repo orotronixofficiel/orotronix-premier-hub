@@ -15,6 +15,7 @@ import { CartProvider } from "@/context/cart";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { initLanguage } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
