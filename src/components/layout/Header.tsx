@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, ShoppingBag, UserRound } from "lucide-react";
+import { Languages, Menu, Search, ShoppingBag, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/cart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -120,6 +120,15 @@ export function Header() {
               </Button>
             </SheetContent>
           </Sheet>
+
+          <button
+            type="button"
+            aria-label="Changer de langue"
+            title="Changer de langue"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:border-gold/60 hover:text-gold lg:hidden"
+          >
+            <Languages className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
