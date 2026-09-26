@@ -9,7 +9,7 @@ export function Logo({ className = "" }: { className?: string }) {
       <img
         src={LOGO_WORDMARK}
         alt="OROTRONIX"
-        className="h-8 w-auto max-w-[190px] object-contain sm:h-9 sm:max-w-[220px]"
+        className="h-10 w-auto max-w-[230px] object-contain sm:h-11 sm:max-w-[250px]"
       />
     </Link>
   );
