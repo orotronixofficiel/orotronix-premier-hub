@@ -199,8 +199,8 @@ function translateElement(root: Node, language: LanguageCode) {
       const parent = textNode.parentElement;
       if (!parent || ["SCRIPT", "STYLE", "NOSCRIPT"].includes(parent.tagName)) continue;
       if (!textNode.nodeValue?.trim()) continue;
-      const original = textNode.getAttribute("data-orotronix-original") ?? textNode.nodeValue;
-      if (!textNode.getAttribute("data-orotronix-original")) textNode.setAttribute("data-orotronix-original", original);
+      const original = originalText.get(textNode) ?? textNode.nodeValue ?? "";
+      if (!originalText.has(textNode)) originalText.set(textNode, original);
       textNode.nodeValue = translateString(original, language);
     }
 
@@ -232,6 +232,10 @@ export function setLanguage(language: LanguageCode) {
 }
 
 export function getLanguage(): LanguageCode {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === "AR" || saved === "EN" || saved === "FR") currentLanguage = saved;
+  }
   return currentLanguage;
 }
 
