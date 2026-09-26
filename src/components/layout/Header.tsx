@@ -74,7 +74,7 @@ export function Header() {
       <div className="hidden border-b border-border/50 py-2 text-center text-xs text-muted-foreground md:block">
         Livraison partout au Maroc • Paiement à la livraison • Ramassage et retour à domicile pour vos réparations
       </div>
-      <div className="container-page relative flex h-16 items-center justify-between gap-4">
+      <div dir="ltr" className="container-page relative flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
