@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Languages, Menu, Search, ShoppingBag, UserRound } from "lucide-react";
+import { Menu, Search, ShoppingBag, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/cart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,10 +16,18 @@ const navLinks = [
   { to: "/reparation", label: "Réparation" },
 ] as const;
 
+const languages = [
+  { code: "MA", label: "Français", flag: "🇲🇦" },
+  { code: "FR", label: "Français", flag: "🇫🇷" },
+  { code: "EN", label: "English", flag: "🇬🇧" },
+] as const;
+
 export function Header() {
   const { count } = useCart();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("MA");
   const [query, setQuery] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -57,6 +65,8 @@ export function Header() {
     setOpen(false);
     navigate({ to: "/boutique", search: { q: query || undefined } });
   };
+
+  const currentLanguage = languages.find((language) => language.code === selectedLanguage) ?? languages[0];
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl">
@@ -121,14 +131,38 @@ export function Header() {
             </SheetContent>
           </Sheet>
 
-          <button
-            type="button"
-            aria-label="Changer de langue"
-            title="Changer de langue"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:border-gold/60 hover:text-gold lg:hidden"
-          >
-            <Languages className="h-5 w-5" />
-          </button>
+          <div className="relative lg:hidden">
+            <button
+              type="button"
+              aria-label="Changer de langue"
+              aria-expanded={languageOpen}
+              title="Changer de langue"
+              onClick={() => setLanguageOpen((value) => !value)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-lg transition-colors hover:border-gold/60 hover:text-gold"
+            >
+              <span aria-hidden="true">{currentLanguage.flag}</span>
+            </button>
+
+            {languageOpen && (
+              <div className="absolute left-0 top-12 z-[60] flex gap-2 rounded-lg border border-border bg-background p-2 shadow-xl">
+                {languages.map((language) => (
+                  <button
+                    key={language.code}
+                    type="button"
+                    aria-label={language.label}
+                    title={language.label}
+                    onClick={() => {
+                      setSelectedLanguage(language.code);
+                      setLanguageOpen(false);
+                    }}
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-md border text-lg transition-colors hover:border-gold/60 hover:bg-surface ${selectedLanguage === language.code ? "border-gold bg-surface" : "border-border"}`}
+                  >
+                    <span aria-hidden="true">{language.flag}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
