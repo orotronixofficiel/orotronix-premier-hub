@@ -328,6 +328,82 @@ let currentLanguage: LanguageCode = "FR";
 let observer: MutationObserver | null = null;
 let translating = false;
 const originalText = new WeakMap<Text, string>();
+const autoTranslationCache = new Map<string, string>();
+const AUTO_CACHE_KEY = "orotronix_auto_translation_cache";
+
+function loadAutoTranslationCache() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(AUTO_CACHE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    if (parsed && typeof parsed === "object") {
+      for (const [key, value] of Object.entries(parsed)) {
+        if (typeof value === "string") autoTranslationCache.set(key, value);
+      }
+    }
+  } catch {}
+}
+
+function saveAutoTranslationCache() {
+  if (typeof window === "undefined") return;
+  try {
+    const obj: Record<string, string> = {};
+    for (const [key, value] of autoTranslationCache) obj[key] = value;
+    localStorage.setItem(AUTO_CACHE_KEY, JSON.stringify(obj));
+  } catch {}
+}
+
+function shouldAutoTranslate(value: string) {
+  if (!value || value.length < 3 || value.length > 500) return false;
+  if (/^https?:\\/\\//i.test(value) || /@/.test(value)) return false;
+  if (/^[\\d\\s.,:+%€$MAD/-]+$/.test(value)) return false;
+  if (/^[A-Z0-9._-]{2,20}$/.test(value) && !/[a-z]/.test(value)) return false;
+  return true;
+}
+
+async function autoTranslateText(value: string, language: LanguageCode) {
+  if (language === "FR" || !shouldAutoTranslate(value)) return value;
+  const key = language + "::" + normalizeKey(value);
+  const cached = autoTranslationCache.get(key);
+  if (cached) return cached;
+  try {
+    const params = new URLSearchParams({ q: value, langpair: "fr|" + (language === "AR" ? "ar" : "en") });
+    const response = await fetch("https://api.mymemory.translated.net/get?" + params.toString(), { headers: { Accept: "application/json" } });
+    if (!response.ok) return value;
+    const data = await response.json() as { responseData?: { translatedText?: string } };
+    const translated = data.responseData?.translatedText?.trim();
+    if (!translated || translated.toLowerCase() === value.toLowerCase()) return value;
+    autoTranslationCache.set(key, translated);
+    saveAutoTranslationCache();
+    return translated;
+  } catch {
+    return value;
+  }
+}
+
+async function autoTranslateUnknownText(root: Node, language: LanguageCode) {
+  if (language === "FR") return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  let node: Node | null;
+  while ((node = walker.nextNode())) nodes.push(node as Text);
+  const pending = nodes.filter((textNode) => {
+    const parent = textNode.parentElement;
+    if (!parent || ["SCRIPT", "STYLE", "NOSCRIPT"].includes(parent.tagName)) return false;
+    const original = originalText.get(textNode) ?? textNode.nodeValue ?? "";
+    return shouldAutoTranslate(original.trim()) && !translations[language][normalizeKey(original.trim())] && !dynamicTranslations[language].some(([pattern]) => pattern.test(normalizeKey(original.trim())));
+  });
+  for (const textNode of pending) {
+    const original = originalText.get(textNode) ?? textNode.nodeValue ?? "";
+    const translated = await autoTranslateText(original.trim(), language);
+    if (translated !== original.trim() && textNode.isConnected) {
+      const leading = original.match(/^\\s*/)?.[0] ?? "";
+      const trailing = original.match(/\\s*$/)?.[0] ?? "";
+      textNode.nodeValue = leading + translated + trailing;
+    }
+  }
+}
+
 
 function normalizeKey(value: string) {
   return value
@@ -468,7 +544,7 @@ export function initLanguage() {
     for (const mutation of mutations) {
       for (const node of Array.from(mutation.addedNodes)) {
         if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) {
-          translateElement(node, currentLanguage);
+          translateElement(node, currentLanguage);\n          void autoTranslateUnknownText(node, currentLanguage);
         }
       }
     }
