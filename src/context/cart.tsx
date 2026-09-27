@@ -24,6 +24,8 @@ type CartContextValue = {
   subtotal: number;
   shipping: number;
   total: number;
+  shippingCity: string;
+  setShippingCity: (city: string) => void;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (slug: string) => void;
   setQuantity: (slug: string, quantity: number) => void;
@@ -31,13 +33,20 @@ type CartContextValue = {
 };
 
 const STORAGE_KEY = "orotronix.cart.v1";
-const FREE_SHIPPING_THRESHOLD = 800;
-const SHIPPING_FEE = 40;
+const MOHAMMEDIA_SHIPPING_FEE = 20;
+const OUTSIDE_CITY_SHIPPING_FEE = 40;
+
+function getShippingFee(city: string) {
+  const normalized = city.trim().toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (!normalized) return 0;
+  return normalized === "mohammedia" ? MOHAMMEDIA_SHIPPING_FEE : OUTSIDE_CITY_SHIPPING_FEE;
+}
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [shippingCity, setShippingCityState] = useState("");
 
   useEffect(() => {
     setItems(readJSON<CartItem[]>(STORAGE_KEY, []));
@@ -80,23 +89,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const setShippingCity = useCallback((city: string) => setShippingCityState(city), []);
+
   const clear = useCallback(() => setItems([]), []);
 
   const value = useMemo<CartContextValue>(() => {
     const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+    const shipping = subtotal === 0 ? 0 : getShippingFee(shippingCity);
     return {
       items,
       count: items.reduce((sum, i) => sum + i.quantity, 0),
       subtotal,
       shipping,
       total: subtotal + shipping,
+      shippingCity,
+      setShippingCity,
       addItem,
       removeItem,
       setQuantity,
       clear,
     };
-  }, [items, addItem, removeItem, setQuantity, clear]);
+  }, [items, shippingCity, addItem, removeItem, setQuantity, clear, setShippingCity]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
