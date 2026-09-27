@@ -145,17 +145,24 @@ function RootComponent() {
     }
   }, []);
 
+  const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <div className="flex min-h-screen flex-col bg-background">
-          <Header />
-          <main className="flex-1">
-            {/* Required: nested routes render here. */}
+        {isAdminRoute ? (
+          <main className="min-h-screen bg-background">
             <Outlet />
           </main>
-          <Footer />
-        </div>
+        ) : (
+          <div className="flex min-h-screen flex-col bg-background">
+            <Header />
+            <main className="flex-1">
+              {/* Required: nested routes render here. */}
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
+        )}
         <Toaster position="top-center" />
       </CartProvider>
     </QueryClientProvider>
