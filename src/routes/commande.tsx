@@ -27,7 +27,7 @@ export const Route = createFileRoute("/commande")({
 type SavedAddress = { id:string; label:string; full_name:string; phone:string; city:string; address:string; is_default:boolean };
 
 function CheckoutPage() {
-  const { items, subtotal, shipping, total, clear } = useCart();
+  const { items, subtotal, shipping, total, clear, setShippingCity } = useCart();
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [customerEmail, setCustomerEmail] = useState(() => typeof window !== "undefined" ? sessionStorage.getItem("orotronix_user_email") || "" : "");
@@ -39,6 +39,10 @@ function CheckoutPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setShippingCity(city);
+  }, [city, setShippingCity]);
 
   useEffect(() => {
     const token = sessionStorage.getItem("orotronix_user_token");
@@ -164,7 +168,7 @@ function CheckoutPage() {
         <aside className="h-fit rounded-xl border border-border bg-card p-6 lg:sticky lg:top-24">
           <h2 className="font-display text-lg font-semibold">Votre commande</h2>
           <ul className="mt-4 space-y-3">{items.map(i=><li key={i.slug} className="flex justify-between gap-3 text-sm"><span className="text-muted-foreground">{i.name} <span className="text-foreground">× {i.quantity}</span></span><span>{formatMAD(i.price*i.quantity)}</span></li>)}</ul>
-          <dl className="mt-5 space-y-3 border-t border-border pt-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">Sous-total</dt><dd>{formatMAD(subtotal)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Livraison</dt><dd>{shipping===0?"Offerte":formatMAD(shipping)}</dd></div><div className="flex justify-between border-t border-border pt-3 font-display text-base font-semibold"><dt>Total à payer</dt><dd className="text-gold">{formatMAD(total)}</dd></div></dl>
+          <dl className="mt-5 space-y-3 border-t border-border pt-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">Sous-total</dt><dd>{formatMAD(subtotal)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Livraison</dt><dd>{!city?"Choisissez votre ville":shipping===20?"20 DH — Mohammedia":"40 DH — Hors Mohammedia"}</dd></div><div className="flex justify-between border-t border-border pt-3 font-display text-base font-semibold"><dt>Total à payer</dt><dd className="text-gold">{formatMAD(total)}</dd></div></dl>
           <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting}>{submitting?"Enregistrement…":"Confirmer la commande"}</Button>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 text-gold" /> Aucun paiement en ligne requis</p>
           {loggedIn && <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground"><CheckCircle2 className="h-3.5 w-3.5 text-gold" /> Votre commande sera liée à votre compte</p>}
