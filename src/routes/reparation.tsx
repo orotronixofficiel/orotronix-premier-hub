@@ -1,43 +1,19 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BadgeCheck, CheckCircle2, Clock, Phone, Truck, Wrench } from "lucide-react";
+import { CheckCircle2, Clock, Phone, Truck, Wrench } from "lucide-react";
 import { toast } from "sonner";
-import repairImg from "@/assets/repair.jpg";
-import { moroccanCities, phoneBrands, repairTypes as fallbackRepairTypes } from "@/data/repair";
-import { supabaseConfigured, supabaseRest } from "@/lib/supabase";
+import { moroccanCities, phoneBrands, repairTypes } from "@/data/repair";
 import { makeReference, saveRepairRequest, type RepairRequest } from "@/lib/orders";
-import { SectionHeading } from "@/components/layout/Section";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatMAD } from "@/lib/format";
 
 export const Route = createFileRoute("/reparation")({
-  // This page is entirely client-interactive and uses browser-side UI primitives.
-  // Keep its initial render out of TanStack Start SSR to avoid Cloudflare SSR/hydration
-  // failures on this route. Data loading already happens in useEffect on the client.
   ssr: false,
   head: () => ({
     meta: [
       { title: "Réparation téléphone au Maroc — OROTRONIX" },
       {
         name: "description",
-        content:
-          "Réparation professionnelle de smartphone : écran, batterie, port de charge, caméra, audio, logiciel, oxydation. Ramassage et livraison à domicile.",
-      },
-      { property: "og:title", content: "Réparation de téléphone — OROTRONIX" },
-      {
-        property: "og:description",
-        content: "Diagnostic honnête, pièces de qualité, ramassage et retour à domicile partout au Maroc.",
+        content: "Réparation professionnelle de smartphones : écran, batterie, charge, caméra, audio, logiciel et oxydation.",
       },
     ],
   }),
@@ -45,83 +21,50 @@ export const Route = createFileRoute("/reparation")({
 });
 
 function RepairPage() {
-  const [repairTypes, setRepairTypes] = useState<Array<{ id: string; name: string; description: string; from: number; duration: string }>>(() => fallbackRepairTypes.map((r) => ({ ...r })));
-  useEffect(() => {
-    if (!supabaseConfigured) return;
-    void supabaseRest<Array<{
-      id: string;
-      slug: string | null;
-      name: string | null;
-      description: string | null;
-      price_from: number | null;
-      duration: string | null;
-      active: boolean | null;
-      service_name: string;
-      estimated_price: number;
-      repair_time: string | null;
-      available: boolean;
-    }>>("repair_services", {
-      query: "?select=*&available=eq.true&order=sort_order.asc",
-    })
-      .then((rows) => {
-        if (!Array.isArray(rows)) return;
-        const normalized = rows
-          .map((r) => ({
-            id: String(r.slug || r.id || ""),
-            name: String(r.name || r.service_name || ""),
-            description: String(r.description || ""),
-            from: Number(r.price_from ?? r.estimated_price ?? 0),
-            duration: String(r.duration || r.repair_time || ""),
-          }))
-          .filter((r) => r.id && r.name);
-        if (normalized.length) setRepairTypes(normalized);
-      })
-      .catch(() => {});
-  }, []);
+  const [submitted, setSubmitted] = useState<RepairRequest | null>(null);
+
   return (
-    <div>
+    <main className="min-h-screen">
       <section className="border-b border-border">
-        <div className="container-page grid items-center gap-10 py-12 lg:grid-cols-2 lg:py-20">
-          <div>
-            <p className="eyebrow">Atelier OROTRONIX</p>
-            <h1 className="mt-4 font-display text-4xl font-bold leading-tight sm:text-5xl">
-              Réparation <span className="text-gradient-gold">professionnelle</span> de téléphone
-            </h1>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Diagnostic transparent, pièces de qualité et garantie sur l'intervention. Déposez votre
-              appareil en atelier ou demandez le ramassage à domicile.
-            </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg"><a href="#demande">Demander une réparation</a></Button>
-              <Button asChild size="lg" variant="outline">
-                <a href="tel:+212600000000"><Phone className="mr-2 h-4 w-4" /> Appeler l'atelier</a>
-              </Button>
-            </div>
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-border">
-            <img src={repairImg} alt="Technicien réparant un smartphone" width={1200} height={912} className="h-full w-full object-cover" />
+        <div className="container-page py-14 lg:py-20">
+          <p className="eyebrow">Atelier OROTRONIX</p>
+          <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold leading-tight sm:text-5xl">
+            Réparation <span className="text-gradient-gold">professionnelle</span> de téléphone
+          </h1>
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Diagnostic transparent, pièces de qualité et intervention réalisée avec soin.
+            Déposez votre téléphone en atelier ou demandez le ramassage à domicile.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href="#demande" className="inline-flex h-11 items-center justify-center rounded-lg bg-gold px-5 text-sm font-semibold text-black">
+              Demander une réparation
+            </a>
+            <a href="tel:+212656566366" className="inline-flex h-11 items-center justify-center rounded-lg border border-border px-5 text-sm font-semibold">
+              <Phone className="mr-2 h-4 w-4" /> 06 56 56 63 66
+            </a>
           </div>
         </div>
       </section>
 
-      <section className="container-page py-16 lg:py-20">
-        <SectionHeading
-          eyebrow="Nos interventions"
-          title="Types de réparation"
-          description="Tarifs indicatifs à partir de. Le prix final est confirmé après diagnostic, toujours avec votre accord."
-        />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {repairTypes.map((r) => (
-            <article key={r.id} className="hover-lift rounded-xl border border-border bg-card p-5">
+      <section className="container-page py-14 lg:py-20">
+        <p className="eyebrow">Nos interventions</p>
+        <h2 className="mt-3 font-display text-3xl font-bold">Types de réparation</h2>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          Tarifs indicatifs à partir de. Le prix final est confirmé après diagnostic.
+        </p>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {repairTypes.map((repair) => (
+            <article key={repair.id} className="rounded-xl border border-border bg-card p-5">
               <Wrench className="h-5 w-5 text-gold" />
-              <h3 className="mt-4 font-display text-base font-semibold">{r.name}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{r.description}</p>
-              <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs">
+              <h3 className="mt-4 font-display font-semibold">{repair.name}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{repair.description}</p>
+              <div className="mt-5 flex items-center justify-between border-t border-border pt-3 text-xs">
                 <span className="text-gold">
-                  {r.from > 0 ? `Dès ${formatMAD(r.from)}` : "Diagnostic gratuit"}
+                  {repair.from > 0 ? `Dès ${formatMAD(repair.from)}` : "Diagnostic"}
                 </span>
                 <span className="flex items-center gap-1 text-muted-foreground">
-                  <Clock className="h-3 w-3" /> {r.duration}
+                  <Clock className="h-3 w-3" /> {repair.duration}
                 </span>
               </div>
             </article>
@@ -129,38 +72,39 @@ function RepairPage() {
         </div>
       </section>
 
-      <section id="ramassage" className="border-y border-border bg-surface/30">
-        <div className="container-page py-16 lg:py-20">
-          <SectionHeading
-            eyebrow="Service à domicile"
-            title="Ramassage et livraison de votre réparation"
-            description="Vous ne vous déplacez pas : nous récupérons l'appareil, nous réparons, nous vous le rendons."
-          />
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              { icon: <Truck className="h-5 w-5" />, title: "Ramassage à votre adresse", text: "Casablanca et principales villes du Maroc." },
-              { icon: <Wrench className="h-5 w-5" />, title: "Réparation en atelier", text: "Diagnostic, devis validé par vous, puis intervention." },
-              { icon: <BadgeCheck className="h-5 w-5" />, title: "Retour garanti", text: "Contrôle qualité et garantie sur la pièce remplacée." },
-            ].map((s) => (
-              <div key={s.title} className="rounded-xl border border-border bg-card p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-md border border-gold/30 text-gold">
-                  {s.icon}
-                </span>
-                <h3 className="mt-5 font-display text-base font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
-              </div>
-            ))}
+      <section className="border-y border-border bg-surface/30">
+        <div className="container-page py-14 lg:py-20">
+          <p className="eyebrow">Service à domicile</p>
+          <h2 className="mt-3 font-display text-3xl font-bold">Ramassage et livraison</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <InfoCard icon={<Truck className="h-5 w-5" />} title="Ramassage" text="Nous récupérons votre appareil selon le créneau convenu." />
+            <InfoCard icon={<Wrench className="h-5 w-5" />} title="Réparation" text="Diagnostic, validation du devis puis intervention." />
+            <InfoCard icon={<CheckCircle2 className="h-5 w-5" />} title="Retour" text="Contrôle de l'appareil puis restitution." />
           </div>
         </div>
       </section>
 
-      <RepairForm />
+      {submitted ? (
+        <Success request={submitted} onReset={() => setSubmitted(null)} />
+      ) : (
+        <RepairForm onSubmitted={setSubmitted} />
+      )}
+    </main>
+  );
+}
+
+function InfoCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-gold/30 text-gold">{icon}</span>
+      <h3 className="mt-5 font-display font-semibold">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">{text}</p>
     </div>
   );
 }
 
-function RepairForm() {
-  const [values, setValues] = useState({
+function RepairForm({ onSubmitted }: { onSubmitted: (request: RepairRequest) => void }) {
+  const [form, setForm] = useState({
     fullName: "",
     phone: "",
     city: "",
@@ -170,165 +114,159 @@ function RepairForm() {
     problemType: "",
     problemDescription: "",
     notes: "",
+    pickup: true,
   });
-  const [pickup, setPickup] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState<RepairRequest | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const set = (key: keyof typeof values) => (value: string) =>
-    setValues((v) => ({ ...v, [key]: value }));
+  const update = (key: keyof typeof form, value: string | boolean) =>
+    setForm((current) => ({ ...current, [key]: value }));
 
-  const validate = () => {
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const next: Record<string, string> = {};
-    if (values.fullName.trim().length < 3) next.fullName = "Indiquez votre nom complet.";
-    if (!/^[0-9+s]{9,15}$/.test(values.phone.trim())) next.phone = "Numéro de téléphone invalide.";
-    if (!values.city) next.city = "Choisissez votre ville.";
-    if (values.address.trim().length < 8) next.address = "Indiquez une adresse complète.";
-    if (!values.brand) next.brand = "Choisissez la marque.";
-    if (values.model.trim().length < 2) next.model = "Indiquez le modèle.";
-    if (!values.problemType) next.problemType = "Choisissez le type de panne.";
-    if (values.problemDescription.trim().length < 10) next.problemDescription = "Décrivez le problème (10 caractères min.).";
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) {
+    if (form.fullName.trim().length < 3) next.fullName = "Nom complet requis.";
+    if (!/^[0-9 +]{9,18}$/.test(form.phone.trim())) next.phone = "Numéro invalide.";
+    if (!form.city) next.city = "Choisissez une ville.";
+    if (form.address.trim().length < 5) next.address = "Adresse requise.";
+    if (!form.brand) next.brand = "Choisissez une marque.";
+    if (form.model.trim().length < 2) next.model = "Modèle requis.";
+    if (!form.problemType) next.problemType = "Choisissez le problème.";
+    if (form.problemDescription.trim().length < 10) next.problemDescription = "Décrivez le problème (10 caractères minimum).";
+
+    setErrors(next);
+    if (Object.keys(next).length) {
       toast.error("Veuillez corriger les champs indiqués.");
       return;
     }
-    setSubmitting(true);
+
+    setLoading(true);
     try {
       const request: RepairRequest = {
         reference: makeReference("REP"),
         createdAt: new Date().toISOString(),
-        ...values,
-        pickup,
+        fullName: form.fullName.trim(),
+        phone: form.phone.trim(),
+        city: form.city,
+        address: form.address.trim(),
+        brand: form.brand,
+        model: form.model.trim(),
+        problemType: form.problemType,
+        problemDescription: form.problemDescription.trim(),
+        notes: form.notes.trim(),
+        pickup: form.pickup,
       };
+
       await saveRepairRequest(request);
-      setSubmitted(request);
+      onSubmitted(request);
       toast.success("Demande enregistrée", { description: `Référence ${request.reference}` });
     } catch (error) {
-      console.error("OROTRONIX: repair request failed", error);
-      toast.error("Impossible d'enregistrer la demande. Veuillez réessayer.");
+      console.error("OROTRONIX repair error:", error);
+      toast.error("Impossible d'enregistrer la demande.");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <section id="demande" className="container-page py-16 lg:py-20">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-gold/40 bg-card p-8 text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-gold" />
-          <h2 className="mt-4 font-display text-2xl font-semibold">Demande de réparation envoyée</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Référence <span className="text-gold">{submitted.reference}</span>. Notre équipe vous
-            rappelle au {submitted.phone} pour confirmer le diagnostic
-            {submitted.pickup ? " et le créneau de ramassage" : " et le dépôt en atelier"}.
-          </p>
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild><a href="tel:+212600000000"><Phone className="mr-2 h-4 w-4" /> Appeler maintenant</a></Button>
-            <Button variant="outline" onClick={() => setSubmitted(null)}>Nouvelle demande</Button>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section id="demande" className="container-page py-16 lg:py-20">
-      <SectionHeading
-        eyebrow="Formulaire"
-        title="Demander une réparation"
-        description="Décrivez votre panne : nous vous rappelons rapidement avec une estimation et un créneau."
-      />
+    <section id="demande" className="container-page py-14 lg:py-20">
+      <p className="eyebrow">Formulaire</p>
+      <h2 className="mt-3 font-display text-3xl font-bold">Demander une réparation</h2>
+      <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+        Remplissez le formulaire et notre équipe vous contacte pour confirmer la prise en charge.
+      </p>
 
-      <form onSubmit={submit} className="grid gap-6 rounded-2xl border border-border bg-card p-6 lg:p-8">
+      <form onSubmit={submit} className="mt-8 grid gap-5 rounded-2xl border border-border bg-card p-6 lg:p-8">
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field id="fullName" label="Nom complet" error={errors.fullName}>
-            <Input id="fullName" value={values.fullName} onChange={(e) => set("fullName")(e.target.value)} placeholder="Ex. Salma Bennani" className="bg-surface" />
+          <Field label="Nom complet" error={errors.fullName}>
+            <input value={form.fullName} onChange={(e) => update("fullName", e.target.value)} placeholder="Ex. Salma Bennani" />
           </Field>
-          <Field id="phone" label="Numéro de téléphone" error={errors.phone}>
-            <Input id="phone" value={values.phone} onChange={(e) => set("phone")(e.target.value)} placeholder="06 00 00 00 00" inputMode="tel" className="bg-surface" />
+          <Field label="Téléphone" error={errors.phone}>
+            <input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="06 00 00 00 00" inputMode="tel" />
           </Field>
-          <Field id="city" label="Ville" error={errors.city}>
-            <Select value={values.city} onValueChange={set("city")}>
-              <SelectTrigger id="city" className="bg-surface"><SelectValue placeholder="Choisir une ville" /></SelectTrigger>
-              <SelectContent>
-                {moroccanCities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
+          <Field label="Ville" error={errors.city}>
+            <select value={form.city} onChange={(e) => update("city", e.target.value)}>
+              <option value="">Choisir une ville</option>
+              {moroccanCities.map((city) => <option key={city} value={city}>{city}</option>)}
+            </select>
           </Field>
-          <Field id="brand" label="Marque du téléphone" error={errors.brand}>
-            <Select value={values.brand} onValueChange={set("brand")}>
-              <SelectTrigger id="brand" className="bg-surface"><SelectValue placeholder="Choisir une marque" /></SelectTrigger>
-              <SelectContent>
-                {phoneBrands.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
+          <Field label="Marque" error={errors.brand}>
+            <select value={form.brand} onChange={(e) => update("brand", e.target.value)}>
+              <option value="">Choisir une marque</option>
+              {phoneBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+            </select>
           </Field>
-          <Field id="model" label="Modèle" error={errors.model}>
-            <Input id="model" value={values.model} onChange={(e) => set("model")(e.target.value)} placeholder="Ex. iPhone 13 Pro" className="bg-surface" />
+          <Field label="Modèle" error={errors.model}>
+            <input value={form.model} onChange={(e) => update("model", e.target.value)} placeholder="Ex. iPhone 13 Pro" />
           </Field>
-          <Field id="problemType" label="Type de problème" error={errors.problemType}>
-            <Select value={values.problemType} onValueChange={set("problemType")}>
-              <SelectTrigger id="problemType" className="bg-surface"><SelectValue placeholder="Choisir une panne" /></SelectTrigger>
-              <SelectContent>
-                {repairTypes.map((r) => <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+          <Field label="Type de problème" error={errors.problemType}>
+            <select value={form.problemType} onChange={(e) => update("problemType", e.target.value)}>
+              <option value="">Choisir une panne</option>
+              {repairTypes.map((repair) => <option key={repair.id} value={repair.name}>{repair.name}</option>)}
+            </select>
           </Field>
         </div>
 
-        <Field id="address" label="Adresse" error={errors.address}>
-          <Textarea id="address" rows={2} value={values.address} onChange={(e) => set("address")(e.target.value)} placeholder="Quartier, rue, numéro, étage…" className="bg-surface" />
+        <Field label="Adresse" error={errors.address}>
+          <textarea value={form.address} onChange={(e) => update("address", e.target.value)} rows={2} placeholder="Quartier, rue, numéro..." />
         </Field>
 
-        <Field id="problemDescription" label="Description du problème" error={errors.problemDescription}>
-          <Textarea id="problemDescription" rows={4} value={values.problemDescription} onChange={(e) => set("problemDescription")(e.target.value)} placeholder="Depuis quand ? Suite à une chute ? Que se passe-t-il exactement ?" className="bg-surface" />
+        <Field label="Description du problème" error={errors.problemDescription}>
+          <textarea value={form.problemDescription} onChange={(e) => update("problemDescription", e.target.value)} rows={4} placeholder="Décrivez exactement la panne..." />
         </Field>
 
-        <Field id="notes" label="Notes supplémentaires (optionnel)">
-          <Textarea id="notes" rows={2} value={values.notes} onChange={(e) => set("notes")(e.target.value)} placeholder="Disponibilités, code d'accès, remarques…" className="bg-surface" />
+        <Field label="Notes supplémentaires">
+          <textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={2} placeholder="Disponibilités ou remarques..." />
         </Field>
 
-        <label className="flex items-start gap-3 rounded-lg border border-gold/30 bg-surface p-4">
-          <Checkbox checked={pickup} onCheckedChange={(v) => setPickup(v === true)} className="mt-0.5" />
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gold/30 bg-surface p-4 text-sm">
+          <input type="checkbox" checked={form.pickup} onChange={(e) => update("pickup", e.target.checked)} className="mt-1" />
           <span>
-            <span className="font-display text-sm font-semibold">Je souhaite le ramassage et la livraison à domicile</span>
-            <span className="mt-1 block text-xs text-muted-foreground">
-              Un coursier récupère l'appareil chez vous et vous le rapporte réparé.
-            </span>
+            <strong className="block">Je souhaite le ramassage et la livraison</strong>
+            <span className="mt-1 block text-xs text-muted-foreground">Nous vous contactons pour confirmer le créneau.</span>
           </span>
         </label>
 
-        <Button type="submit" size="lg" className="w-full sm:w-auto sm:justify-self-start" disabled={submitting}>
-          {submitting ? "Enregistrement…" : "Envoyer la demande"}
-        </Button>
+        <button type="submit" disabled={loading} className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-gold px-6 text-sm font-semibold text-black sm:w-fit">
+          {loading ? "Enregistrement..." : "Envoyer la demande"}
+        </button>
       </form>
     </section>
   );
 }
 
-function Field({
-  id,
-  label,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  error?: string;
-  children: ReactNode;
-}) {
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
-    <div>
-      <Label htmlFor={id} className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
-      <div className="mt-2">{children}</div>
-      {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
-    </div>
+    <label className="block">
+      <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
+      <span className="mt-2 block [&_input]:h-11 [&_input]:w-full [&_input]:rounded-lg [&_input]:border [&_input]:border-border [&_input]:bg-surface [&_input]:px-3 [&_input]:text-sm [&_input]:outline-none [&_select]:h-11 [&_select]:w-full [&_select]:rounded-lg [&_select]:border [&_select]:border-border [&_select]:bg-surface [&_select]:px-3 [&_select]:text-sm [&_select]:outline-none [&_textarea]:w-full [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-border [&_textarea]:bg-surface [&_textarea]:p-3 [&_textarea]:text-sm [&_textarea]:outline-none">
+        {children}
+      </span>
+      {error && <span className="mt-1.5 block text-xs text-destructive">{error}</span>}
+    </label>
+  );
+}
+
+function Success({ request, onReset }: { request: RepairRequest; onReset: () => void }) {
+  return (
+    <section id="demande" className="container-page py-16">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-gold/40 bg-card p-8 text-center">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-gold" />
+        <h2 className="mt-4 font-display text-2xl font-semibold">Demande envoyée</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Votre référence est <strong className="text-gold">{request.reference}</strong>.
+          Nous vous contacterons au {request.phone} pour confirmer la prise en charge.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <a href="tel:+212656566366" className="inline-flex h-10 items-center rounded-lg bg-gold px-5 text-sm font-semibold text-black">
+            <Phone className="mr-2 h-4 w-4" /> Appeler
+          </a>
+          <button type="button" onClick={onReset} className="h-10 rounded-lg border border-border px-5 text-sm font-semibold">
+            Nouvelle demande
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
