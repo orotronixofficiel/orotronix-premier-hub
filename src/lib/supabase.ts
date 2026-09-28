@@ -98,7 +98,9 @@ export function startSupabaseOAuth(provider: "google" | "facebook") {
     "/auth/v1/authorize?provider=" +
     provider +
     "&redirect_to=" +
-    encodeURIComponent(redirectTo);
+    encodeURIComponent(redirectTo) +
+    "&prompt=" +
+    encodeURIComponent("consent select_account");
   window.location.assign(authUrl);
 }
 
@@ -195,7 +197,12 @@ export async function supabaseRest<T = unknown>(table: string, options: {
   });
   let response = await makeRequest();
   if (response.status === 401 && accessToken) {
-    const refreshed = await refreshSupabaseSession();
+    const isAdminSession =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("orotronix_admin_token") === accessToken;
+    const refreshed = isAdminSession
+      ? await refreshSupabaseAdminSession()
+      : await refreshSupabaseSession();
     if (refreshed) response = await makeRequest();
   }
   if (!response.ok) throw new Error((await response.text()) || "Supabase HTTP " + response.status);
@@ -226,7 +233,12 @@ export async function uploadSupabaseStorage(file: File, folder = "products"): Pr
   });
 
   if (response.status === 401) {
-    const refreshed = await refreshSupabaseSession();
+    const isAdminSession =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("orotronix_admin_token") === accessToken;
+    const refreshed = isAdminSession
+      ? await refreshSupabaseAdminSession()
+      : await refreshSupabaseSession();
     if (refreshed) {
       accessToken = refreshed;
       response = await fetch(url + "/storage/v1/object/orotronix-media/" + path, {
