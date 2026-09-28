@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, CalendarDays, Camera, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Droplets, Home, MapPin, Phone, Search, ShieldCheck, Smartphone, Truck, Wrench, X } from "lucide-react";
 import { toast } from "sonner";
-import { moroccanCities, phoneBrands, repairTypes } from "@/data/repair";
+import { moroccanCities, repairTypes } from "@/data/repair";
 import { PHONE_CATALOG, PHONE_BRANDS } from "@/data/phone-catalog";
 import { formatMAD } from "@/lib/format";
 import { makeReference } from "@/lib/orders";
