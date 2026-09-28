@@ -5,20 +5,40 @@ type MfaResponse<T> = T;
 
 async function mfaRequest<T>(token: string, path: string, method = "GET", body?: unknown): Promise<T> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error("Supabase n'est pas configuré.");
-  const response = await fetch(SUPABASE_URL + "/auth/v1/" + path, {
-    method,
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: "Bearer " + token,
-      "Content-Type": "application/json",
-    },
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.error_description || data.msg || data.message || "Erreur MFA.");
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+  let response: Response;
+  try {
+    response = await fetch(SUPABASE_URL + "/auth/v1/" + path, {
+      method,
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("La requête MFA a expiré après 10 secondes.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
   }
-  return data as T;
+  const raw = await response.text();
+  let data: Record<string, unknown> = {};
+  try { data = raw ? JSON.parse(raw) as Record<string, unknown> : {}; } catch {}
+  if (!response.ok) {
+    const detail = String(data.error_description || data.msg || data.message || data.error || "").trim();
+    throw new Error(detail || "Erreur MFA HTTP " + response.status + (raw ? ": " + raw.slice(0, 180) : ""));
+  }
+  try {
+    return (raw ? JSON.parse(raw) : {}) as T;
+  } catch {
+    throw new Error("Réponse MFA invalide (HTTP " + response.status + ").");
+  }
 }
 
 export type TotpFactor = {
