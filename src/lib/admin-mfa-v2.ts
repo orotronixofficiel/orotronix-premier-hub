@@ -43,7 +43,8 @@ async function mfaRequest<T>(token: string, path: string, method = "GET", body?:
 
 export type TotpFactor = {
   id: string;
-  type: "totp";
+  type?: "totp";
+  factor_type?: "totp";
   friendly_name?: string;
   status: "verified" | "unverified";
 };
@@ -69,8 +70,36 @@ export type MfaVerifyResult = {
   user: { id: string; email?: string };
 };
 
-export function listAdminMfaFactors(token: string) {
-  return mfaRequest<MfaFactors>(token, "factors");
+/**
+ * Supabase's current JS SDK implements listFactors() by calling getUser()
+ * and reading user.factors. The /auth/v1/factors route is not the listFactors
+ * endpoint and returns HTTP 405 for GET on this project.
+ */
+export async function listAdminMfaFactors(token: string): Promise<MfaFactors> {
+  const user = await mfaRequest<{
+    factors?: Array<{
+      id: string;
+      factor_type?: string;
+      type?: string;
+      friendly_name?: string;
+      status: "verified" | "unverified";
+    }>;
+  }>(token, "user");
+
+  const all = (user.factors || [])
+    .filter((factor) => (factor.factor_type || factor.type) === "totp")
+    .map((factor) => ({
+      id: factor.id,
+      type: "totp" as const,
+      factor_type: "totp" as const,
+      friendly_name: factor.friendly_name,
+      status: factor.status,
+    }));
+
+  return {
+    all,
+    totp: all.filter((factor) => factor.status === "verified"),
+  };
 }
 
 export function unenrollAdminMfa(token: string, factorId: string) {
