@@ -44,6 +44,12 @@ export async function createRepairRequest(request:RepairRequest) {
 export async function getRepairStatus(reference:string,phone:string) {
   return await supabaseRpc<Record<string,unknown>>("get_repair_request_status",{p_reference:reference,p_phone:phone});
 }
+export async function respondRepair(reference:string,phone:string,approved:boolean) {
+  return await supabaseRpc<Record<string,unknown>>("respond_repair_request",{p_reference:reference,p_phone:phone,p_approved:approved});
+}
+export async function rateRepair(reference:string,phone:string,rating:number,review:string) {
+  return await supabaseRpc<Record<string,unknown>>("rate_repair_request",{p_reference:reference,p_phone:phone,p_rating:rating,p_review:review});
+}
 
 export async function uploadRepairPhoto(file:File) {
   if (!supabaseConfigured) throw new Error("Service momentanément indisponible.");
