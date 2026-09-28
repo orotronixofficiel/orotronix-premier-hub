@@ -50,7 +50,7 @@ export const PHONE_CATALOG: Record<string, string[]> = {
   Meizu: ["Meizu M2","Meizu M3","Meizu M5","Meizu M6","Meizu 15","Meizu 16","Meizu 17","Meizu 18","Meizu 20","Meizu 21","Meizu 22","Meizu Note 8","Meizu Note 9","Meizu Note 10","Meizu Note 21"],
   Vertu: ["Vertu Signature","Vertu Ascent","Vertu Constellation","Vertu Ti","Vertu Aster","Vertu Signature Touch","Vertu Aster P","Vertu Ayxta Fold"],
   Microsoft: ["Lumia 435","Lumia 520","Lumia 535","Lumia 550","Lumia 630","Lumia 640","Lumia 650","Lumia 730","Lumia 830","Lumia 930","Lumia 950","Lumia 950 XL","Surface Duo","Surface Duo 2"],
-  Sony Ericsson: ["Xperia X10","Xperia Arc","Xperia Neo","Xperia Play","Xperia Ray","Xperia S","Xperia SL","Xperia P","Xperia U","Xperia T","Xperia Z"],
+  "Sony Ericsson": ["Xperia X10","Xperia Arc","Xperia Neo","Xperia Play","Xperia Ray","Xperia S","Xperia SL","Xperia P","Xperia U","Xperia T","Xperia Z"],
   Panasonic: ["Panasonic Eluga","Panasonic Eluga A","Panasonic Eluga Mark","Panasonic Eluga I","Panasonic P85"],
   Philips: ["Philips Xenium W6610","Philips Xenium W6500","Philips Xenium V787","Philips S309","Philips S337"],
   Amazon: ["Fire Phone"],
