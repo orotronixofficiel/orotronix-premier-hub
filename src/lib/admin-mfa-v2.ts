@@ -53,6 +53,10 @@ export function listAdminMfaFactors(token: string) {
   return mfaRequest<MfaFactors>(token, "factors");
 }
 
+export function unenrollAdminMfa(token: string, factorId: string) {
+  return mfaRequest<{ id: string }>(token, "factors/" + encodeURIComponent(factorId), "DELETE");
+}
+
 export function enrollAdminTotp(token: string) {
   return mfaRequest<TotpEnrollment>(token, "factors", "POST", {
     factor_type: "totp",
