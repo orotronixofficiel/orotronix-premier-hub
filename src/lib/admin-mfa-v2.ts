@@ -1,5 +1,5 @@
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, "");
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || "https://qeqqfelebzxwupsqyzbz.supabase.co").replace(/\/$/, "");
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_nnvN9OsnpO_ipsFx0l-orw_yERvs7da";
 
 type MfaResponse<T> = T;
 
