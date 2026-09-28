@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken, uploadSupabaseStorage as uploadProductImage } from "@/lib/supabase";
-import { challengeAdminTotp, enrollAdminTotp, getJwtAal, listAdminMfaFactors, unenrollAdminMfa, verifyAdminTotp } from "@/lib/admin-mfa-v2";
+import { challengeAdminTotp, enrollAdminTotp, getJwtAal, listAdminMfaFactors, verifyAdminTotp } from "@/lib/admin-mfa-v2";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Administration | OROTRONIX" }, { name: "robots", content: "noindex,nofollow" }] }),
