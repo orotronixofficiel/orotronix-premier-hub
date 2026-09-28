@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { BadgeCheck, CheckCircle2, Clock, Phone, Truck, Wrench } from "lucide-react";
 import { toast } from "sonner";
@@ -45,11 +45,11 @@ export const Route = createFileRoute("/reparation")({
 });
 
 function RepairPage() {
-  const [repairTypes, setRepairTypes] = useState(fallbackRepairTypes);
+  const [repairTypes, setRepairTypes] = useState<Array<{ id: string; name: string; description: string; from: number; duration: string }>>(() => fallbackRepairTypes.map((r) => ({ ...r })));
   useEffect(() => {
     if (!supabaseConfigured) return;
     void supabaseRest<Array<{id:string;slug:string|null;name:string|null;description:string|null;price_from:number|null;duration:string|null;active:boolean|null;service_name:string;estimated_price:number;repair_time:string|null;available:boolean}>>("repair_services", { query: "?select=*&available=eq.true&order=sort_order.asc" })
-      .then(rows => setRepairTypes(rows.map(r => ({ id:r.slug || r.id, name:r.name || r.service_name, description:r.description ?? "", from:Number(r.price_from ?? r.estimated_price ?? 0), duration:r.duration || r.repair_time || "" }))))
+      .then((rows) => {\n        if (!Array.isArray(rows)) return;\n        const normalized = rows\n          .map((r) => ({\n            id: String(r.slug || r.id || ""),\n            name: String(r.name || r.service_name || ""),\n            description: String(r.description || ""),\n            from: Number(r.price_from ?? r.estimated_price ?? 0),\n            duration: String(r.duration || r.repair_time || ""),\n          }))\n          .filter((r) => r.id && r.name);\n        if (normalized.length) setRepairTypes(normalized);\n      })
       .catch(() => {});
   }, []);
   return (
@@ -296,7 +296,7 @@ function Field({
   id: string;
   label: string;
   error?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div>
