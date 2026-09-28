@@ -13,7 +13,10 @@ async function authRequest<T>(path: string, token: string, method = "GET", body?
       signal: controller.signal,
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) { const detail = data.error_description || data.msg || data.message || (typeof data === "string" ? data : JSON.stringify(data)); throw new Error(detail || "Erreur MFA."); }
+    if (!response.ok) {
+      const detail = data.error_description || data.msg || data.message || (typeof data === "string" ? data : JSON.stringify(data));
+      throw new Error(detail || "Erreur MFA.");
+    }
     return data as T;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
@@ -33,21 +36,8 @@ export function getJwtAal(token: string): "aal1" | "aal2" | null {
 }
 
 export async function listMfaFactors(token: string) {
-  if (!url || !anonKey) throw new Error("Supabase n'est pas configuré.");
-  const response = await fetch(url + "/rest/v1/auth/factors", {
-    method: "GET",
-    headers: { apikey: anonKey, Authorization: "Bearer " + token, "Content-Type": "application/json" },
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const detail = data.error_description || data.msg || data.message || (typeof data === "string" ? data : JSON.stringify(data));
-    throw new Error(detail || "Impossible de récupérer les facteurs MFA.");
-  }
-  return (Array.isArray(data) ? data : data.factors ?? []).map((f: any) => ({
-    id: f.id,
-    factor_type: f.factor_type,
-    status: f.status,
-  }));
+  const data = await authRequest<{ factors?: Array<{ id: string; factor_type: string; status: string }> }>("user", token);
+  return data.factors ?? [];
 }
 
 export async function enrollAdminTotp(token: string) {
