@@ -23,6 +23,24 @@ export function getSupabaseUserId(): string | null {
   }
 }
 
+export async function refreshSupabaseAdminSession(): Promise<string | null> {
+  if (!supabaseConfigured || typeof window === "undefined") return null;
+  const refreshToken = sessionStorage.getItem("orotronix_admin_refresh_token");
+  if (!refreshToken) return null;
+  const response = await fetch(url + "/auth/v1/token?grant_type=refresh_token", {
+    method: "POST",
+    headers: { apikey: anonKey!, "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+  if (!response.ok) return null;
+  const data = await response.json() as { access_token?: string; refresh_token?: string };
+  if (!data.access_token) return null;
+  accessToken = data.access_token;
+  sessionStorage.setItem("orotronix_admin_token", data.access_token);
+  if (data.refresh_token) sessionStorage.setItem("orotronix_admin_refresh_token", data.refresh_token);
+  return data.access_token;
+}
+
 export async function refreshSupabaseSession(): Promise<string | null> {
   if (!supabaseConfigured || typeof window === "undefined") return null;
   const refreshToken = sessionStorage.getItem("orotronix_user_refresh_token");
@@ -130,7 +148,10 @@ export async function supabaseRpc<T = unknown>(functionName: string, body: Recor
   };
   let response = await makeRequest();
   if (response.status === 401 && accessToken) {
-    const refreshed = await refreshSupabaseSession();
+    const adminToken = typeof window !== "undefined" ? sessionStorage.getItem("orotronix_admin_token") : null;
+    const refreshed = adminToken && adminToken === accessToken
+      ? await refreshSupabaseAdminSession()
+      : await refreshSupabaseSession();
     if (refreshed) response = await makeRequest();
   }
   if (!response.ok) throw new Error((await response.text()) || "Supabase HTTP " + response.status);
