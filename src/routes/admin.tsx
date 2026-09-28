@@ -76,8 +76,7 @@ function AdminPage() {
   const loginGoogle=()=>{setError("");if(!supabaseConfigured){setError("Supabase n’est pas configuré.");return;}const base=import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/,"");const key=import.meta.env.VITE_SUPABASE_ANON_KEY;if(!base||!key){setError("Supabase n’est pas configuré.");return;}const redirectTo=window.location.origin+"/admin";const authUrl=base+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(redirectTo)+"&prompt=select_account";window.location.assign(authUrl);};
   const logout=()=>{sessionStorage.removeItem("orotronix_admin_token");setSupabaseAccessToken(null);setToken(null);};
   useEffect(()=>{if(!token)return;const timer=window.setInterval(()=>void load(),60000);return()=>window.clearInterval(timer);},[token]);
-  if(token && mfaReady===false && !mfaEnrollment && !mfaBusy) void prepareAdminMfa();
-
+  useEffect(()=>{if(token && mfaReady===false && !mfaEnrollment && !mfaBusy) void prepareAdminMfa();},[token,mfaReady,mfaEnrollment,mfaBusy]);
   const dashboardOrders=orders.filter(o=>{if(dashboardPeriod==="all")return true;const days=dashboardPeriod==="today"?1:dashboardPeriod==="7d"?7:30;return Date.now()-new Date(o.created_at).getTime()<days*86400000;});
 
   if(!supabaseConfigured)return <Shell><Panel><h1 className="font-display text-2xl font-semibold">Administration OROTRONIX</h1><p className="mt-3 text-sm text-muted-foreground">Ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans Cloudflare Pages.</p><Link className="mt-6 inline-block text-sm text-gold" to="/">← Retour au site</Link></Panel></Shell>;
