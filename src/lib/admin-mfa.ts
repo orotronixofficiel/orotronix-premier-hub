@@ -3,14 +3,26 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 async function authRequest<T>(path: string, token: string, method = "GET", body?: unknown): Promise<T> {
   if (!url || !anonKey) throw new Error("Supabase n'est pas configuré.");
-  const response = await fetch(url + "/auth/v1/" + path, {
-    method,
-    headers: { apikey: anonKey, Authorization: "Bearer " + token, "Content-Type": "application/json" },
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Erreur MFA.");
-  return data as T;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(url + "/auth/v1/" + path, {
+      method,
+      headers: { apikey: anonKey, Authorization: "Bearer " + token, "Content-Type": "application/json" },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      signal: controller.signal,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error_description || data.msg || data.message || "Erreur MFA.");
+    return data as T;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("La préparation de la sécurité a pris trop de temps. Réessayez.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 export function getJwtAal(token: string): "aal1" | "aal2" | null {
@@ -21,14 +33,30 @@ export function getJwtAal(token: string): "aal1" | "aal2" | null {
 }
 
 export async function listMfaFactors(token: string) {
-  const data = await authRequest<{ factors?: Array<{ id: string; factor_type: string; status: string }> }>("user", token);
-  return data.factors ?? [];
+  const data = await authRequest<{
+    all?: Array<{ id: string; factor_type: string; status: string }>;
+    totp?: Array<{ id: string; factor_type: string; status: string }>;
+  }>("factors", token);
+  return data.all ?? data.totp ?? [];
 }
 
 export async function enrollAdminTotp(token: string) {
-  return authRequest<{ id: string; type: "totp"; totp: { qr_code: string; secret: string; uri: string } }>(
-    "factors", token, "POST", { factor_type: "totp", friendly_name: "OROTRONIX Admin", issuer: "OROTRONIX" }
-  );
+  const data = await authRequest<{
+    id: string;
+    type: "totp";
+    totp: { qr_code: string; secret: string; uri: string };
+  }>("factors", token, "POST", {
+    factor_type: "totp",
+    friendly_name: "OROTRONIX Admin",
+    issuer: "OROTRONIX",
+  });
+
+  const qrCode = data.totp?.qr_code ?? "";
+  const qr = qrCode.trim().startsWith("<svg")
+    ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(qrCode)
+    : qrCode;
+
+  return { ...data, totp: { ...data.totp, qr_code: qr } };
 }
 
 export async function challengeMfa(token: string, factorId: string) {
