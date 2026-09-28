@@ -1,5 +1,5 @@
-const url = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, "");
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const url = (import.meta.env.VITE_SUPABASE_URL || "https://qeqqfelebzxwupsqyzbz.supabase.co").replace(/\/$/, "");
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_nnvN9OsnpO_ipsFx0l-orw_yERvs7da";
 export const supabaseConfigured = Boolean(url && anonKey);
 let accessToken: string | null = null;
 
