@@ -35,7 +35,8 @@ export async function createRepairRequest(request:RepairRequest) {
     p_problem_type:request.problemType,p_problem_description:request.problemDescription,p_notes:request.notes||null,
     p_pickup:request.pickup,p_service_mode:request.serviceMode,p_appointment_date:request.appointmentDate||null,
     p_appointment_time:request.appointmentTime||null,p_estimated_price:request.estimatedPrice,
-    p_estimated_duration:request.estimatedDuration||null
+    p_estimated_duration:request.estimatedDuration||null,
+    p_before_photos:request.photos||[]
   });
   return result;
 }
