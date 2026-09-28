@@ -48,8 +48,8 @@ function RepairPage() {
   const [repairTypes, setRepairTypes] = useState(fallbackRepairTypes);
   useEffect(() => {
     if (!supabaseConfigured) return;
-    void supabaseRest<Array<{id:string;slug:string;name:string;description:string|null;price_from:number;duration:string|null;active:boolean}>>("repair_services", { query: "?select=*&active=eq.true&order=sort_order.asc" })
-      .then(rows => setRepairTypes(rows.map(r => ({ id:r.slug, name:r.name, description:r.description ?? "", from:Number(r.price_from), duration:r.duration ?? "" }))))
+    void supabaseRest<Array<{id:string;slug:string|null;name:string|null;description:string|null;price_from:number|null;duration:string|null;active:boolean|null;service_name:string;estimated_price:number;repair_time:string|null;available:boolean}>>("repair_services", { query: "?select=*&available=eq.true&order=sort_order.asc" })
+      .then(rows => setRepairTypes(rows.map(r => ({ id:r.slug || r.id, name:r.name || r.service_name, description:r.description ?? "", from:Number(r.price_from ?? r.estimated_price ?? 0), duration:r.duration || r.repair_time || "" }))))
       .catch(() => {});
   }, []);
   return (
