@@ -51,7 +51,8 @@ function RepairPage(){
   const [photoBusy,setPhotoBusy]=useState(false);
   const [errors,setErrors]=useState<Record<string,string>>({});
 
-  useEffect(()=>{void loadRepairServices().then(setServices)},[]);\n  useEffect(()=>{if(typeof window==="undefined")return;const ref=new URLSearchParams(window.location.search).get("reference");if(ref){setTrackRef(ref);setTab("track")}},[]);
+  useEffect(()=>{void loadRepairServices().then(setServices)},[]);
+  useEffect(()=>{if(typeof window==="undefined")return;const ref=new URLSearchParams(window.location.search).get("reference");if(ref){setTrackRef(ref);setTab("track")}},[]);
   const models=form.brand && form.brand!=="Autre marque" ? (PHONE_CATALOG[form.brand]||[]) : [];
   const matched=useMemo(()=>services.filter(s=>s.device_brand==="Tous"||s.device_brand===form.brand).filter(s=>s.device_model==="Tous"||s.device_model===form.model).filter(s=>s.service_name.toLowerCase().includes((form.problemType||"").toLowerCase())||!form.problemType),[services,form.brand,form.model,form.problemType]);
   const selectedProblem=problems.find(p=>p[0]===form.problemType);
