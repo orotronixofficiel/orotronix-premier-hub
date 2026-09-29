@@ -197,7 +197,7 @@ function RepairPage(){
                 {step===1&&<StepDevice form={form} models={models} update={update} errors={errors}/>}
                 {step===2&&<StepProblem form={form} update={update} errors={errors} addPhotos={addPhotos} photoBusy={photoBusy}/>}
                 {step===3&&<StepContact form={form} update={update} errors={errors}/>}
-                {step===4&&<Summary form={form} estimate={estimatedPrice} duration={estimatedDuration} problem={selectedProblem?.[1]||form.problemType}/>}
+                {step===4&&<Summary form={form} estimate={estimatedPrice} duration={estimatedDuration} problem={form.problemType}/>}
                 <div className="mt-7 flex justify-between gap-3 border-t border-border pt-5">
                   {step>1?<button type="button" onClick={back} className="inline-flex h-11 items-center rounded-xl border border-border px-5 text-sm font-semibold"><ChevronLeft className="mr-2 h-4 w-4"/>Retour</button>:<span/>}
                   {step<4
