@@ -6,6 +6,7 @@ import { moroccanCities, repairTypes } from "@/data/repair";
 import { PHONE_CATALOG, PHONE_BRANDS } from "@/data/phone-catalog";
 import { formatMAD } from "@/lib/format";
 import { makeReference } from "@/lib/orders";
+import { RepairCustomerGuide } from "@/components/repair-customer-guide";
 import { createRepairRequest, getRepairStatus, respondRepair, rateRepair, loadRepairServices, REPAIR_STATUSES, saveRepairLocal, uploadRepairPhoto, type RepairRequest, type RepairService, type RepairStatus } from "@/lib/repair-platform";
 
 export const Route=createFileRoute("/reparation")({
@@ -136,6 +137,7 @@ function RepairPage(){
       [Home,"Intervention à domicile","Disponible selon zone et disponibilité."],
       [ShieldCheck,"Contrôle & garantie","Contrôle qualité avant restitution et garantie selon réparation."]
     ].map(([Icon,title,text])=>{const I=Icon as typeof Truck;return <div key={String(title)} className="rounded-2xl border border-border bg-card p-6"><I className="h-6 w-6 text-gold"/><h3 className="mt-4 font-display font-semibold">{String(title)}</h3><p className="mt-2 text-sm text-muted-foreground">{String(text)}</p></div>})}</div></div></section>
+    <RepairCustomerGuide/>
     <FAQ/>
   </main>;
 }
