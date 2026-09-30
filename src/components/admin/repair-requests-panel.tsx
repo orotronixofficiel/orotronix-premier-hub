@@ -43,7 +43,6 @@ export function RepairRequestsPanel(){
   const [warranty,setWarranty]=useState("");
   const [parts,setParts]=useState("");
   const [imei,setImei]=useState("");
-  const [serialNumber,setSerialNumber]=useState("");
   const [partsCost,setPartsCost]=useState("0");
   const [laborCost,setLaborCost]=useState("0");
   const [deliveryCost,setDeliveryCost]=useState("0");
@@ -83,7 +82,6 @@ export function RepairRequestsPanel(){
     setWarranty(r.warranty_text||"");
     setParts(Array.isArray(r.parts_used)?r.parts_used.map(x=>typeof x==="string"?x:JSON.stringify(x)).join("\n"):"");
     setImei(r.imei||"");
-    setSerialNumber(r.serial_number||"");
     setPartsCost(String(r.parts_cost||0));
     setLaborCost(String(r.labor_cost||0));
     setDeliveryCost(String(r.delivery_cost||0));
@@ -100,31 +98,21 @@ export function RepairRequestsPanel(){
     if(!selected)return;
     setBusy(true);
     try{
+      const data=Object.fromEntries(checkLabels.map(([key,label])=>[key,{key,label,passed:Boolean(checks[key])}]));
       await supabaseRest("rpc/admin_update_repair_request",{method:"POST",body:{
         p_id:selected.id,p_status:selected.status,p_final_price:finalPrice===""?null:Number(finalPrice),
         p_technician_notes:notes,p_parts_used:parts.split("\n").map(x=>x.trim()).filter(Boolean),
         p_warranty_text:warranty,p_customer_approved:selected.customer_approved,p_rating:selected.rating,p_review:selected.review
       }});
-      setMessage("Dossier mis à jour.");
-      await load();
-    }catch(e){setMessage(e instanceof Error?e.message:"Mise à jour impossible.")}
-    finally{setBusy(false)}
-  };
-
-  const saveOperations=async()=>{
-    if(!selected)return;
-    setBusy(true);
-    try{
-      const data=Object.fromEntries(checkLabels.map(([key,label])=>[key,{key,label,passed:Boolean(checks[key])}]));
-      await supabaseRest("rpc/admin_save_repair_diagnostic",{method:"POST",body:{p_repair_id:selected.id,p_data:{imei,serial_number:serialNumber,notes}}});
+      await supabaseRest("rpc/admin_save_repair_diagnostic",{method:"POST",body:{p_repair_id:selected.id,p_data:{imei,notes}}});
       await supabaseRest("rpc/admin_save_repair_checks",{method:"POST",body:{p_repair_id:selected.id,p_checks:Object.values(data)}});
       await supabaseRest("rpc/admin_update_repair_financials",{method:"POST",body:{
         p_id:selected.id,p_parts_cost:Number(partsCost)||0,p_labor_cost:Number(laborCost)||0,
         p_delivery_cost:Number(deliveryCost)||0,p_warranty_days:Number(warrantyDays)||0,p_warranty_text:warranty
       }});
-      setMessage("Diagnostic, tests, coûts et garantie enregistrés.");
+      setMessage("Dossier complet enregistré.");
       await load();
-    }catch(e){setMessage(e instanceof Error?e.message:"Enregistrement impossible.")}
+    }catch(e){setMessage(e instanceof Error?e.message:"Mise à jour impossible.")}
     finally{setBusy(false)}
   };
 
@@ -205,7 +193,6 @@ export function RepairRequestsPanel(){
           {selected.before_photos?.length>0&&<div className="mt-3 flex flex-wrap gap-2">{selected.before_photos.map(url=><a key={url} href={url} target="_blank" rel="noreferrer"><img src={url} alt="" className="h-16 w-16 rounded-lg border border-border object-cover"/></a>)}</div>}
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div><Label>IMEI</Label><Input className="mt-2 bg-background" value={imei} onChange={e=>setImei(e.target.value)} placeholder="Optionnel"/></div>
-            <div><Label>Serial Number</Label><Input className="mt-2 bg-background" value={serialNumber} onChange={e=>setSerialNumber(e.target.value)} placeholder="Optionnel"/></div>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {checkLabels.map(([key,label])=><label key={key} className="flex items-center gap-2 rounded-lg border border-border bg-background/70 p-2 text-xs"><input type="checkbox" checked={Boolean(checks[key])} onChange={e=>setChecks(x=>({...x,[key]:e.target.checked}))}/>{label}</label>)}
@@ -239,7 +226,6 @@ export function RepairRequestsPanel(){
         <div className="rounded-2xl border border-border bg-card p-5">
           <div className="flex flex-wrap gap-2">
             <Button onClick={()=>void save()} disabled={busy}><Save className="mr-2 h-4 w-4"/>Enregistrer</Button>
-            <Button variant="outline" onClick={()=>void saveOperations()} disabled={busy}><CheckCircle2 className="mr-2 h-4 w-4"/>Enregistrer diagnostic</Button>
             <Button variant="outline" onClick={()=>printBon(selected)}><ExternalLink className="mr-2 h-4 w-4"/>Bon + QR</Button>
             <Button variant="outline" onClick={()=>whatsapp(selected)}><MessageCircle className="mr-2 h-4 w-4"/>WhatsApp</Button>
             <a className="inline-flex h-10 items-center rounded-md border border-border px-3 text-sm" href={"tel:"+selected.phone}><Phone className="mr-2 h-4 w-4"/>Appeler</a>
