@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, ClipboardCheck, Download, ExternalLink, MessageCircle, Phone, RefreshCw, Save, Search, ShieldCheck, Wrench } from "lucide-react";
+import { ClipboardCheck, Download, ExternalLink, MessageCircle, Phone, RefreshCw, Save, Search, ShieldCheck, Wrench } from "lucide-react";
 import { supabaseRest } from "@/lib/supabase";
 import { REPAIR_STATUSES, type RepairStatus } from "@/lib/repair-platform";
 
