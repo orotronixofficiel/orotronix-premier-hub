@@ -72,7 +72,21 @@ function RepairPage(){
     .filter(s=>s.service_name.toLowerCase().includes(form.problemType.toLowerCase())||!form.problemType),
     [services,form.brand,form.model,form.problemType]);
   const service=matched[0]||services.find(s=>s.service_name===form.problemType);
-  const fallback=repairTypes.find(x=>x.name===form.problemType);
+  const fallbackMap:Record<string,{from:number;duration:string}>={
+    "Écran cassé":{from:250,duration:"45 min – 2 h"},
+    "Batterie":{from:180,duration:"30 min"},
+    "Port de charge":{from:150,duration:"45 min"},
+    "Caméra":{from:200,duration:"1 h"},
+    "Audio / Micro":{from:160,duration:"1 h"},
+    "Logiciel":{from:120,duration:"1 – 3 h"},
+    "Dégâts des eaux":{from:300,duration:"24 – 48 h"},
+    "Ne s'allume plus":{from:0,duration:"Après diagnostic"},
+    "Réseau / Wi-Fi":{from:0,duration:"Après diagnostic"},
+    "Face ID / Biométrie":{from:0,duration:"Après diagnostic"},
+    "Boutons / Vibration":{from:0,duration:"Après diagnostic"},
+    "Autre problème":{from:0,duration:"Sur diagnostic"}
+  };
+  const fallback=fallbackMap[form.problemType]||repairTypes.find(x=>x.name===form.problemType);
   const estimatedPrice=service?Number(service.estimated_price):fallback?.from||0;
   const estimatedDuration=service?.repair_time||fallback?.duration||"Après diagnostic";
 
