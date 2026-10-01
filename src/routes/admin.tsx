@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowDownToLine, ArrowUpFromLine, BarChart3, CheckCircle2, Clock3, Copy, Download, Eye, EyeOff, History, LockKeyhole, LogOut, Minus, Package, Percent, Plus, RefreshCw, Save, ShoppingBag, Tags, Trash2, TrendingUp, Warehouse, Wrench, Zap } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, BarChart3, CheckCircle2, Clock3, Copy, Download, Eye, EyeOff, History, LockKeyhole, LogOut, Minus, Package, Percent, Plus, RefreshCw, Save, ShoppingBag, Tags, Trash2, Warehouse, Wrench, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PHONE_CATALOG, PHONE_BRANDS } from "@/data/phone-catalog";
 import { Input } from "@/components/ui/input";
