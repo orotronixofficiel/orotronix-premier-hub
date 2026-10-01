@@ -44,6 +44,8 @@ function AdminPage() {
   const [editingCategory,setEditingCategory]=useState<Omit<Category,"id"> & {id?:string}>(emptyCategory);
   const [message,setMessage]=useState(""); const [selectedProducts,setSelectedProducts]=useState<string[]>([]); const [productBulkBusy,setProductBulkBusy]=useState(false);
   const [mfaReady,setMfaReady]=useState<boolean|null>(null); const [mfaEnrollment,setMfaEnrollment]=useState<{id:string;qr_code:string;secret:string}|null>(null); const [mfaFactorId,setMfaFactorId]=useState<string|null>(null); const [mfaChallengeId,setMfaChallengeId]=useState<string|null>(null); const [mfaCode,setMfaCode]=useState(""); const [mfaBusy,setMfaBusy]=useState(false);
+  const [stockProductId,setStockProductId]=useState(""); const [stockMovementType,setStockMovementType]=useState("in"); const [stockQuantity,setStockQuantity]=useState(1); const [stockReason,setStockReason]=useState(""); const [stockMovements,setStockMovements]=useState<StockMovement[]>([]);
+  const [promotions,setPromotions]=useState<Promotion[]>([]); const [editingPromotion,setEditingPromotion]=useState<Promotion>({id:"",name:"",description:null,discount_type:"percent",discount_value:0,scope_type:"all",scope_id:null,starts_at:null,ends_at:null,active:true});
 
   const loadCustomers=async()=>{try{const rows=await supabaseRest<Array<{id:string;email:string|null;created_at:string;last_sign_in_at:string|null;full_name:string|null;phone:string|null;city:string|null;order_count:number;total_spent:number;last_order_at:string|null}>>("rpc/admin_list_customers",{method:"POST",body:{}});setCustomers(rows||[]);}catch(e){console.error("OROTRONIX: clients",e);}};
 
@@ -53,9 +55,11 @@ function AdminPage() {
       supabaseRest<Category[]>("categories",{query:"?select=*&order=sort_order.asc"}),
       supabaseRest<Repair[]>("repair_services",{query:"?select=*&order=sort_order.asc"}),
       supabaseRest<Order[]>("orders",{query:"?select=id,reference,customer_name,email,phone,address,city,items,total,status,created_at,notes&order=created_at.desc&limit=50"}),
-      supabaseRest<Settings[]>("store_settings",{query:"?select=*&limit=1"})
+      supabaseRest<Settings[]>("store_settings",{query:"?select=*&limit=1"}),
+      supabaseRest<Promotion[]>("promotions",{query:"?select=*&order=created_at.desc"}),
+      supabaseRest<StockMovement[]>("stock_movements",{query:"?select=*&order=created_at.desc&limit=100"})
     ]);
-    setProducts(p); setCategories(c); setRepairs(r); setOrders(o); setSettings(s[0] ?? null); await loadCustomers();
+    setProducts(p); setCategories(c); setRepairs(r); setOrders(o); setSettings(s[0] ?? null); setPromotions(prom || []); setStockMovements(sm || []); await loadCustomers();
   } catch(e){setError(e instanceof Error?e.message:"Erreur de chargement");} finally{setLoading(false);} };
 
   const verifyAdmin=async()=>{ const ok=await supabaseRest<boolean>("rpc/is_admin_identity",{method:"POST",body:{}}); if(!ok) throw new Error("Accès administrateur refusé."); return true; };
