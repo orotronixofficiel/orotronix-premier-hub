@@ -89,6 +89,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "OROTRONIX : smartphones, accessoires téléphone et TV, et réparation professionnelle avec ramassage et livraison partout au Maroc.",
       },
       { name: "author", content: "OROTRONIX" },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      { name: "theme-color", content: "#0a0a0a" },
+      { name: "og:site_name", content: "OROTRONIX" },
+      { property: "og:locale", content: "fr_MA" },
+      { property: "og:url", content: "https://www.orotronix.com/" },
       { property: "og:title", content: "OROTRONIX — Smartphones, accessoires et réparation" },
       {
         property: "og:description",
