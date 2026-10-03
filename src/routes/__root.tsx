@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "OROTRONIX : smartphones, accessoires téléphone et TV, et réparation professionnelle avec ramassage et livraison partout au Maroc.",
+          "OROTRONIX : smartphones, accessoires téléphone et TV, et réparation professionnelle à Mohammedia et partout au Maroc.",
       },
       { name: "author", content: "OROTRONIX" },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
@@ -98,7 +98,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "OROTRONIX — Smartphones, accessoires et réparation" },
       {
         property: "og:description",
-        content: "Boutique premium et atelier de réparation smartphone au Maroc. Paiement à la livraison.",
+        content: "Boutique smartphone, accessoires et atelier de réparation à Mohammedia.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -112,6 +112,41 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "@id": "https://www.orotronix.com/#business",
+          name: "OROTRONIX",
+          url: "https://www.orotronix.com/",
+          telephone: "+212656566366",
+          image: "https://www.orotronix.com/favicon.png",
+          priceRange: "$$",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "Rue 21, N°10, Kasba",
+            postalCode: "28800",
+            addressLocality: "Mohammedia",
+            addressCountry: "MA",
+          },
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              opens: "10:00",
+              closes: "22:00",
+            },
+          ],
+          areaServed: "MA",
+          sameAs: [
+            "https://www.instagram.com/orotronixofficiel/",
+            "https://www.facebook.com/orotronixofficiel/",
+          ],
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -164,7 +199,6 @@ function RootComponent() {
           <div className="flex min-h-screen flex-col bg-background">
             <Header />
             <main className="flex-1">
-              {/* Required: nested routes render here. */}
               <Outlet />
             </main>
             <Footer />
