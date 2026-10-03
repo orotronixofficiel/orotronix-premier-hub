@@ -2,5 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.orotronix.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://www.orotronix.com/boutique</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.orotronix.com/reparation</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.orotronix.com/reparation</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.orotronix.com/produit/orotronix-flagship-pro-256</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/galaxy-s-ultra-512</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/pixel-8-128</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/redmi-note-pro-256</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/chargeur-gan-65w</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/ecouteurs-anc-pro</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/powerbank-10000</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/verre-trempe-premium</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/support-mural-tv</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/cable-hdmi-2-1</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/box-android-tv-4k</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/pack-essentiel-smartphone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.orotronix.com/produit/pack-audio-nomade</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
