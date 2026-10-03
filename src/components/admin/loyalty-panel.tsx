@@ -10,6 +10,7 @@ type Customer = { user_id:string; loyalty_code:string; full_name:string|null; ph
 type Reward = { id:string; name:string; description:string|null; points_cost:number; discount_type:"fixed"|"percent"; discount_value:number; active:boolean; sort_order:number };
 type Tier = { id:string; name:string; min_points:number; reward_label:string|null; sort_order:number; active:boolean };
 type Tx = { id:string; points:number; balance_after:number; type:string; description:string|null; created_at:string };
+type Redemption = { id:string; reward_id:string; points_spent:number; discount_type:"fixed"|"percent"; discount_value:number; status:string; code:string|null; created_at:string; used_at:string|null };
 type Settings = { id:string; points_per_10_mad:number; min_purchase_mad:number; welcome_points:number };
 
 const qrValue = (code:string) => "OROLOYALTY:" + code;
@@ -22,6 +23,7 @@ export function AdminLoyaltyPanel() {
   const [settings,setSettings]=useState<Settings|null>(null);
   const [selected,setSelected]=useState<Customer|null>(null);
   const [history,setHistory]=useState<Tx[]>([]);
+  const [redemptions,setRedemptions]=useState<Redemption[]>([]);
   const [search,setSearch]=useState("");
   const [amount,setAmount]=useState(10);
   const [reason,setReason]=useState("");
@@ -49,7 +51,7 @@ export function AdminLoyaltyPanel() {
     finally{setBusy(false);}
   };
   const loadHistory=async(userId:string)=>{
-    try{setHistory(await supabaseRest<Tx[]>("loyalty_transactions",{query:"?select=id,points,balance_after,type,description,created_at&user_id=eq."+encodeURIComponent(userId)+"&order=created_at.desc&limit=50"}));}
+    try{const [h,r]=await Promise.all([supabaseRest<Tx[]>("loyalty_transactions",{query:"?select=id,points,balance_after,type,description,created_at&user_id=eq."+encodeURIComponent(userId)+"&order=created_at.desc&limit=50"}),supabaseRest<Redemption[]>("loyalty_redemptions",{query:"?select=id,reward_id,points_spent,discount_type,discount_value,status,code,created_at,used_at&user_id=eq."+encodeURIComponent(userId)+"&order=created_at.desc&limit=20"})]);setHistory(h);setRedemptions(r);}
     catch(e){setError(e instanceof Error?e.message:"Impossible de charger l'historique.");}
   };
   useEffect(()=>{void load();},[]);
@@ -147,7 +149,7 @@ export function AdminLoyaltyPanel() {
         {!selected?<p className="mt-6 text-sm text-muted-foreground">Sélectionnez un client ou scannez son QR.</p>:<div className="mt-5 space-y-4">
           <div className="flex items-center gap-4"><img src={qrUrl(selected.loyalty_code)} alt="QR fidélité" className="h-28 w-28 rounded-lg border border-border bg-white p-1"/><div><p className="font-semibold">{selected.full_name||"Client"}</p><p className="text-sm text-muted-foreground">{selected.loyalty_tier}</p><p className="mt-1 font-display text-2xl font-bold text-gold">{selected.loyalty_points} pts</p></div></div>
           <div className="rounded-xl border border-border bg-surface p-4"><p className="text-xs uppercase tracking-wider text-muted-foreground">Opération points</p><div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr]"><Input type="number" min={1} value={amount} onChange={e=>setAmount(Math.max(1,Number(e.target.value)||1))}/><Input placeholder="Motif (optionnel)" value={reason} onChange={e=>setReason(e.target.value)}/></div><div className="mt-3 grid grid-cols-2 gap-2"><Button onClick={()=>void adjust(amount)} disabled={busy}><Plus className="mr-2 h-4 w-4"/>Ajouter</Button><Button variant="outline" onClick={()=>void adjust(-amount)} disabled={busy}><Minus className="mr-2 h-4 w-4"/>Retirer</Button></div></div>
-          <div><p className="text-xs uppercase tracking-wider text-muted-foreground">Historique récent</p><div className="mt-2 max-h-48 overflow-auto rounded-xl border border-border">{history.length?history.map(t=><div key={t.id} className="flex items-center justify-between gap-3 border-b border-border p-3 text-sm last:border-0"><div><p>{t.description||t.type}</p><p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString("fr-MA")}</p></div><span className={t.points>0?"text-emerald-400":"text-destructive"}>{t.points>0?"+":""}{t.points} · {t.balance_after}</span></div>):<p className="p-4 text-xs text-muted-foreground">Aucun mouvement.</p>}</div></div>
+          <div><p className="text-xs uppercase tracking-wider text-muted-foreground">Bons fidélité</p><div className="mt-2 max-h-40 overflow-auto rounded-xl border border-border">{redemptions.length?redemptions.map(r=><div key={r.id} className="flex items-center justify-between gap-3 border-b border-border p-3 text-xs last:border-0"><div><p className="font-mono text-gold">{r.code||"—"}</p><p className="text-muted-foreground">{r.status==="used"?"Utilisé":"Disponible"} · {r.discount_type==="percent"?r.discount_value+" %":"-"+formatMAD(Number(r.discount_value))}</p></div>{r.status!=="used"&&<Button size="sm" variant="outline" onClick={()=>void markRedemptionUsed(r.id)} disabled={busy}><Check className="mr-1 h-3.5 w-3.5"/>Utilisé</Button>}</div>):<p className="p-4 text-xs text-muted-foreground">Aucun bon.</p>}</div></div><div><p className="text-xs uppercase tracking-wider text-muted-foreground">Historique récent</p><div className="mt-2 max-h-48 overflow-auto rounded-xl border border-border">{history.length?history.map(t=><div key={t.id} className="flex items-center justify-between gap-3 border-b border-border p-3 text-sm last:border-0"><div><p>{t.description||t.type}</p><p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString("fr-MA")}</p></div><span className={t.points>0?"text-emerald-400":"text-destructive"}>{t.points>0?"+":""}{t.points} · {t.balance_after}</span></div>):<p className="p-4 text-xs text-muted-foreground">Aucun mouvement.</p>}</div></div>
         </div>}
       </div>
     </div>
