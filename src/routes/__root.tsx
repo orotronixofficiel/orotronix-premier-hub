@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -150,7 +151,8 @@ function RootComponent() {
     }
   }, []);
 
-  const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
