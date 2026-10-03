@@ -6,14 +6,14 @@ import { Label } from "@/components/ui/label";
 import { supabaseRest, supabaseRpc } from "@/lib/supabase";
 import { formatMAD } from "@/lib/format";
 
-type Customer = { user_id:string; full_name:string|null; phone:string|null; loyalty_points:number; loyalty_tier:string };
+type Customer = { user_id:string; loyalty_code:string; full_name:string|null; phone:string|null; loyalty_points:number; loyalty_tier:string };
 type Reward = { id:string; name:string; description:string|null; points_cost:number; discount_type:"fixed"|"percent"; discount_value:number; active:boolean; sort_order:number };
 type Tier = { id:string; name:string; min_points:number; reward_label:string|null; sort_order:number; active:boolean };
 type Tx = { id:string; points:number; balance_after:number; type:string; description:string|null; created_at:string };
 type Settings = { id:string; points_per_10_mad:number; min_purchase_mad:number; welcome_points:number };
 
-const qrValue = (userId:string) => "OROLOYALTY:" + userId;
-const qrUrl = (userId:string) => "https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&data=" + encodeURIComponent(qrValue(userId));
+const qrValue = (code:string) => "OROLOYALTY:" + code;
+const qrUrl = (code:string) => "https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&data=" + encodeURIComponent(qrValue(code));
 
 export function AdminLoyaltyPanel() {
   const [customers,setCustomers]=useState<Customer[]>([]);
@@ -38,7 +38,7 @@ export function AdminLoyaltyPanel() {
     setBusy(true); setError("");
     try {
       const [c,r,t,s]=await Promise.all([
-        supabaseRest<Customer[]>("customer_profiles",{query:"?select=user_id,full_name,phone,loyalty_points,loyalty_tier&order=updated_at.desc"}),
+        supabaseRest<Customer[]>("customer_profiles",{query:"?select=user_id,loyalty_code,full_name,phone,loyalty_points,loyalty_tier&order=updated_at.desc"}),
         supabaseRest<Reward[]>("loyalty_rewards",{query:"?select=*&order=sort_order.asc,created_at.desc"}),
         supabaseRest<Tier[]>("loyalty_tiers",{query:"?select=*&order=min_points.asc"}),
         supabaseRest<Settings[]>("loyalty_settings",{query:"?select=*&limit=1"}),
@@ -109,8 +109,8 @@ export function AdminLoyaltyPanel() {
           const codes=await detector.detect(videoRef.current);
           const raw=codes?.[0]?.rawValue||"";
           if(raw.startsWith("OROLOYALTY:")){
-            const id=raw.slice("OROLOYALTY:".length).trim();
-            const found=customers.find(c=>c.user_id===id);
+            const code=raw.slice("OROLOYALTY:".length).trim();
+            const found=customers.find(c=>c.loyalty_code===code);
             if(found){await selectCustomer(found);stopScanner();return;}
             setScannerError("Client introuvable pour ce QR code.");stopScanner();return;
           }
@@ -145,7 +145,7 @@ export function AdminLoyaltyPanel() {
       <div className="rounded-2xl border border-gold/20 bg-card p-5">
         <div className="flex items-center gap-2"><QrCode className="h-5 w-5 text-gold"/><h2 className="font-display text-lg font-semibold">Fiche fidélité</h2></div>
         {!selected?<p className="mt-6 text-sm text-muted-foreground">Sélectionnez un client ou scannez son QR.</p>:<div className="mt-5 space-y-4">
-          <div className="flex items-center gap-4"><img src={qrUrl(selected.user_id)} alt="QR fidélité" className="h-28 w-28 rounded-lg border border-border bg-white p-1"/><div><p className="font-semibold">{selected.full_name||"Client"}</p><p className="text-sm text-muted-foreground">{selected.loyalty_tier}</p><p className="mt-1 font-display text-2xl font-bold text-gold">{selected.loyalty_points} pts</p></div></div>
+          <div className="flex items-center gap-4"><img src={qrUrl(selected.loyalty_code)} alt="QR fidélité" className="h-28 w-28 rounded-lg border border-border bg-white p-1"/><div><p className="font-semibold">{selected.full_name||"Client"}</p><p className="text-sm text-muted-foreground">{selected.loyalty_tier}</p><p className="mt-1 font-display text-2xl font-bold text-gold">{selected.loyalty_points} pts</p></div></div>
           <div className="rounded-xl border border-border bg-surface p-4"><p className="text-xs uppercase tracking-wider text-muted-foreground">Opération points</p><div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr]"><Input type="number" min={1} value={amount} onChange={e=>setAmount(Math.max(1,Number(e.target.value)||1))}/><Input placeholder="Motif (optionnel)" value={reason} onChange={e=>setReason(e.target.value)}/></div><div className="mt-3 grid grid-cols-2 gap-2"><Button onClick={()=>void adjust(amount)} disabled={busy}><Plus className="mr-2 h-4 w-4"/>Ajouter</Button><Button variant="outline" onClick={()=>void adjust(-amount)} disabled={busy}><Minus className="mr-2 h-4 w-4"/>Retirer</Button></div></div>
           <div><p className="text-xs uppercase tracking-wider text-muted-foreground">Historique récent</p><div className="mt-2 max-h-48 overflow-auto rounded-xl border border-border">{history.length?history.map(t=><div key={t.id} className="flex items-center justify-between gap-3 border-b border-border p-3 text-sm last:border-0"><div><p>{t.description||t.type}</p><p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString("fr-MA")}</p></div><span className={t.points>0?"text-emerald-400":"text-destructive"}>{t.points>0?"+":""}{t.points} · {t.balance_after}</span></div>):<p className="p-4 text-xs text-muted-foreground">Aucun mouvement.</p>}</div></div>
         </div>}
