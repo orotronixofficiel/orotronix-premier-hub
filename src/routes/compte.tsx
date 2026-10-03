@@ -15,6 +15,7 @@ import {
   Plus,
   Save,
   Shield,
+  Star,
   Trash2,
   UserPlus,
   UserRound,
