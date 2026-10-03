@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { supabaseRest, supabaseRpc } from "@/lib/supabase";
 import { formatMAD } from "@/lib/format";
 
-type Profile = { user_id:string; loyalty_points:number; loyalty_tier:string };
+type Profile = { user_id:string; loyalty_code:string; loyalty_points:number; loyalty_tier:string };
 type Reward = { id:string; name:string; description:string|null; points_cost:number; discount_type:"fixed"|"percent"; discount_value:number; active:boolean };
 type Tx = { id:string; points:number; balance_after:number; type:string; description:string|null; created_at:string };
 type Redemption = { id:string; reward_id:string; points_spent:number; discount_type:"fixed"|"percent"; discount_value:number; status:string; code:string|null; created_at:string; used_at:string|null };
 type Tier = { name:string; min_points:number; reward_label:string|null; sort_order:number; active:boolean };
 
-const qrUrl=(userId:string)=>"https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=16&data="+encodeURIComponent("OROLOYALTY:"+userId);
+const qrUrl=(code:string)=>"https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=16&data="+encodeURIComponent("OROLOYALTY:"+code);
 
 export function CustomerLoyaltyPanel({profile,onProfileChange}:{profile:Profile|null;onProfileChange:(p:Profile)=>void}) {
   const [rewards,setRewards]=useState<Reward[]>([]);
@@ -45,7 +45,7 @@ export function CustomerLoyaltyPanel({profile,onProfileChange}:{profile:Profile|
     setBusy(true);setError("");setMessage("");
     try{
       await supabaseRpc<Redemption>("redeem_loyalty_reward",{p_reward_id:reward.id});
-      const fresh=await supabaseRest<Profile[]>("customer_profiles",{query:"?select=user_id,loyalty_points,loyalty_tier&user_id=eq."+encodeURIComponent(profile.user_id)});
+      const fresh=await supabaseRest<Profile[]>("customer_profiles",{query:"?select=user_id,loyalty_code,loyalty_points,loyalty_tier&user_id=eq."+encodeURIComponent(profile.user_id)});
       if(fresh[0])onProfileChange(fresh[0]);
       await load();setMessage("Récompense obtenue. Conservez le code pour l'utiliser en boutique.");
     }catch(e){setError(e instanceof Error?e.message:"Impossible d'échanger la récompense.");}
@@ -58,7 +58,7 @@ export function CustomerLoyaltyPanel({profile,onProfileChange}:{profile:Profile|
       <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div><div className="flex items-center gap-2"><Star className="h-5 w-5 text-gold"/><p className="text-xs uppercase tracking-[0.2em] text-gold">Fidélité OROTRONIX</p></div><h2 className="mt-2 font-display text-3xl font-bold">{profile.loyalty_points} points</h2><p className="mt-1 text-sm text-muted-foreground">Niveau {currentTier?.name||profile.loyalty_tier}</p></div>
-          <div className="rounded-xl border border-border bg-background p-2"><img src={qrUrl(profile.user_id)} alt="Mon QR fidélité" className="h-36 w-36 rounded-lg"/></div>
+          <div className="rounded-xl border border-border bg-background p-2"><img src={qrUrl(profile.loyalty_code)} alt="Mon QR fidélité" className="h-36 w-36 rounded-lg"/></div>
         </div>
         {nextTier&&<div className="mt-5"><div className="flex justify-between text-xs text-muted-foreground"><span>{currentTier?.name}</span><span>{nextTier.name} · {nextTier.min_points} pts</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-background"><div className="h-full rounded-full bg-gold transition-all" style={{width:progress+"%"}}/></div><p className="mt-2 text-xs text-muted-foreground">{Math.max(0,nextTier.min_points-profile.loyalty_points)} points pour atteindre {nextTier.name}.</p></div>}
         <p className="mt-4 text-xs text-muted-foreground">Présentez ce QR en boutique pour être identifié rapidement.</p>
