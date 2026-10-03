@@ -37,12 +37,7 @@ export function Header() {
 
     const syncAuth = async () => {
       if (!active) return;
-      const adminToken = sessionStorage.getItem("orotronix_admin_token");
-    if (adminToken && window.location.pathname !== "/admin") {
-      void navigate({ to: "/admin" });
-      return;
-    }
-    const token = sessionStorage.getItem("orotronix_user_token");
+      const token = sessionStorage.getItem("orotronix_user_token");
       setLoggedIn(Boolean(token));
 
       if (token) {
