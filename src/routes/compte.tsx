@@ -53,6 +53,7 @@ type Profile = {
   full_name: string | null;
   phone: string | null;
   city: string | null;
+  loyalty_code: string;
   loyalty_points: number;
   loyalty_tier: string;
 };
