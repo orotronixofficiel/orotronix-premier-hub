@@ -529,7 +529,8 @@ export default function ComptePage() {
             {activeSection === "addresses" && (
               <AddressesPanel addresses={addresses} onAdd={() => { setAddressForm({ id:"",label:"Domicile",full_name:profileForm.full_name,phone:profileForm.phone,city:profileForm.city,address:"",is_default:addresses.length===0 }); setShowAddressForm(true); }} onEdit={startEditAddress} onDelete={deleteAddress} onDefault={setDefaultAddress} showForm={showAddressForm} form={addressForm} setForm={setAddressForm} onSave={saveAddress} onCancel={() => setShowAddressForm(false)} saving={savingAccount} />
             )}
-            {activeSection === "favorites" && <FavoritesPanel favorites={favorites} onRemove={toggleFavorite />} }\n            {activeSection === "loyalty" && <CustomerLoyaltyPanel profile={profile} onProfileChange={setProfile} />}
+            {activeSection === "favorites" && <FavoritesPanel favorites={favorites} onRemove={toggleFavorite />}
+            {activeSection === "loyalty" && <CustomerLoyaltyPanel profile={profile} onProfileChange={setProfile} />}
             {activeSection === "security" && (
               <SecurityPanel newPassword={newPassword} setNewPassword={setNewPassword} newPassword2={newPassword2} setNewPassword2={setNewPassword2} onChangePassword={changePassword} saving={savingAccount} orderUpdates={orderUpdates} promotions={promotions} securityAlerts={securityAlerts} updatePrefs={updatePrefs} />
             )}
