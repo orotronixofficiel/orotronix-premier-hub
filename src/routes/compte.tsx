@@ -366,7 +366,7 @@ export default function ComptePage() {
         prefer: "return=representation",
       });
       if (profileForm.full_name.trim()) sessionStorage.setItem("orotronix_user_name", profileForm.full_name.trim());
-      setProfile(saved[0] || { ...(profile || { user_id: userId, loyalty_points: 0, loyalty_tier: "Bronze" }), ...profileForm });
+      setProfile(saved[0] || (profile ? { ...profile, full_name: profileForm.full_name, phone: profileForm.phone || null, city: profileForm.city || null } : null));
       setEditingProfile(false);
       toast.success("Informations mises à jour.");
       notifyAuthChanged();
