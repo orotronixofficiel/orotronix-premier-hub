@@ -30,13 +30,37 @@ export const Route = createFileRoute("/produit/$slug")({
       return { meta: [{ title: "Produit indisponible — OROTRONIX" }, { name: "robots", content: "noindex" }] };
     }
     const { product } = loaderData;
+    const canonical = "https://www.orotronix.com/produit/" + encodeURIComponent(product.slug);
+    const description = product.shortDescription || product.description;
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      description,
+      image: product.image ? [product.image] : undefined,
+      sku: product.slug,
+      brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+      offers: {
+        "@type": "Offer",
+        url: canonical,
+        priceCurrency: "MAD",
+        price: product.price,
+        availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        seller: { "@type": "Organization", name: "OROTRONIX", url: "https://www.orotronix.com/" },
+      },
+    };
     return {
       meta: [
         { title: `${product.name} — OROTRONIX` },
-        { name: "description", content: product.shortDescription },
+        { name: "description", content: description },
+        { name: "robots", content: "index, follow" },
         { property: "og:title", content: `${product.name} — OROTRONIX` },
-        { property: "og:description", content: product.shortDescription },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: canonical },
       ],
+      links: [{ rel: "canonical", href: canonical }],
+      scripts: [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }],
     };
   },
   component: ProductPage,
