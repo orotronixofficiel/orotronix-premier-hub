@@ -247,8 +247,7 @@ export default function ComptePage() {
         }
       }
     };
-    void handleAuthCallback();
-    return () => { active = false; };
+    void handleAuthCallback();    return () => { active = false; };
   }, []);
 
   useEffect(() => {
@@ -497,8 +496,7 @@ export default function ComptePage() {
             ))}
           </aside>
 
-          <section className="space-y-6">
-            {activeSection === "overview" && (
+          <section className="space-y-6">            {activeSection === "overview" && (
               <>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Stat icon={<Package className="h-5 w-5" />} label="Commandes" value={String(orders.length)} />
@@ -529,7 +527,7 @@ export default function ComptePage() {
             {activeSection === "addresses" && (
               <AddressesPanel addresses={addresses} onAdd={() => { setAddressForm({ id:"",label:"Domicile",full_name:profileForm.full_name,phone:profileForm.phone,city:profileForm.city,address:"",is_default:addresses.length===0 }); setShowAddressForm(true); }} onEdit={startEditAddress} onDelete={deleteAddress} onDefault={setDefaultAddress} showForm={showAddressForm} form={addressForm} setForm={setAddressForm} onSave={saveAddress} onCancel={() => setShowAddressForm(false)} saving={savingAccount} />
             )}
-            {activeSection === "favorites" && <FavoritesPanel favorites={favorites} onRemove={toggleFavorite />}
+            {activeSection === "favorites" && <FavoritesPanel favorites={favorites} onRemove={toggleFavorite} />}
             {activeSection === "loyalty" && <CustomerLoyaltyPanel profile={profile} onProfileChange={setProfile} />}
             {activeSection === "security" && (
               <SecurityPanel newPassword={newPassword} setNewPassword={setNewPassword} newPassword2={newPassword2} setNewPassword2={setNewPassword2} onChangePassword={changePassword} saving={savingAccount} orderUpdates={orderUpdates} promotions={promotions} securityAlerts={securityAlerts} updatePrefs={updatePrefs} />
