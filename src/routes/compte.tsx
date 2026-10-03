@@ -41,6 +41,7 @@ import { formatMAD } from "@/lib/format";
 import { loadRemoteProduct } from "@/data/catalog";
 import { useCart } from "@/context/cart";
 import { moroccanCities } from "@/data/repair";
+import { CustomerLoyaltyPanel } from "@/components/customer-loyalty-panel";
 
 export const Route = createFileRoute("/compte")({ component: ComptePage });
 
@@ -114,7 +115,7 @@ export default function ComptePage() {
   const [savingAccount, setSavingAccount] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [newPassword2, setNewPassword2] = useState("");
-  const [activeSection, setActiveSection] = useState<"overview" | "orders" | "addresses" | "favorites" | "security">("overview");
+  const [activeSection, setActiveSection] = useState<"overview" | "orders" | "addresses" | "favorites" | "loyalty" | "security">("overview");
   const navigate = useNavigate();
 
   const token = typeof window !== "undefined" ? sessionStorage.getItem("orotronix_user_token") : null;
@@ -485,6 +486,7 @@ export default function ComptePage() {
               ["orders","Mes commandes",Package],
               ["addresses","Mes adresses",MapPin],
               ["favorites","Mes favoris",Heart],
+              ["loyalty","Fidélité",Star],
               ["security","Sécurité",Shield],
             ].map(([key,label,Icon]) => (
               <button key={String(key)} onClick={() => setActiveSection(key as typeof activeSection)} className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm transition-colors ${activeSection === key ? "bg-gold/10 text-gold" : "text-muted-foreground hover:bg-surface hover:text-foreground"}`}>
@@ -525,7 +527,7 @@ export default function ComptePage() {
             {activeSection === "addresses" && (
               <AddressesPanel addresses={addresses} onAdd={() => { setAddressForm({ id:"",label:"Domicile",full_name:profileForm.full_name,phone:profileForm.phone,city:profileForm.city,address:"",is_default:addresses.length===0 }); setShowAddressForm(true); }} onEdit={startEditAddress} onDelete={deleteAddress} onDefault={setDefaultAddress} showForm={showAddressForm} form={addressForm} setForm={setAddressForm} onSave={saveAddress} onCancel={() => setShowAddressForm(false)} saving={savingAccount} />
             )}
-            {activeSection === "favorites" && <FavoritesPanel favorites={favorites} onRemove={toggleFavorite} />}
+            {activeSection === "favorites" && <FavoritesPanel favorites={favorites} onRemove={toggleFavorite />} }\n            {activeSection === "loyalty" && <CustomerLoyaltyPanel profile={profile} onProfileChange={setProfile} />}
             {activeSection === "security" && (
               <SecurityPanel newPassword={newPassword} setNewPassword={setNewPassword} newPassword2={newPassword2} setNewPassword2={setNewPassword2} onChangePassword={changePassword} saving={savingAccount} orderUpdates={orderUpdates} promotions={promotions} securityAlerts={securityAlerts} updatePrefs={updatePrefs} />
             )}
