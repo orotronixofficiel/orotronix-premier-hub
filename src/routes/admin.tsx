@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowDownToLine, ArrowUpFromLine, BarChart3, CheckCircle2, Clock3, Copy, Download, Eye, EyeOff, History, LockKeyhole, LogOut, Minus, Package, Percent, Plus, RefreshCw, Save, ShoppingBag, Tags, Trash2, Warehouse, Wrench, Zap, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PHONE_CATALOG, PHONE_BRANDS } from "@/data/phone-catalog";
@@ -27,7 +27,7 @@ const emptyRepair: Omit<Repair,"id"> = { device_brand:"Tous",device_model:"Tous"
 const emptyCategory: Omit<Category,"id"> = { name:"",slug:"",description:"",image_url:"",sort_order:0,parent_id:null,visible:true };
 
 function AdminPage() {
-  const [token,setToken]=useState<string|null>(() => typeof window !== "undefined" ? sessionStorage.getItem("orotronix_admin_token") : null);
+  const [token,setToken]=useState<string|null>(null);
   const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [error,setError]=useState(""); const [loading,setLoading]=useState(false);
   const [tab,setTab]=useState("dashboard"); const [sidebarOpen,setSidebarOpen]=useState(true);
   const [customers,setCustomers]=useState<Array<{id:string;email:string|null;created_at:string;last_sign_in_at:string|null;full_name:string|null;phone:string|null;city:string|null;order_count:number;total_spent:number;last_order_at:string|null}>>([]);
@@ -64,17 +64,28 @@ function AdminPage() {
   } catch(e){setError(e instanceof Error?e.message:"Erreur de chargement");} finally{setLoading(false);} };
 
   const verifyAdmin=async()=>{ const ok=await supabaseRest<boolean>("rpc/is_admin_identity",{method:"POST",body:{}}); if(!ok) throw new Error("Accès administrateur refusé."); return true; };
+  const adminBooted=useRef(false);
   useEffect(()=>{
-    if(typeof window==="undefined") return;
+    if(typeof window==="undefined" || adminBooted.current) return;
+    adminBooted.current=true;
     const hash=new URLSearchParams(window.location.hash.replace(/^#/,""));
     const oauthToken=hash.get("access_token");
     const oauthRefresh=hash.get("refresh_token");
-    if(!oauthToken) return;
-    window.history.replaceState({},document.title,window.location.pathname+window.location.search);
-    setSupabaseAccessToken(oauthToken);
-    sessionStorage.setItem("orotronix_admin_token",oauthToken);
-    if(oauthRefresh) sessionStorage.setItem("orotronix_admin_refresh_token",oauthRefresh);
-    setToken(oauthToken);
+    if(oauthToken){
+      window.history.replaceState({},document.title,window.location.pathname+window.location.search);
+      setSupabaseAccessToken(oauthToken);
+      sessionStorage.setItem("orotronix_admin_token",oauthToken);
+      if(oauthRefresh) sessionStorage.setItem("orotronix_admin_refresh_token",oauthRefresh);
+      setToken(oauthToken);
+      return;
+    }
+    // Every visit to /admin starts a fresh admin authentication flow.
+    // Never reuse a previous admin token or an already-elevated AAL2 session.
+    sessionStorage.removeItem("orotronix_admin_token");
+    sessionStorage.removeItem("orotronix_admin_refresh_token");
+    sessionStorage.removeItem("orotronix_admin_mfa_enrollment");
+    setSupabaseAccessToken(null);
+    setToken(null);
   },[]);
   useEffect(()=>{if(!token)return;setSupabaseAccessToken(token);setMfaReady(null);setError("");void verifyAdmin().then(()=>prepareAdminMfa()).then((ready)=>{if(ready)void load();}).catch((e)=>{setMfaReady(null);setError(e instanceof Error?e.message:"La vérification administrateur a échoué.");});},[token]);
   const login=async(e:React.FormEvent)=>{e.preventDefault();setError("");try{const d=await supabaseAuth("token?grant_type=password",{email,password});setSupabaseAccessToken(d.access_token);await verifyAdmin();sessionStorage.setItem("orotronix_admin_token",d.access_token);if(d.refresh_token)sessionStorage.setItem("orotronix_admin_refresh_token",d.refresh_token);setToken(d.access_token);}catch(e){setError(e instanceof Error?e.message:"Connexion impossible");}};
