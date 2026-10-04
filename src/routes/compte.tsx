@@ -12,6 +12,7 @@ import {
   MapPin,
   Package,
   Pencil,
+  Printer,
   Plus,
   Save,
   Shield,
@@ -697,8 +698,17 @@ function Info({ label, value }: { label: string; value: string }) { return <div>
 function OrdersPanel({ orders }: { orders: CustomerOrder[] }) {
   const { addItem } = useCart();
   const [buying, setBuying] = useState<string | null>(null);
+  const printInvoice = (order: CustomerOrder) => {
+    const rows = (order.items || []).map(i => `<tr><td>${i.name}</td><td>${i.quantity}</td><td>${formatMAD(Number(i.price) * Number(i.quantity))}</td></tr>`).join("");
+    const w = window.open("", "_blank");
+    if (!w) { toast.error("Autorisez les fenêtres pop-up pour télécharger la facture."); return; }
+    w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${order.reference} | OROTRONIX</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111;max-width:760px;margin:auto}h1{font-size:26px;margin-bottom:4px}.muted{color:#666;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:22px}th,td{padding:10px 6px;border-bottom:1px solid #ddd;text-align:left}.total{font-size:20px;font-weight:700;margin-top:22px}.box{margin-top:22px;padding:14px;border:1px solid #ddd;border-radius:8px}</style></head><body><h1>OROTRONIX</h1><p class="muted">Bon de commande client</p><p><b>Référence :</b> ${order.reference}<br><b>Date :</b> ${new Date(order.created_at).toLocaleString("fr-MA")}</p><table><thead><tr><th>Produit</th><th>Qté</th><th>Prix</th></tr></thead><tbody>${rows}</tbody></table><p class="total">Total : ${formatMAD(Number(order.total))}</p><p class="box">Mode de paiement : À la livraison</p><p class="muted">OROTRONIX — Merci pour votre commande.</p><script>window.print()</script></body></html>`);
+    w.document.close();
+  };
+
+
   const statusMap: Record<string,string> = { pending_whatsapp:"Nouvelle", confirmed:"Confirmée", processing:"En préparation", shipped:"Expédiée", completed:"Livrée", cancelled:"Annulée" };
-  return <div className="rounded-xl border border-border bg-card p-6"><div className="flex items-center gap-3"><Package className="h-5 w-5 text-gold" /><h2 className="font-display text-xl font-semibold">Mes commandes</h2></div>{orders.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">Aucune commande pour le moment.</p> : <div className="mt-5 space-y-3">{orders.map(o=><div key={o.id} className="rounded-lg border border-border p-4"><div className="flex flex-wrap justify-between gap-3"><div><p className="font-semibold">{o.reference}</p><p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("fr-MA")}</p></div><div className="text-right"><p className="text-gold">{formatMAD(Number(o.total))}</p><p className="text-xs text-muted-foreground">{statusMap[o.status] || o.status}</p></div></div><ul className="mt-3 space-y-1 text-sm text-muted-foreground">{(o.items || []).map((i,index)=><li key={index}>{i.name} × {i.quantity}</li>)}</ul>{o.items.some(i => i.slug) && <Button variant="outline" size="sm" className="mt-3" disabled={buying===o.id} onClick={async()=>{setBuying(o.id);try{for(const item of o.items){if(!item.slug)continue;const p=await loadRemoteProduct(item.slug);if(p) addItem(p,Number(item.quantity)||1);}toast.success("Produits ajoutés au panier");}catch{toast.error("Impossible de recharger certains produits.");}finally{setBuying(null);}}}>{buying===o.id?"Ajout…":"Racheter ces produits"}</Button>}</div>)}</div>}</div>;
+  return <div className="rounded-xl border border-border bg-card p-6"><div className="flex items-center gap-3"><Package className="h-5 w-5 text-gold" /><h2 className="font-display text-xl font-semibold">Mes commandes</h2></div>{orders.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">Aucune commande pour le moment.</p> : <div className="mt-5 space-y-3">{orders.map(o=><div key={o.id} className="rounded-lg border border-border p-4"><div className="flex flex-wrap justify-between gap-3"><div><p className="font-semibold">{o.reference}</p><p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("fr-MA")}</p></div><div className="text-right"><p className="text-gold">{formatMAD(Number(o.total))}</p><p className="text-xs text-muted-foreground">{statusMap[o.status] || o.status}</p></div></div><ul className="mt-3 space-y-1 text-sm text-muted-foreground">{(o.items || []).map((i,index)=><li key={index}>{i.name} × {i.quantity}</li>)}</ul><Button variant="outline" size="sm" className="mt-3 mr-2" onClick={()=>printInvoice(o)}><Printer className="mr-2 h-4 w-4" />Télécharger / PDF</Button>{o.items.some(i => i.slug) && <Button variant="outline" size="sm" className="mt-3" disabled={buying===o.id} onClick={async()=>{setBuying(o.id);try{for(const item of o.items){if(!item.slug)continue;const p=await loadRemoteProduct(item.slug);if(p) addItem(p,Number(item.quantity)||1);}toast.success("Produits ajoutés au panier");}catch{toast.error("Impossible de recharger certains produits.");}finally{setBuying(null);}}}>{buying===o.id?"Ajout…":"Racheter ces produits"}</Button>}</div>)}</div>}</div>;
 }
 
 function AddressesPanel({ addresses, onAdd, onEdit, onDelete, onDefault, showForm, form, setForm, onSave, onCancel, saving }: any) {
