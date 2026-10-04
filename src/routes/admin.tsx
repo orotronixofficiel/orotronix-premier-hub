@@ -6,7 +6,7 @@ import { PHONE_CATALOG, PHONE_BRANDS } from "@/data/phone-catalog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken, supabaseSignOut, uploadSupabaseStorage as uploadProductImage } from "@/lib/supabase";
+import { supabaseAuth, supabaseConfigured, supabaseRest, setSupabaseAccessToken, supabaseSignOut, refreshSupabaseAdminSession, uploadSupabaseStorage as uploadProductImage } from "@/lib/supabase";
 import { challengeAdminTotp, enrollAdminTotp, getJwtAal, listAdminMfaFactors, verifyAdminTotp } from "@/lib/admin-mfa-v2";
 import { RepairRequestsPanel } from "@/components/admin/repair-requests-panel";
 import { AdminLoyaltyPanel } from "@/components/admin/loyalty-panel";
@@ -79,13 +79,20 @@ function AdminPage() {
       setToken(oauthToken);
       return;
     }
-    // Every visit to /admin starts a fresh admin authentication flow.
-    // Never reuse a previous admin token or an already-elevated AAL2 session.
-    sessionStorage.removeItem("orotronix_admin_token");
-    sessionStorage.removeItem("orotronix_admin_refresh_token");
-    sessionStorage.removeItem("orotronix_admin_mfa_enrollment");
-    setSupabaseAccessToken(null);
-    setToken(null);
+    const savedToken=sessionStorage.getItem("orotronix_admin_token");
+    if(savedToken){
+      setSupabaseAccessToken(savedToken);
+      setToken(savedToken);
+      return;
+    }
+    void refreshSupabaseAdminSession().then((restored)=>{
+      if(restored){
+        setToken(restored);
+      }else{
+        setSupabaseAccessToken(null);
+        setToken(null);
+      }
+    });
   },[]);
   useEffect(()=>{if(!token)return;setSupabaseAccessToken(token);setMfaReady(null);setError("");void verifyAdmin().then(()=>prepareAdminMfa()).then((ready)=>{if(ready)void load();}).catch((e)=>{setMfaReady(null);setError(e instanceof Error?e.message:"La vérification administrateur a échoué.");});},[token]);
   const login=async(e:React.FormEvent)=>{e.preventDefault();setError("");try{const d=await supabaseAuth("token?grant_type=password",{email,password});setSupabaseAccessToken(d.access_token);await verifyAdmin();sessionStorage.setItem("orotronix_admin_token",d.access_token);if(d.refresh_token)sessionStorage.setItem("orotronix_admin_refresh_token",d.refresh_token);setToken(d.access_token);}catch(e){setError(e instanceof Error?e.message:"Connexion impossible");}};
