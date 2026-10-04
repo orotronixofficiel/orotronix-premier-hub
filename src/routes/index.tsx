@@ -148,7 +148,7 @@ function HomePage() {
           title="Nos catégories"
           description="Trouvez rapidement ce qui vous intéresse."
         />
-        <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 snap-x snap-mandatory scrollbar-none lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {catalogCategories.map((c) => {
             const count = catalogProducts.filter((p) => p.category === c.slug).length;
             return (
@@ -156,23 +156,23 @@ function HomePage() {
                 key={c.slug}
                 to="/boutique"
                 search={{ categorie: c.slug }}
-                className="group flex min-w-[145px] snap-start flex-col items-center rounded-2xl border border-border bg-card p-3 text-center transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 hover:shadow-[var(--shadow-elevated)] lg:min-w-0"
+                className="group flex items-center gap-4 rounded-xl border border-border bg-card px-4 py-3 transition-all duration-300 hover:border-gold/50 hover:bg-surface"
               >
-                <div className="relative h-24 w-full overflow-hidden rounded-xl bg-surface sm:h-28">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-gold/25 bg-gold/5 text-gold">
                   <img
                     src={c.image}
-                    alt={c.name}
+                    alt=""
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-7 w-7 rounded object-cover opacity-90"
                   />
-                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border/60 bg-background/85 px-2 py-0.5 text-[9px] font-medium text-gold backdrop-blur">
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <h3 className="truncate font-display text-sm font-semibold sm:text-base">{c.name}</h3>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground sm:text-xs">
                     {count} {count === 1 ? "produit" : "produits"}
-                  </span>
+                  </p>
                 </div>
-                <div className="mt-3 flex w-full items-center justify-center gap-1.5">
-                  <h3 className="line-clamp-1 font-display text-xs font-semibold sm:text-sm">{c.name}</h3>
-                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-gold transition-transform duration-300 group-hover:translate-x-1" />
-                </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-gold transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             );
           })}
