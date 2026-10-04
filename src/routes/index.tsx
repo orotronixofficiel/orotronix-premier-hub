@@ -139,32 +139,46 @@ function HomePage() {
       </section>
 
       {/* CATEGORIES */}
-      <section className="container-page py-6 lg:py-10">
-        <SectionHeading eyebrow="Catalogue" title="Nos catégories" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          {catalogCategories.map((c) => (
-            <Link
-              key={c.slug}
-              to="/boutique"
-              search={{ categorie: c.slug }}
-              className="hover-lift group relative overflow-hidden rounded-xl border border-border"
-            >
-              <img
-                src={c.image}
-                alt={c.name}
-                loading="lazy"
-                className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5">
-                <h3 className="font-display text-lg font-semibold">{c.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">{c.description}</p>
-                <span className="mt-3 inline-flex items-center text-xs font-medium text-gold">
-                  Explorer <ArrowRight className="ml-1 h-3 w-3" />
-                </span>
-              </div>
-            </Link>
-          ))}
+      <section className="container-page py-8 lg:py-12">
+        <SectionHeading
+          eyebrow="Catalogue"
+          title="Nos catégories"
+          description="Trouvez rapidement ce qui vous intéresse."
+        />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          {catalogCategories.map((c) => {
+            const count = catalogProducts.filter((p) => p.category === c.slug).length;
+            return (
+              <Link
+                key={c.slug}
+                to="/boutique"
+                search={{ categorie: c.slug }}
+                className="group overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 hover:shadow-[var(--shadow-elevated)]"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-surface">
+                  <img
+                    src={c.image}
+                    alt={c.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                  <span className="absolute bottom-3 left-3 rounded-full border border-border/60 bg-background/80 px-2.5 py-1 text-[10px] font-medium text-gold backdrop-blur">
+                    {count} {count === 1 ? "produit" : "produits"}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-display text-sm font-semibold sm:text-base">{c.name}</h3>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-gold transition-transform duration-300 group-hover:translate-x-1" />
+                  </div>
+                  <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                    {c.description}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
