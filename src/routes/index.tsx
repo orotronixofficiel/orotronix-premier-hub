@@ -148,35 +148,31 @@ function HomePage() {
           title="Nos catégories"
           description="Trouvez rapidement ce qui vous intéresse."
         />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 snap-x snap-mandatory scrollbar-none lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
           {catalogCategories.map((c) => {
             const count = catalogProducts.filter((p) => p.category === c.slug).length;
-            const Icon =
-              c.slug === "smartphones"
-                ? Smartphone
-                : c.slug === "accessoires-telephone"
-                  ? Headphones
-                  : c.slug === "accessoires-tv"
-                    ? Tv
-                    : Flame;
-
             return (
               <Link
                 key={c.slug}
                 to="/boutique"
                 search={{ categorie: c.slug }}
-                className="group flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3.5 transition-all duration-300 hover:border-gold/50 hover:bg-surface hover:shadow-[var(--shadow-elevated)] sm:px-4"
+                className="group flex min-w-[145px] snap-start flex-col items-center rounded-2xl border border-border bg-card p-3 text-center transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 hover:shadow-[var(--shadow-elevated)] lg:min-w-0"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-gold/20 bg-gold/5 text-gold transition-colors duration-300 group-hover:border-gold/50 group-hover:bg-gold/10">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-display text-sm font-semibold sm:text-base">{c.name}</span>
-                  <span className="mt-0.5 block text-[10px] text-muted-foreground sm:text-xs">
+                <div className="relative h-24 w-full overflow-hidden rounded-xl bg-surface sm:h-28">
+                  <img
+                    src={c.image}
+                    alt={c.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-border/60 bg-background/85 px-2 py-0.5 text-[9px] font-medium text-gold backdrop-blur">
                     {count} {count === 1 ? "produit" : "produits"}
                   </span>
-                </span>
-                <ArrowRight className="h-4 w-4 shrink-0 text-gold/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-gold" />
+                </div>
+                <div className="mt-3 flex w-full items-center justify-center gap-1.5">
+                  <h3 className="line-clamp-1 font-display text-xs font-semibold sm:text-sm">{c.name}</h3>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-gold transition-transform duration-300 group-hover:translate-x-1" />
+                </div>
               </Link>
             );
           })}
