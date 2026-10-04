@@ -70,6 +70,8 @@ type Address = {
 type CustomerOrder = {
   id: string;
   reference: string;
+  subtotal: number;
+  shipping: number;
   total: number;
   status: string;
   created_at: string;
@@ -135,7 +137,7 @@ export default function ComptePage() {
       const [p, a, o, f, n] = await Promise.all([
         supabaseRest<Profile[]>("customer_profiles", { query: "?select=*&user_id=eq." + encodeURIComponent(userId) }),
         supabaseRest<Address[]>("customer_addresses", { query: "?select=*&user_id=eq." + encodeURIComponent(userId) + "&order=is_default.desc,created_at.desc" }),
-        supabaseRest<CustomerOrder[]>("orders", { query: "?select=id,reference,total,status,created_at,items&user_id=eq." + encodeURIComponent(userId) + "&order=created_at.desc" }),
+        supabaseRest<CustomerOrder[]>("orders", { query: "?select=id,reference,subtotal,shipping,total,status,created_at,items&user_id=eq." + encodeURIComponent(userId) + "&order=created_at.desc" }),
         supabaseRest<Favorite[]>("customer_favorites", { query: "?select=product_id,products(id,slug,name,price,image_url,visible)&user_id=eq." + encodeURIComponent(userId) }),
         supabaseRest<Array<{order_updates:boolean;promotions:boolean;security_alerts:boolean}>>("customer_notification_preferences", { query: "?select=*&user_id=eq." + encodeURIComponent(userId) }),
       ]);
@@ -700,9 +702,11 @@ function OrdersPanel({ orders }: { orders: CustomerOrder[] }) {
   const [buying, setBuying] = useState<string | null>(null);
   const printInvoice = (order: CustomerOrder) => {
     const rows = (order.items || []).map(i => `<tr><td>${i.name}</td><td>${i.quantity}</td><td>${formatMAD(Number(i.price) * Number(i.quantity))}</td></tr>`).join("");
+    const subtotal = Number(order.subtotal ?? (order.items || []).reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 0), 0));
+    const shipping = Number(order.shipping || 0);
     const w = window.open("", "_blank");
     if (!w) { toast.error("Autorisez les fenêtres pop-up pour télécharger la facture."); return; }
-    w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${order.reference} | OROTRONIX</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111;max-width:760px;margin:auto}h1{font-size:26px;margin-bottom:4px}.muted{color:#666;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:22px}th,td{padding:10px 6px;border-bottom:1px solid #ddd;text-align:left}.total{font-size:20px;font-weight:700;margin-top:22px}.box{margin-top:22px;padding:14px;border:1px solid #ddd;border-radius:8px}</style></head><body><h1>OROTRONIX</h1><p class="muted">Bon de commande client</p><p><b>Référence :</b> ${order.reference}<br><b>Date :</b> ${new Date(order.created_at).toLocaleString("fr-MA")}</p><table><thead><tr><th>Produit</th><th>Qté</th><th>Prix</th></tr></thead><tbody>${rows}</tbody></table><p class="total">Total : ${formatMAD(Number(order.total))}</p><p class="box">Mode de paiement : À la livraison</p><p class="muted">OROTRONIX — Merci pour votre commande.</p><script>window.print()</script></body></html>`);
+    w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${order.reference} | OROTRONIX</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#111;max-width:760px;margin:auto}h1{font-size:26px;margin-bottom:4px}.muted{color:#666;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:22px}th,td{padding:10px 6px;border-bottom:1px solid #ddd;text-align:left}.summary{margin-top:22px;text-align:right}.summary p{margin:6px 0}.total{font-size:20px;font-weight:700;margin-top:10px}.box{margin-top:22px;padding:14px;border:1px solid #ddd;border-radius:8px}</style></head><body><h1>OROTRONIX</h1><p class="muted">Bon de commande client</p><p><b>Référence :</b> ${order.reference}<br><b>Date :</b> ${new Date(order.created_at).toLocaleString("fr-MA")}</p><table><thead><tr><th>Produit</th><th>Qté</th><th>Prix</th></tr></thead><tbody>${rows}</tbody></table><div class="summary"><p>Sous-total : <strong>${formatMAD(subtotal)}</strong></p><p>Livraison : <strong>${shipping === 0 ? "Offerte" : formatMAD(shipping)}</strong></p><p class="total">Total : ${formatMAD(Number(order.total))}</p></div><p class="box">Mode de paiement : À la livraison</p><p class="muted">OROTRONIX — Merci pour votre commande.</p><script>window.print()</script></body></html>`);
     w.document.close();
   };
 
