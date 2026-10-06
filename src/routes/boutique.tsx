@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronRight, Search, SlidersHorizontal, Smartphone, Tv, Wifi, Cable, X } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -46,22 +46,18 @@ export const Route = createFileRoute("/boutique")({
   component: ShopPage,
 });
 
-function CategoryChip({ active, to, children }: { active: boolean; to: ShopSearch; children: React.ReactNode }) {
+function CategoryMenuItem({ active, to, children, icon: Icon }: {
+  active: boolean; to: ShopSearch; children: React.ReactNode; icon: React.ElementType;
+}) {
   return (
-    <Link
-      to="/boutique"
-      search={to}
-      className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-        active
-          ? "border-gold bg-gold text-primary-foreground"
-          : "border-border bg-card text-muted-foreground hover:border-gold/60 hover:text-gold"
-      }`}
-    >
-      {children}
+    <Link to="/boutique" search={to}
+      className={`group flex min-h-12 items-center gap-3 border-l-2 px-4 py-3 text-sm font-medium transition-all ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
+      <Icon className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "text-muted-foreground group-hover:text-gold"}`} />
+      <span className="flex-1 truncate">{children}</span>
+      <ChevronRight className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "opacity-0 group-hover:opacity-100"}`} />
     </Link>
   );
 }
-
 function ShopPage() {
   const { categorie, q } = Route.useSearch();
   const navigate = useNavigate({ from: "/boutique" });
@@ -123,15 +119,21 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <div className="mb-6 flex flex-wrap gap-2">
-          <CategoryChip active={!categorie} to={{}}>Toutes</CategoryChip>
-          {catalogCategories.map((c) => (
-            <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
-              {c.name}
-            </CategoryChip>
-          ))}
-        </div>
-
+        <aside className="w-full shrink-0 lg:w-60">
+          <div className="overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
+            <div className="border-b border-border px-4 py-4">
+              <p className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Catégories</p>
+              <p className="mt-1 text-xs text-muted-foreground">Choisissez une catégorie</p>
+            </div>
+            <nav aria-label="Catégories de la boutique" className="py-2">
+              {catalogCategories.map((c, index) => {
+                const icons = [Smartphone, Cable, Tv, Wifi];
+                const Icon = icons[index % icons.length];
+                return <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} icon={Icon}>{c.name}</CategoryMenuItem>;
+              })}
+            </nav>
+          </div>
+        </aside>
         <div className="min-w-0 flex-1">
           {/* Recherche + tri */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
