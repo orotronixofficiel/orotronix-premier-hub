@@ -123,8 +123,7 @@ function ShopPage() {
           <div className="w-fit overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
             <div className="border-b border-border px-4 py-4">
               <p className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Catégories</p>
-              <p className="mt-1 text-xs text-muted-foreground">Choisissez une catégorie</p>
-            </div>
+                          </div>
             <nav aria-label="Catégories de la boutique" className="w-fit py-2">
               {catalogCategories.map((c, index) => {
                 const icons = [Smartphone, Cable, Tv, Wifi];
