@@ -14,6 +14,10 @@ export type RepairService = {
   id:string; device_brand:string; device_model:string; service_name:string;
   estimated_price:number; repair_time:string|null; available:boolean; description?:string|null;
 };
+export type RepairScreenPrice = {
+  id:string; brand:string; model:string; available:boolean; screen_price:number;
+  installation_price:number; notes?:string|null; active:boolean;
+};
 
 export const REPAIR_STATUSES:Record<RepairStatus,string> = {
   received:"Demande reçue", diagnostic:"Diagnostic en cours", awaiting_approval:"En attente de votre validation",
@@ -24,6 +28,12 @@ export const REPAIR_STATUSES:Record<RepairStatus,string> = {
 export async function loadRepairServices() {
   try {
     return await supabasePublicRest<RepairService[]>("repair_services", {query:"?select=id,device_brand,device_model,service_name,estimated_price,repair_time,available,description&available=eq.true&order=sort_order.asc"});
+  } catch { return []; }
+}
+
+export async function loadRepairScreenPrices() {
+  try {
+    return await supabasePublicRest<RepairScreenPrice[]>("repair_screen_prices", {query:"?select=id,brand,model,available,screen_price,installation_price,notes,active&active=eq.true&order=brand.asc,model.asc"});
   } catch { return []; }
 }
 
