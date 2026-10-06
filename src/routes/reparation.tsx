@@ -58,7 +58,7 @@ function RepairPage(){
   const [tracked,setTracked]=useState<Record<string,unknown>|null>(null);
   const [tracking,setTracking]=useState(false);
 
-  useEffect(()=>{void Promise.all([loadRepairServices(),loadRepairScreenPrices()]).then(([loadedServices,loadedScreens])=>{setServices(loadedServices);setScreenPrices(loadedScreens);})},[]);
+  useEffect(()=>{let mounted=true;void loadRepairServices().then(loaded=>{if(mounted)setServices(loaded);});void loadRepairScreenPrices().then(loaded=>{if(mounted)setScreenPrices(loaded);});return()=>{mounted=false};},[]);
   useEffect(()=>{
     if(typeof window==="undefined")return;
     const ref=new URLSearchParams(window.location.search).get("reference");
@@ -67,7 +67,7 @@ function RepairPage(){
 
   const models=form.brand?(PHONE_CATALOG[form.brand]||[]):[];
   const selectedProblem=problems.find(p=>p[0]===form.problemType);
-  const selectedScreen=useMemo(()=>screenPrices.find(s=>s.brand===form.brand&&s.model===form.model),[screenPrices,form.brand,form.model]);
+  const selectedScreen=useMemo(()=>{const brand=form.brand.trim().toLowerCase();const model=form.model.trim().toLowerCase();return screenPrices.find(s=>s.active&&s.brand.trim().toLowerCase()===brand&&s.model.trim().toLowerCase()===model)},[screenPrices,form.brand,form.model]);
   const matched=useMemo(()=>services
     .filter(s=>s.device_brand==="Tous"||s.device_brand===form.brand)
     .filter(s=>s.device_model==="Tous"||s.device_model===form.model)
