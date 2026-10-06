@@ -118,7 +118,7 @@ function ShopPage() {
         </p>
       </header>
 
-      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[max-content_minmax(0,1fr)] lg:items-start">
         <aside className="w-full shrink-0 lg:w-fit">
           <div className="w-fit overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
             <div className="border-b border-border px-4 py-4">
