@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRight, Search, SlidersHorizontal, Smartphone, Tv, Wifi, Cable, X } from "lucide-react";
+import { ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -46,15 +46,19 @@ export const Route = createFileRoute("/boutique")({
   component: ShopPage,
 });
 
-function CategoryMenuItem({ active, to, children, icon: Icon }: {
-  active: boolean; to: ShopSearch; children: React.ReactNode; icon: React.ElementType;
+function CategoryMenuItem({ active, to, children, image }: {
+  active: boolean; to: ShopSearch; children: React.ReactNode; image: string;
 }) {
   return (
     <Link to="/boutique" search={to}
-      className={`group flex w-max min-h-12 items-center gap-3 border-l-2 px-4 py-3 text-sm font-medium transition-all ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
-      <Icon className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "text-muted-foreground group-hover:text-gold"}`} />
-      <span className="flex-1 truncate">{children}</span>
-      <ChevronRight className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "opacity-0 group-hover:opacity-100"}`} />
+      className={`group flex w-full min-h-12 items-center gap-2 border-l-2 px-2 py-2 text-[11px] font-medium transition-all sm:gap-2.5 sm:px-3 sm:py-2.5 sm:text-xs ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
+      <img
+        src={image}
+        alt=""
+        className="h-8 w-8 shrink-0 rounded-md object-cover ring-1 ring-border/60 sm:h-9 sm:w-9"
+      />
+      <span className="min-w-0 flex-1 leading-tight">{children}</span>
+      <ChevronRight className={`h-3 w-3 shrink-0 ${active ? "text-gold" : "opacity-40 group-hover:opacity-100"}`} />
     </Link>
   );
 }
@@ -119,17 +123,17 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 grid grid-cols-[max-content_minmax(0,1fr)] items-start gap-4 sm:gap-6">
-        <aside className="w-full shrink-0 lg:w-fit">
-          <div className="w-fit overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
-            <div className="border-b border-border px-4 py-4">
-              <p className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Catégories</p>
+        <aside className="w-[108px] shrink-0 sm:w-[145px] lg:w-[175px]">
+          <div className="w-full overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
+            <div className="border-b border-border px-2.5 py-3 sm:px-3.5 sm:py-3.5">
+              <p className="font-display text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground sm:text-xs">Catégories</p>
                           </div>
-            <nav aria-label="Catégories de la boutique" className="w-fit py-2">
-              {catalogCategories.map((c, index) => {
-                const icons = [Smartphone, Cable, Tv, Wifi];
-                const Icon = icons[index % icons.length];
-                return <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} icon={Icon}>{c.name}</CategoryMenuItem>;
-              })}
+            <nav aria-label="Catégories de la boutique" className="w-full py-1.5">
+              {catalogCategories.map((c) => (
+                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} image={c.image}>
+                  {c.name}
+                </CategoryMenuItem>
+              ))}
             </nav>
           </div>
         </aside>
