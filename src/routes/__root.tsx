@@ -18,6 +18,9 @@ import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { initLanguage } from "@/lib/i18n";
 
+const OROTRONIX_LOGO =
+  "https://qeqqfelebzxwupsqyzbz.supabase.co/storage/v1/object/public/orotronix-media/Branding/Picsart_26-09-25_21-06-06-191.png";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center bg-background px-4">
@@ -106,12 +109,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "icon", href: OROTRONIX_LOGO, type: "image/png" },
+      { rel: "apple-touch-icon", href: OROTRONIX_LOGO },
     ],
     scripts: [
       {
@@ -123,7 +127,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           name: "OROTRONIX",
           url: "https://www.orotronix.com/",
           telephone: "+212656566366",
-          image: "https://www.orotronix.com/favicon.png",
+          image: OROTRONIX_LOGO,
           priceRange: "$$",
           address: {
             "@type": "PostalAddress",
@@ -189,7 +193,7 @@ function RootComponent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider clientName={queryClient}>
       <CartProvider>
         {isAdminRoute ? (
           <main className="min-h-screen bg-background">
