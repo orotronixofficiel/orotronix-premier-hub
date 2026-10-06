@@ -108,14 +108,14 @@ function ShopPage() {
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
         {/* Catégories — menu vertical */}
-        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-64">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="border-b border-border px-5 py-4">
-              <p className="font-display text-sm font-semibold uppercase tracking-[0.16em] text-foreground">
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-52">
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <div className="border-b border-border px-4 py-3">
+              <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
                 Catégories
               </p>
             </div>
-            <nav className="p-2" aria-label="Catégories de la boutique">
+            <nav className="p-1.5" aria-label="Catégories de la boutique">
               <CategoryMenuItem active={!categorie} to={{}}>
                 <Grid2X2 className="h-4 w-4" />
                 <span>Tout</span>
@@ -227,7 +227,7 @@ function CategoryMenuItem({
     <Link
       to="/boutique"
       search={to}
-      className={`flex min-h-11 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+      className={`flex min-h-10 items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all ${
         active
           ? "bg-gold text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:bg-gold/10 hover:text-gold"
