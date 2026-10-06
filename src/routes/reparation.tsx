@@ -215,7 +215,7 @@ function RepairPage(){
                 {step===1&&<StepDevice form={form} models={models} update={update} errors={errors} screen={selectedScreen}/>}
                 {step===2&&<StepProblem form={form} update={update} errors={errors} addPhotos={addPhotos} photoBusy={photoBusy}/>}
                 {step===3&&<StepContact form={form} update={update} errors={errors}/>}
-                {step===4&&<Summary form={form} estimate={estimatedPrice} duration={estimatedDuration} problem={form.problemType}/>}
+                {step===4&&<Summary form={form} estimate={estimatedPrice} duration={estimatedDuration} problem={form.problemType} screen={selectedScreen}/>}
                 <div className="mt-7 flex justify-between gap-3 border-t border-border pt-5">
                   {step>1?<button type="button" onClick={back} className="inline-flex h-11 items-center rounded-xl border border-border px-5 text-sm font-semibold"><ChevronLeft className="mr-2 h-4 w-4"/>Retour</button>:<span/>}
                   {step<4
@@ -314,7 +314,7 @@ function StepContact({form,update,errors}:{form:FormData;update:(k:keyof FormDat
   </div>;
 }
 
-function Summary({form,estimate,duration,problem}:{form:FormData;estimate:number;duration:string;problem:string}){
+function Summary({form,estimate,duration,problem,screen}:{form:FormData;estimate:number;duration:string;problem:string;screen?:RepairScreenPrice}){
   const mode=form.mode==="boutique"?"Boutique":form.mode==="pickup"?"Collecte & livraison":"À domicile";
   return <div className="space-y-4">
     <div className="rounded-2xl border border-gold/30 bg-gold/5 p-5">
