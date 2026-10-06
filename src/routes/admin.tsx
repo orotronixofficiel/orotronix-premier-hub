@@ -53,7 +53,7 @@ function AdminPage() {
   const loadCustomers=async()=>{try{const rows=await supabaseRest<Array<{id:string;email:string|null;created_at:string;last_sign_in_at:string|null;full_name:string|null;phone:string|null;city:string|null;order_count:number;total_spent:number;last_order_at:string|null}>>("rpc/admin_list_customers",{method:"POST",body:{}});setCustomers(rows||[]);}catch(e){console.error("OROTRONIX: clients",e);}};
 
   const load=async()=>{ setLoading(true); setError(""); try {
-    const [p,c,r,o,s,prom,sm]=await Promise.all([
+    const [p,c,r,o,s,prom,sm,sp]=await Promise.all([
       supabaseRest<Product[]>("products",{query:"?select=*&order=sort_order.asc,created_at.desc"}),
       supabaseRest<Category[]>("categories",{query:"?select=*&order=sort_order.asc"}),
       supabaseRest<Repair[]>("repair_services",{query:"?select=*&order=sort_order.asc"}),
