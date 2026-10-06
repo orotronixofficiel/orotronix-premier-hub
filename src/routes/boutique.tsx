@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRight, Grid2X2, Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,22 @@ export const Route = createFileRoute("/boutique")({
   }),
   component: ShopPage,
 });
+
+function CategoryChip({ active, to, children }: { active: boolean; to: ShopSearch; children: React.ReactNode }) {
+  return (
+    <Link
+      to="/boutique"
+      search={to}
+      className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+        active
+          ? "border-gold bg-gold text-primary-foreground"
+          : "border-border bg-card text-muted-foreground hover:border-gold/60 hover:text-gold"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
 
 function ShopPage() {
   const { categorie, q } = Route.useSearch();
@@ -107,28 +123,14 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        {/* Catégories — menu vertical */}
-        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-1/2">
-          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-            <div className="border-b border-border px-4 py-3">
-              <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
-                Catégories
-              </p>
-            </div>
-            <nav className="p-1.5" aria-label="Catégories de la boutique">
-              <CategoryMenuItem active={!categorie} to={{}}>
-                <Grid2X2 className="h-4 w-4" />
-                <span>Tout</span>
-              </CategoryMenuItem>
-              {catalogCategories.map((c) => (
-                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
-                  <span className="min-w-0 flex-1 truncate">{c.name}</span>
-                  <ChevronRight className="h-4 w-4 shrink-0 opacity-60" />
-                </CategoryMenuItem>
-              ))}
-            </nav>
-          </div>
-        </aside>
+        <div className="mb-6 flex flex-wrap gap-2">
+          <CategoryChip active={!categorie} to={{}}>Toutes</CategoryChip>
+          {catalogCategories.map((c) => (
+            <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
+              {c.name}
+            </CategoryChip>
+          ))}
+        </div>
 
         <div className="min-w-0 flex-1">
           {/* Recherche + tri */}
@@ -214,26 +216,3 @@ function ShopPage() {
   );
 }
 
-function CategoryMenuItem({
-  active,
-  to,
-  children,
-}: {
-  active: boolean;
-  to: ShopSearch;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      to="/boutique"
-      search={to}
-      className={`flex min-h-10 items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all ${
-        active
-          ? "bg-gold text-primary-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-gold/10 hover:text-gold"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
