@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ElementType } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRight, Search, SlidersHorizontal, X, Smartphone, Cable, Tv, BadgePercent } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
@@ -53,8 +53,8 @@ export const Route = createFileRoute("/boutique")({
   component: ShopPage,
 });
 
-function CategoryMenuItem({ active, to, children, image }: {
-  active: boolean; to: ShopSearch; children: React.ReactNode; icon: React.ElementType;
+function CategoryMenuItem({ active, to, children, icon: Icon }: {
+  active: boolean; to: ShopSearch; children: React.ReactNode; icon: ElementType;
 }) {
   return (
     <Link to="/boutique" search={to}
