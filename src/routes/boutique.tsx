@@ -119,7 +119,7 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 lg:w-60">
+        <aside className="w-full shrink-0 lg:w-max">
           <div className="overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
             <div className="border-b border-border px-4 py-4">
               <p className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Catégories</p>
