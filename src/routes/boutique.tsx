@@ -17,11 +17,11 @@ import { formatMAD } from "@/lib/format";
 
 type ShopSearch = { categorie?: string; q?: string };
 
-const categoryIcons: Record<string, React.ElementType> = {
-  smartphones: Smartphone,
-  "accessoires-telephone": Cable,
-  "accessoires-tv": Tv,
-  offres: BadgePercent,
+const categoryIcons: Record<string, { icon: ElementType; color: string; bg: string }> = {
+  smartphones: { icon: Smartphone, color: "text-sky-400", bg: "bg-sky-400/10 border-sky-400/20" },
+  "accessoires-telephone": { icon: Cable, color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" },
+  "accessoires-tv": { icon: Tv, color: "text-violet-400", bg: "bg-violet-400/10 border-violet-400/20" },
+  offres: { icon: BadgePercent, color: "text-amber-400", bg: "bg-amber-400/10 border-amber-400/20" },
 };
 
 const MAX_PRICE = 15000;
@@ -53,14 +53,14 @@ export const Route = createFileRoute("/boutique")({
   component: ShopPage,
 });
 
-function CategoryMenuItem({ active, to, children, icon: Icon }: {
-  active: boolean; to: ShopSearch; children: React.ReactNode; icon: ElementType;
+function CategoryMenuItem({ active, to, children, icon }: {
+  active: boolean; to: ShopSearch; children: React.ReactNode; icon: { icon: ElementType; color: string; bg: string };
 }) {
   return (
     <Link to="/boutique" search={to}
       className={`group flex w-full min-h-12 items-center gap-2 border-l-2 px-2 py-2 text-[11px] font-medium transition-all sm:gap-2.5 sm:px-3 sm:py-2.5 sm:text-xs ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background/60 sm:h-8 sm:w-8 ${active ? "text-gold" : "text-muted-foreground group-hover:text-gold"}`}>
-        <Icon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.8} />
+      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border sm:h-8 sm:w-8 ${icon.bg}`}>
+        <icon.icon className={`h-4 w-4 sm:h-[18px] sm:w-[18px] ${icon.color}`} strokeWidth={1.8} />
       </span>
       <span className="min-w-0 flex-1 leading-tight">{children}</span>
       <ChevronRight className={`h-3 w-3 shrink-0 ${active ? "text-gold" : "opacity-40 group-hover:opacity-100"}`} />
@@ -135,7 +135,7 @@ function ShopPage() {
                           </div>
             <nav aria-label="Catégories de la boutique" className="w-full py-1.5">
               {catalogCategories.map((c) => (
-                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} icon={categoryIcons[c.slug] || Smartphone}>
+                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} icon={categoryIcons[c.slug] || categoryIcons.smartphones}>
                   {c.name}
                 </CategoryMenuItem>
               ))}
