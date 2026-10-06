@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronRight, Search, SlidersHorizontal, X, Smartphone, Cable, Tv, BadgePercent } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -17,11 +17,11 @@ import { formatMAD } from "@/lib/format";
 
 type ShopSearch = { categorie?: string; q?: string };
 
-const categoryVisuals: Record<string, string> = {
-  smartphones: "https://images.unsplash.com/photo-1750332191594-d5387a69f7c8?auto=format&fit=crop&w=300&q=80",
-  "accessoires-telephone": "https://images.unsplash.com/photo-1758578070291-0c22ff555df9?auto=format&fit=crop&w=300&q=80",
-  "accessoires-tv": "https://images.unsplash.com/photo-1538131587570-641359811581?auto=format&fit=crop&w=300&q=80",
-  offres: "https://images.unsplash.com/photo-1705637841129-ef3cf520516f?auto=format&fit=crop&w=300&q=80",
+const categoryIcons: Record<string, React.ElementType> = {
+  smartphones: Smartphone,
+  "accessoires-telephone": Cable,
+  "accessoires-tv": Tv,
+  offres: BadgePercent,
 };
 
 const MAX_PRICE = 15000;
@@ -54,16 +54,14 @@ export const Route = createFileRoute("/boutique")({
 });
 
 function CategoryMenuItem({ active, to, children, image }: {
-  active: boolean; to: ShopSearch; children: React.ReactNode; image: string;
+  active: boolean; to: ShopSearch; children: React.ReactNode; icon: React.ElementType;
 }) {
   return (
     <Link to="/boutique" search={to}
       className={`group flex w-full min-h-12 items-center gap-2 border-l-2 px-2 py-2 text-[11px] font-medium transition-all sm:gap-2.5 sm:px-3 sm:py-2.5 sm:text-xs ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
-      <img
-        src={image}
-        alt=""
-        className="h-8 w-8 shrink-0 rounded-md object-cover ring-1 ring-border/60 sm:h-9 sm:w-9"
-      />
+      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background/60 sm:h-8 sm:w-8 ${active ? "text-gold" : "text-muted-foreground group-hover:text-gold"}`}>
+        <Icon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.8} />
+      </span>
       <span className="min-w-0 flex-1 leading-tight">{children}</span>
       <ChevronRight className={`h-3 w-3 shrink-0 ${active ? "text-gold" : "opacity-40 group-hover:opacity-100"}`} />
     </Link>
@@ -137,7 +135,7 @@ function ShopPage() {
                           </div>
             <nav aria-label="Catégories de la boutique" className="w-full py-1.5">
               {catalogCategories.map((c) => (
-                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} image={categoryVisuals[c.slug] || c.image}>
+                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} icon={categoryIcons[c.slug] || Smartphone}>
                   {c.name}
                 </CategoryMenuItem>
               ))}
