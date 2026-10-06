@@ -51,7 +51,7 @@ function CategoryMenuItem({ active, to, children, icon: Icon }: {
 }) {
   return (
     <Link to="/boutique" search={to}
-      className={`group flex min-h-12 items-center gap-3 border-l-2 px-4 py-3 text-sm font-medium transition-all ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
+      className={`group flex w-max min-h-12 items-center gap-3 border-l-2 px-4 py-3 text-sm font-medium transition-all ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
       <Icon className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "text-muted-foreground group-hover:text-gold"}`} />
       <span className="flex-1 truncate">{children}</span>
       <ChevronRight className={`h-4 w-4 shrink-0 ${active ? "text-gold" : "opacity-0 group-hover:opacity-100"}`} />
@@ -119,13 +119,13 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 lg:w-max">
-          <div className="overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
+        <aside className="w-full shrink-0 lg:w-fit">
+          <div className="w-fit overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
             <div className="border-b border-border px-4 py-4">
               <p className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Catégories</p>
               <p className="mt-1 text-xs text-muted-foreground">Choisissez une catégorie</p>
             </div>
-            <nav aria-label="Catégories de la boutique" className="py-2">
+            <nav aria-label="Catégories de la boutique" className="w-fit py-2">
               {catalogCategories.map((c, index) => {
                 const icons = [Smartphone, Cable, Tv, Wifi];
                 const Icon = icons[index % icons.length];
