@@ -46,18 +46,18 @@ export const Route = createFileRoute("/boutique")({
   component: ShopPage,
 });
 
-function CategoryMenuItem({ active, to, children }: { active: boolean; to: ShopSearch; children: React.ReactNode }) {
+function CategoryChip({ active, to, children }: { active: boolean; to: ShopSearch; children: React.ReactNode }) {
   return (
     <Link
       to="/boutique"
       search={to}
-      className={`flex min-h-11 items-center rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+      className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
         active
-          ? "bg-gold text-primary-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-gold/10 hover:text-gold"
+          ? "border-gold bg-gold text-primary-foreground"
+          : "border-border bg-card text-muted-foreground hover:border-gold/60 hover:text-gold"
       }`}
     >
-      <span className="truncate">{children}</span>
+      {children}
     </Link>
   );
 }
@@ -123,23 +123,14 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 lg:w-64">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <div className="border-b border-border px-5 py-4">
-              <p className="font-display text-sm font-semibold uppercase tracking-[0.14em] text-foreground">
-                Catégories
-              </p>
-            </div>
-            <nav className="p-2" aria-label="Catégories de la boutique">
-              <CategoryMenuItem active={!categorie} to={{}}>Toutes les catégories</CategoryMenuItem>
-              {catalogCategories.map((c) => (
-                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
-                  {c.name}
-                </CategoryMenuItem>
-              ))}
-            </nav>
-          </div>
-        </aside>
+        <div className="mb-6 flex flex-wrap gap-2">
+          <CategoryChip active={!categorie} to={{}}>Toutes</CategoryChip>
+          {catalogCategories.map((c) => (
+            <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
+              {c.name}
+            </CategoryChip>
+          ))}
+        </div>
 
         <div className="min-w-0 flex-1">
           {/* Recherche + tri */}
