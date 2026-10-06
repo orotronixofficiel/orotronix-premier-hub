@@ -207,7 +207,13 @@ export async function supabaseRest<T = unknown>(table: string, options: {
   }
   if (!response.ok) throw new Error((await response.text()) || "Supabase HTTP " + response.status);
   if (response.status === 204) return undefined as T;
-  return await response.json() as T;
+  const responseText = await response.text();
+  if (!responseText.trim()) return undefined as T;
+  try {
+    return JSON.parse(responseText) as T;
+  } catch {
+    throw new Error("Réponse Supabase invalide.");
+  }
 }
 
 export async function uploadSupabaseStorage(file: File, folder = "products"): Promise<string> {
