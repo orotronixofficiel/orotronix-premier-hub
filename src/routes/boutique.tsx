@@ -17,6 +17,13 @@ import { formatMAD } from "@/lib/format";
 
 type ShopSearch = { categorie?: string; q?: string };
 
+const categoryVisuals: Record<string, string> = {
+  smartphones: "https://images.unsplash.com/photo-1750332191594-d5387a69f7c8?auto=format&fit=crop&w=300&q=80",
+  "accessoires-telephone": "https://images.unsplash.com/photo-1758578070291-0c22ff555df9?auto=format&fit=crop&w=300&q=80",
+  "accessoires-tv": "https://images.unsplash.com/photo-1538131587570-641359811581?auto=format&fit=crop&w=300&q=80",
+  offres: "https://images.unsplash.com/photo-1705637841129-ef3cf520516f?auto=format&fit=crop&w=300&q=80",
+};
+
 const MAX_PRICE = 15000;
 
 export const Route = createFileRoute("/boutique")({
@@ -130,7 +137,7 @@ function ShopPage() {
                           </div>
             <nav aria-label="Catégories de la boutique" className="w-full py-1.5">
               {catalogCategories.map((c) => (
-                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} image={c.image}>
+                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} image={categoryVisuals[c.slug] || c.image}>
                   {c.name}
                 </CategoryMenuItem>
               ))}
