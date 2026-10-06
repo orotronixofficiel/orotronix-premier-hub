@@ -193,7 +193,7 @@ function RootComponent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
   return (
-    <QueryClientProvider clientName={queryClient}>
+    <QueryClientProvider client={queryClient}>
       <CartProvider>
         {isAdminRoute ? (
           <main className="min-h-screen bg-background">
