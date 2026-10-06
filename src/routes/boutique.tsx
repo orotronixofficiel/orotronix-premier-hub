@@ -108,7 +108,7 @@ function ShopPage() {
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
         {/* Catégories — menu vertical */}
-        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-52">
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-44">
           <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
             <div className="border-b border-border px-4 py-3">
               <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
