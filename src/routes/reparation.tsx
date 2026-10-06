@@ -6,7 +6,7 @@ import { moroccanCities, repairTypes } from "@/data/repair";
 import { PHONE_CATALOG, PHONE_BRANDS } from "@/data/phone-catalog";
 import { formatMAD } from "@/lib/format";
 import { makeReference } from "@/lib/orders";
-import { createRepairRequest, getRepairStatus, respondRepair, rateRepair, loadRepairServices, REPAIR_STATUSES, saveRepairLocal, uploadRepairPhoto, type RepairRequest, type RepairService, type RepairStatus } from "@/lib/repair-platform";
+import { createRepairRequest, getRepairStatus, respondRepair, rateRepair, loadRepairServices, loadRepairScreenPrices, REPAIR_STATUSES, saveRepairLocal, uploadRepairPhoto, type RepairRequest, type RepairService, type RepairScreenPrice, type RepairStatus } from "@/lib/repair-platform";
 
 export const Route=createFileRoute("/reparation")({
   ssr:false,
@@ -48,6 +48,7 @@ function RepairPage(){
   const [tab,setTab]=useState<"diagnostic"|"track">("diagnostic");
   const [step,setStep]=useState(1);
   const [services,setServices]=useState<RepairService[]>([]);
+  const [screenPrices,setScreenPrices]=useState<RepairScreenPrice[]>([]);
   const [submitted,setSubmitted]=useState<RepairRequest|null>(null);
   const [form,setForm]=useState<FormData>(emptyForm);
   const [errors,setErrors]=useState<Record<string,string>>({});
@@ -57,7 +58,7 @@ function RepairPage(){
   const [tracked,setTracked]=useState<Record<string,unknown>|null>(null);
   const [tracking,setTracking]=useState(false);
 
-  useEffect(()=>{void loadRepairServices().then(setServices)},[]);
+  useEffect(()=>{void Promise.all([loadRepairServices(),loadRepairScreenPrices()]).then(([loadedServices,loadedScreens])=>{setServices(loadedServices);setScreenPrices(loadedScreens);})},[]);
   useEffect(()=>{
     if(typeof window==="undefined")return;
     const ref=new URLSearchParams(window.location.search).get("reference");
@@ -66,6 +67,7 @@ function RepairPage(){
 
   const models=form.brand?(PHONE_CATALOG[form.brand]||[]):[];
   const selectedProblem=problems.find(p=>p[0]===form.problemType);
+  const selectedScreen=useMemo(()=>screenPrices.find(s=>s.brand===form.brand&&s.model===form.model),[screenPrices,form.brand,form.model]);
   const matched=useMemo(()=>services
     .filter(s=>s.device_brand==="Tous"||s.device_brand===form.brand)
     .filter(s=>s.device_model==="Tous"||s.device_model===form.model)
@@ -87,7 +89,9 @@ function RepairPage(){
     "Autre problème":{from:0,duration:"Sur diagnostic"}
   };
   const fallback=fallbackMap[form.problemType]||repairTypes.find(x=>x.name===form.problemType);
-  const estimatedPrice=service?Number(service.estimated_price):fallback?.from||0;
+  const estimatedPrice=form.problemType==="Écran cassé"
+    ? (selectedScreen?.available ? Number(selectedScreen.screen_price||0)+Number(selectedScreen.installation_price||0) : 0)
+    : (service?Number(service.estimated_price):fallback?.from||0);
   const estimatedDuration=service?.repair_time||fallback?.duration||"Après diagnostic";
 
   const update=(key:keyof FormData,value:string|string[])=>setForm(f=>({...f,[key]:value}));
@@ -208,7 +212,7 @@ function RepairPage(){
             </div>
             <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
               <div className="rounded-2xl border border-border bg-card p-5 sm:p-7">
-                {step===1&&<StepDevice form={form} models={models} update={update} errors={errors}/>}
+                {step===1&&<StepDevice form={form} models={models} update={update} errors={errors} screen={selectedScreen}/>}
                 {step===2&&<StepProblem form={form} update={update} errors={errors} addPhotos={addPhotos} photoBusy={photoBusy}/>}
                 {step===3&&<StepContact form={form} update={update} errors={errors}/>}
                 {step===4&&<Summary form={form} estimate={estimatedPrice} duration={estimatedDuration} problem={form.problemType}/>}
@@ -226,7 +230,7 @@ function RepairPage(){
   </main>;
 }
 
-function StepDevice({form,models,update,errors}:{form:FormData;models:string[];update:(k:keyof FormData,v:string|string[])=>void;errors:Record<string,string>}){
+function StepDevice({form,models,update,errors,screen}:{form:FormData;models:string[];update:(k:keyof FormData,v:string|string[])=>void;errors:Record<string,string>;screen?:RepairScreenPrice}){
   return <div className="space-y-5">
     <div className="grid gap-5 sm:grid-cols-2">
       <Field label="Marque" error={errors.brand}>
@@ -246,6 +250,13 @@ function StepDevice({form,models,update,errors}:{form:FormData;models:string[];u
       <p className="text-sm font-semibold">Votre appareil</p>
       <p className="mt-1 text-xs text-muted-foreground">La marque et le modèle servent à préparer le diagnostic et l'estimation.</p>
     </div>
+    {form.brand&&form.model&&<div className={"rounded-2xl border p-4 "+(screen?.available?"border-emerald-500/30 bg-emerald-500/5":"border-border bg-surface")}>
+      <p className="text-xs uppercase tracking-wider text-gold">Tarif écran</p>
+      {screen?.available
+        ? <div className="mt-2 grid gap-2 sm:grid-cols-3"><div><p className="text-xs text-muted-foreground">Écran</p><p className="font-semibold">{formatMAD(Number(screen.screen_price||0))}</p></div><div><p className="text-xs text-muted-foreground">Pose</p><p className="font-semibold">{formatMAD(Number(screen.installation_price||0))}</p></div><div><p className="text-xs text-muted-foreground">Total écran + pose</p><p className="font-semibold text-gold">{formatMAD(Number(screen.screen_price||0)+Number(screen.installation_price||0))}</p></div></div>
+        : <p className="mt-2 text-sm text-muted-foreground">Tarif écran non disponible pour ce modèle. Contactez-nous pour un devis.</p>}
+    </div>}
+  </div>
   </div>;
 }
 
@@ -309,7 +320,7 @@ function Summary({form,estimate,duration,problem}:{form:FormData;estimate:number
     <div className="rounded-2xl border border-gold/30 bg-gold/5 p-5">
       <p className="text-xs uppercase tracking-wider text-gold">Pré-estimation</p>
       <p className="mt-2 font-display text-3xl font-bold">{estimate>0?formatMAD(estimate):"Sur diagnostic"}</p>
-      <p className="mt-1 text-sm text-muted-foreground">Le prix final est confirmé après contrôle technique.</p>
+      <p className="mt-1 text-sm text-muted-foreground">{form.problemType==="Écran cassé"&&!selectedScreen?.available?"Écran non disponible ou tarif non renseigné pour ce modèle.":"Le prix final est confirmé après contrôle technique."}</p>
     </div>
     <div className="grid gap-3 sm:grid-cols-2">{[
       ["Appareil",form.brand+" · "+form.model],["Panne",problem],["Durée indicative",duration],["Prise en charge",mode],["Client",form.fullName],["Téléphone",form.phone]
