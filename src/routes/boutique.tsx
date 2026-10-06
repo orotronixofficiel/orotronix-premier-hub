@@ -237,27 +237,3 @@ function CategoryMenuItem({
     </Link>
   );
 }
-
-function CategoryChip({
-  active,
-  to,
-  children,
-}: {
-  active: boolean;
-  to: ShopSearch;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      to="/boutique"
-      search={to}
-      className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-        active
-          ? "border-gold bg-gold text-primary-foreground"
-          : "border-border text-muted-foreground hover:border-gold/50 hover:text-gold"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
