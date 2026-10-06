@@ -256,7 +256,6 @@ function StepDevice({form,models,update,errors,screen}:{form:FormData;models:str
         ? <div className="mt-2 grid gap-2 sm:grid-cols-3"><div><p className="text-xs text-muted-foreground">Écran</p><p className="font-semibold">{formatMAD(Number(screen.screen_price||0))}</p></div><div><p className="text-xs text-muted-foreground">Pose</p><p className="font-semibold">{formatMAD(Number(screen.installation_price||0))}</p></div><div><p className="text-xs text-muted-foreground">Total écran + pose</p><p className="font-semibold text-gold">{formatMAD(Number(screen.screen_price||0)+Number(screen.installation_price||0))}</p></div></div>
         : <p className="mt-2 text-sm text-muted-foreground">Tarif écran non disponible pour ce modèle. Contactez-nous pour un devis.</p>}
     </div>}
-  </div>
   </div>;
 }
 
