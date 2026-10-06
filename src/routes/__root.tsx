@@ -114,8 +114,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: OROTRONIX_LOGO, type: "image/png" },
-      { rel: "apple-touch-icon", href: OROTRONIX_LOGO },
     ],
     scripts: [
       {
