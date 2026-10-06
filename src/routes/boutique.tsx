@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronRight, Grid2X2, Search, SlidersHorizontal, X } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -106,18 +106,33 @@ function ShopPage() {
         </p>
       </header>
 
-      {/* Catégories */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        <CategoryChip active={!categorie} to={{}}>Tout</CategoryChip>
-        {catalogCategories.map((c) => (
-          <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
-            {c.name}
-          </CategoryChip>
-        ))}
-      </div>
+      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
+        {/* Catégories — menu vertical */}
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-64">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="border-b border-border px-5 py-4">
+              <p className="font-display text-sm font-semibold uppercase tracking-[0.16em] text-foreground">
+                Catégories
+              </p>
+            </div>
+            <nav className="p-2" aria-label="Catégories de la boutique">
+              <CategoryMenuItem active={!categorie} to={{}}>
+                <Grid2X2 className="h-4 w-4" />
+                <span>Tout</span>
+              </CategoryMenuItem>
+              {catalogCategories.map((c) => (
+                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
+                  <span className="min-w-0 flex-1 truncate">{c.name}</span>
+                  <ChevronRight className="h-4 w-4 shrink-0 opacity-60" />
+                </CategoryMenuItem>
+              ))}
+            </nav>
+          </div>
+        </aside>
 
-      {/* Recherche + tri */}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="min-w-0 flex-1">
+          {/* Recherche + tri */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <form onSubmit={submitSearch} className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -145,8 +160,8 @@ function ShopPage() {
         </div>
       </div>
 
-      {filtersOpen && (
-        <div className="mt-4 rounded-xl border border-border bg-card p-5">
+          {filtersOpen && (
+            <div className="mt-4 rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <p className="font-display text-sm font-semibold">Prix maximum</p>
             <span className="text-sm text-gold">{formatMAD(maxPrice)}</span>
@@ -159,10 +174,10 @@ function ShopPage() {
             step={50}
             onValueChange={(v) => setMaxPrice(v[0])}
           />
-        </div>
-      )}
+            </div>
+          )}
 
-      {q && (
+          {q && (
         <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/40 px-3 py-1 text-xs text-gold">
           Recherche : « {q} »
           <button
@@ -177,11 +192,11 @@ function ShopPage() {
         </div>
       )}
 
-      <p className="mt-6 text-xs text-muted-foreground">
-        {list.length} produit{list.length > 1 ? "s" : ""}
-      </p>
+          <p className="mt-6 text-xs text-muted-foreground">
+            {list.length} produit{list.length > 1 ? "s" : ""}
+          </p>
 
-      {list.length === 0 ? (
+          {list.length === 0 ? (
         <div className="mt-10 rounded-xl border border-border bg-card p-10 text-center">
           <p className="font-display text-lg">Aucun produit ne correspond à votre recherche.</p>
           <p className="mt-2 text-sm text-muted-foreground">Essayez d'élargir le prix ou de changer de catégorie.</p>
@@ -192,8 +207,34 @@ function ShopPage() {
             <ProductCard key={p.slug} product={p} />
           ))}
         </div>
-      )}
+          )}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function CategoryMenuItem({
+  active,
+  to,
+  children,
+}: {
+  active: boolean;
+  to: ShopSearch;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      to="/boutique"
+      search={to}
+      className={`flex min-h-11 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+        active
+          ? "bg-gold text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:bg-gold/10 hover:text-gold"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 
