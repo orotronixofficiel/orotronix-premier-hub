@@ -177,3 +177,9 @@
     padding-inline: 2rem;
   }
 }
+
+
+/* Keep self-hosted production fully white-label if a Lovable badge is injected. */
+#lovable-badge {
+  display: none !important;
+}
