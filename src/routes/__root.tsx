@@ -108,8 +108,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "shortcut icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "https://qeqqfelebzxwupsqyzbz.supabase.co/storage/v1/object/public/orotronix-media/Branding/145788.png", type: "image/png" },
+      { rel: "shortcut icon", href: "https://qeqqfelebzxwupsqyzbz.supabase.co/storage/v1/object/public/orotronix-media/Branding/145788.png", type: "image/png" },
       { rel: "apple-touch-icon", href: OROTRONIX_LOGO },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.googleapis.com", crossOrigin: "anonymous" },
