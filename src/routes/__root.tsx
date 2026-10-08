@@ -108,6 +108,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: OROTRONIX_LOGO, type: "image/png" },
+      { rel: "apple-touch-icon", href: OROTRONIX_LOGO },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.googleapis.com", crossOrigin: "anonymous" },
       {
