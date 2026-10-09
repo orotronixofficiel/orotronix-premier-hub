@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, type ElementType } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRight, Search, SlidersHorizontal, X, Smartphone, Cable, Tv, BadgePercent } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -16,13 +16,6 @@ import {
 import { formatMAD } from "@/lib/format";
 
 type ShopSearch = { categorie?: string; q?: string };
-
-const categoryIcons: Record<string, { icon: ElementType; color: string; bg: string }> = {
-  smartphones: { icon: Smartphone, color: "text-sky-400", bg: "bg-sky-400/10 border-sky-400/20" },
-  "accessoires-telephone": { icon: Cable, color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" },
-  "accessoires-tv": { icon: Tv, color: "text-violet-400", bg: "bg-violet-400/10 border-violet-400/20" },
-  offres: { icon: BadgePercent, color: "text-amber-400", bg: "bg-amber-400/10 border-amber-400/20" },
-};
 
 const MAX_PRICE = 15000;
 
@@ -49,26 +42,26 @@ export const Route = createFileRoute("/boutique")({
         content: "Smartphones, accessoires téléphone et TV, et offres spéciales. Livraison partout au Maroc.",
       },
     ],
-    // Category and search query parameters are filters on this shop page.
-    links: [{ rel: "canonical", href: "https://www.orotronix.com/boutique" }],
   }),
   component: ShopPage,
 });
 
-function CategoryMenuItem({ active, to, children, icon }: {
-  active: boolean; to: ShopSearch; children: React.ReactNode; icon: { icon: ElementType; color: string; bg: string };
-}) {
+function CategoryChip({ active, to, children }: { active: boolean; to: ShopSearch; children: React.ReactNode }) {
   return (
-    <Link to="/boutique" search={to}
-      className={`group flex w-full min-h-12 items-center gap-2 border-l-2 px-2 py-2 text-[11px] font-medium transition-all sm:gap-2.5 sm:px-3 sm:py-2.5 sm:text-xs ${active ? "border-gold bg-gold/10 text-gold" : "border-transparent text-muted-foreground hover:border-gold/50 hover:bg-gold/5 hover:text-foreground"}`}>
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border sm:h-8 sm:w-8 ${icon.bg}`}>
-        <icon.icon className={`h-4 w-4 sm:h-[18px] sm:w-[18px] ${icon.color}`} strokeWidth={1.8} />
-      </span>
-      <span className="min-w-0 flex-1 leading-tight">{children}</span>
-      <ChevronRight className={`h-3 w-3 shrink-0 ${active ? "text-gold" : "opacity-40 group-hover:opacity-100"}`} />
+    <Link
+      to="/boutique"
+      search={to}
+      className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+        active
+          ? "border-gold bg-gold text-primary-foreground"
+          : "border-border bg-card text-muted-foreground hover:border-gold/60 hover:text-gold"
+      }`}
+    >
+      {children}
     </Link>
   );
 }
+
 function ShopPage() {
   const { categorie, q } = Route.useSearch();
   const navigate = useNavigate({ from: "/boutique" });
@@ -129,21 +122,16 @@ function ShopPage() {
         </p>
       </header>
 
-      <div className="mt-8 grid grid-cols-[max-content_minmax(0,1fr)] items-start gap-4 sm:gap-6">
-        <aside className="w-[108px] shrink-0 sm:w-[145px] lg:w-[175px]">
-          <div className="w-full overflow-hidden rounded-xl border border-border bg-card/70 shadow-sm">
-            <div className="border-b border-border px-2.5 py-3 sm:px-3.5 sm:py-3.5">
-              <p className="font-display text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground sm:text-xs">Catégories</p>
-                          </div>
-            <nav aria-label="Catégories de la boutique" className="w-full py-1.5">
-              {catalogCategories.map((c) => (
-                <CategoryMenuItem key={c.slug} active={categorie === c.slug} to={categorie === c.slug ? {} : { categorie: c.slug }} icon={categoryIcons[c.slug] || categoryIcons.smartphones}>
-                  {c.name}
-                </CategoryMenuItem>
-              ))}
-            </nav>
-          </div>
-        </aside>
+      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
+        <div className="mb-6 flex flex-wrap gap-2">
+          <CategoryChip active={!categorie} to={{}}>Toutes</CategoryChip>
+          {catalogCategories.map((c) => (
+            <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
+              {c.name}
+            </CategoryChip>
+          ))}
+        </div>
+
         <div className="min-w-0 flex-1">
           {/* Recherche + tri */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
