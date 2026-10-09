@@ -45,7 +45,10 @@ import { useCart } from "@/context/cart";
 import { moroccanCities } from "@/data/repair";
 import { CustomerLoyaltyPanel } from "@/components/customer-loyalty-panel";
 
-export const Route = createFileRoute("/compte")({ component: ComptePage });
+export const Route = createFileRoute("/compte")({
+  head: () => ({ meta: [{ title: "Mon compte — OROTRONIX" }, { name: "robots", content: "noindex, nofollow" }] }),
+  component: ComptePage,
+});
 
 type AccountMode = "login" | "signup" | "forgot" | "reset" | "confirmed";
 type OAuthProvider = "google" | "facebook";
