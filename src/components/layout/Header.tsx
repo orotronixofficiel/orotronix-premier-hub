@@ -126,6 +126,37 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
+                <Link
+                  to="/"
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
+                >
+                  Accueil
+                </Link>
+                <Link
+                  to="/boutique"
+                  search={{ categorie: "offres" }}
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
+                >
+                  Promotions
+                </Link>
+                <Link
+                  to="/panier"
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
+                >
+                  Mon panier
+                </Link>
+                <a
+                  href="https://wa.me/212656566366"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
+                >
+                  Contact & WhatsApp
+                </a>
                 {isBoutiquePage && catalogCategories.map((category) => (
                   <Link
                     key={category.slug}
