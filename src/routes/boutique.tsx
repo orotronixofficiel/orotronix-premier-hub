@@ -42,6 +42,7 @@ export const Route = createFileRoute("/boutique")({
         content: "Smartphones, accessoires téléphone et TV, et offres spéciales. Livraison partout au Maroc.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.orotronix.com/boutique" }],
   }),
   component: ShopPage,
 });
