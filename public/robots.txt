@@ -5,4 +5,4 @@ Disallow: /panier
 Disallow: /commande
 Disallow: /confirmation
 
-Sitemap: https://orotronix.com/sitemap.xml
+Sitemap: https://www.orotronix.com/sitemap.xml
