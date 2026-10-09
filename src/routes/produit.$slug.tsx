@@ -27,7 +27,9 @@ export const Route = createFileRoute("/produit/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Produit indisponible — OROTRONIX" }, { name: "robots", content: "noindex" }] };
+      // Do not emit noindex while product data is still unavailable.
+      // The root route already provides the default "index, follow" robots directive.
+      return { meta: [{ title: "Chargement du produit — OROTRONIX" }] };
     }
     const { product } = loaderData;
     const canonical = "https://www.orotronix.com/produit/" + encodeURIComponent(product.slug);
