@@ -1,9 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /compte
 Disallow: /panier
 Disallow: /commande
 Disallow: /confirmation
 
-Sitemap: https://www.orotronix.com/sitemap.xml
+Sitemap: https://orotronix.com/sitemap.xml
