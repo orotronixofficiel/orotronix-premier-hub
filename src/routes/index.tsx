@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import heroImg from "@/assets/hero-phone.jpg";
 import repairImg from "@/assets/repair.jpg";
-import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog } from "@/data/catalog";
+import { products as fallbackProducts, loadRemoteCatalog } from "@/data/catalog";
 import { repairTypes } from "@/data/repair";
 import { ProductCard } from "@/components/product/ProductCard";
 import { SectionHeading } from "@/components/layout/Section";
