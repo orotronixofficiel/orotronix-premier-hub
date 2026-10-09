@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/cart";
@@ -24,6 +24,8 @@ const languages = [
 export function Header() {
   const { count } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isBoutiquePage = location.pathname === "/boutique";
   const [open, setOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(() => getLanguage());
@@ -124,7 +126,7 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                {catalogCategories.map((category) => (
+                {isBoutiquePage && catalogCategories.map((category) => (
                   <Link
                     key={category.slug}
                     to="/boutique"
