@@ -136,7 +136,6 @@ export function Header() {
                 ))}
                 <Link
                   to="/boutique"
-                  search={{ categorie: "offres" }}
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
                 >
