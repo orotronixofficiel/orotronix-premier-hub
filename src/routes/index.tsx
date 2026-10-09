@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
         content: "Smartphones, accessoires téléphone et TV, réparation professionnelle. Paiement à la livraison.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://orotronix.com/" }],
+    links: [{ rel: "canonical", href: "https://www.orotronix.com/" }],
   }),
   component: HomePage,
 });
