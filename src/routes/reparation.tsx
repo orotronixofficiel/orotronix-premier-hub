@@ -13,7 +13,7 @@ export const Route=createFileRoute("/reparation")({
   head:()=>({meta:[
     {title:"Réparation Smartphone & Diagnostic | OROTRONIX"},
     {name:"description",content:"Demande de réparation, pré-diagnostic, suivi et validation finale chez OROTRONIX."}
-  ]}),
+  ],links:[{rel:"canonical",href:"https://orotronix.com/reparation"}]}),
   component:RepairPage
 });
 
