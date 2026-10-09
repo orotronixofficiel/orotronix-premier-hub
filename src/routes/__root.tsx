@@ -97,7 +97,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0a0a0a" },
       { name: "og:site_name", content: "OROTRONIX" },
       { property: "og:locale", content: "fr_MA" },
-      { property: "og:url", content: "https://orotronix.com/" },
+      { property: "og:url", content: "https://www.orotronix.com/" },
       { property: "og:title", content: "OROTRONIX — Smartphones, accessoires et réparation" },
       {
         property: "og:description",
@@ -124,9 +124,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
-          "@id": "https://orotronix.com/#business",
+          "@id": "https://www.orotronix.com/#business",
           name: "OROTRONIX",
-          url: "https://orotronix.com/",
+          url: "https://www.orotronix.com/",
           telephone: "+212656566366",
           image: OROTRONIX_LOGO,
           priceRange: "$$",
