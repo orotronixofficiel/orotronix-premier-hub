@@ -57,8 +57,7 @@ function HomePage() {
       void navigate({ to: "/compte" });
     }
   }, [navigate]);
-  const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
-  useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
+  useEffect(() => { void loadRemoteCatalog().then((data) => setCatalogProducts(data.products)).catch(() => {}); }, []);
   const featured = catalogProducts.filter((p) => p.featured).slice(0, 4);
   const offers = catalogProducts.filter((p) => p.oldPrice).slice(0, 4);
 
@@ -139,44 +138,6 @@ function HomePage() {
           {featured.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}
-        </div>
-      </section>
-
-      {/* CATEGORIES */}
-      <section className="container-page py-8 lg:py-12">
-        <SectionHeading
-          eyebrow="Catalogue"
-          title="Nos catégories"
-          description="Trouvez rapidement ce qui vous intéresse."
-        />
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {catalogCategories.map((c) => {
-            const count = catalogProducts.filter((p) => p.category === c.slug).length;
-            return (
-              <Link
-                key={c.slug}
-                to="/boutique"
-                search={{ categorie: c.slug }}
-                className="group flex items-center gap-4 rounded-xl border border-border bg-card px-4 py-3 transition-all duration-300 hover:border-gold/50 hover:bg-surface"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-gold/25 bg-gold/5 text-gold">
-                  <img
-                    src={c.image}
-                    alt=""
-                    loading="lazy"
-                    className="h-7 w-7 rounded object-cover opacity-90"
-                  />
-                </div>
-                <div className="min-w-0 flex-1 text-left">
-                  <h3 className="truncate font-display text-sm font-semibold sm:text-base">{c.name}</h3>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground sm:text-xs">
-                    {count} {count === 1 ? "produit" : "produits"}
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-gold transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            );
-          })}
         </div>
       </section>
 
