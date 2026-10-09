@@ -8,12 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { refreshSupabaseSession } from "@/lib/supabase";
 import { getLanguage, setLanguage, type LanguageCode } from "@/lib/i18n";
+import { categories as fallbackCategories, loadRemoteCatalog } from "@/data/catalog";
 
 const navLinks = [
   { to: "/boutique", label: "Boutique" },
-  { to: "/boutique", label: "Smartphones", search: { categorie: "smartphones" } },
-  { to: "/boutique", label: "Accessoires", search: { categorie: "accessoires-telephone" } },
-  { to: "/boutique", label: "TV", search: { categorie: "accessoires-tv" } },
   { to: "/reparation", label: "Réparation" },
 ] as const;
 
@@ -31,6 +29,15 @@ export function Header() {
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(() => getLanguage());
   const [query, setQuery] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
+
+  useEffect(() => {
+    let active = true;
+    void loadRemoteCatalog().then((data) => {
+      if (active) setCatalogCategories(data.categories);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -117,14 +124,17 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                <Link
-                  to="/boutique"
-                  search={{ categorie: "offres" }}
-                  onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 font-display text-base text-gold"
-                >
-                  Offres
-                </Link>
+                {catalogCategories.map((category) => (
+                  <Link
+                    key={category.slug}
+                    to="/boutique"
+                    search={{ categorie: category.slug }}
+                    onClick={() => setOpen(false)}
+                    className={`rounded-md px-3 py-3 font-display text-base transition-colors hover:bg-surface hover:text-gold ${category.slug === "offres" ? "text-gold" : "text-foreground"}`}
+                  >
+                    {category.name}
+                  </Link>
+                ))}
               </nav>
               <Button asChild className="mt-8 w-full" onClick={() => setOpen(false)}>
                 <Link to="/reparation">Demander une réparation</Link>
@@ -183,13 +193,6 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/boutique"
-            search={{ categorie: "offres" }}
-            className="text-sm font-medium text-gold"
-          >
-            Offres
-          </Link>
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
