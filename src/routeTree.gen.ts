@@ -18,6 +18,7 @@ import { Route as ReparationRouteImport } from './routes/reparation'
 import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CompteRouteImport } from './routes/compte'
+import { Route as SitemapRouteImport } from './routes/sitemap.xml'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,6 +60,11 @@ const CompteRoute = CompteRouteImport.update({
   path: '/compte',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapRoute = SitemapRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProduitSlugRoute = ProduitSlugRouteImport.update({
   id: '/produit/$slug',
   path: '/produit/$slug',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/produit/$slug': typeof ProduitSlugRoute
   '/admin': typeof AdminRoute
   '/compte': typeof CompteRoute
+  '/sitemap.xml': typeof SitemapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -200,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produit/$slug': {
       id: '/produit/$slug'
       path: '/produit/$slug'
@@ -220,6 +234,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProduitSlugRoute: ProduitSlugRoute,
   AdminRoute: AdminRoute,
   CompteRoute: CompteRoute,
+  SitemapRoute: SitemapRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
