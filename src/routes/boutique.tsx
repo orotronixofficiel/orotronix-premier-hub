@@ -50,7 +50,7 @@ export const Route = createFileRoute("/boutique")({
       },
     ],
     // Category and search query parameters are filters on this shop page.
-    links: [{ rel: "canonical", href: "https://orotronix.com/boutique" }],
+    links: [{ rel: "canonical", href: "https://www.orotronix.com/boutique" }],
   }),
   component: ShopPage,
 });
