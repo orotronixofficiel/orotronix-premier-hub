@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog, type CategorySlug } from "@/data/catalog";
+import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -46,22 +46,6 @@ export const Route = createFileRoute("/boutique")({
   }),
   component: ShopPage,
 });
-
-function CategoryChip({ active, to, children }: { active: boolean; to: ShopSearch; children: React.ReactNode }) {
-  return (
-    <Link
-      to="/boutique"
-      search={to}
-      className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-        active
-          ? "border-gold bg-gold text-primary-foreground"
-          : "border-border bg-card text-muted-foreground hover:border-gold/60 hover:text-gold"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
 
 function ShopPage() {
   const { categorie, q } = Route.useSearch();
