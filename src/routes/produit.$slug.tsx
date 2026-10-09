@@ -30,7 +30,7 @@ export const Route = createFileRoute("/produit/$slug")({
       return { meta: [{ title: "Produit indisponible — OROTRONIX" }, { name: "robots", content: "noindex" }] };
     }
     const { product } = loaderData;
-    const canonical = "https://www.orotronix.com/produit/" + encodeURIComponent(product.slug);
+    const canonical = "https://orotronix.com/produit/" + encodeURIComponent(product.slug);
     const description = product.shortDescription || product.description;
     const jsonLd = {
       "@context": "https://schema.org",
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/produit/$slug")({
         priceCurrency: "MAD",
         price: product.price,
         availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-        seller: { "@type": "Organization", name: "OROTRONIX", url: "https://www.orotronix.com/" },
+        seller: { "@type": "Organization", name: "OROTRONIX", url: "https://orotronix.com/" },
       },
     };
     return {
