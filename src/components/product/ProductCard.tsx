@@ -48,8 +48,8 @@ export function ProductCard({ product }: { product: Product }) {
       <Link to="/produit/$slug" params={{ slug: product.slug }} className="relative block aspect-square overflow-hidden bg-surface-2">
         <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
         {product.oldPrice && <span className="absolute left-3 top-3 rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary-foreground">Promo</span>}
-        <button type="button" onClick={toggleFavorite} disabled={favoriteBusy} aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"} title={favorite ? "Retirer des favoris" : "Ajouter aux favoris"} className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-background/90 backdrop-blur transition-colors hover:border-gold hover:text-gold disabled:opacity-60">
-          <Heart className={`h-4 w-4 ${favorite ? "fill-current text-gold" : ""}`} />
+        <button type="button" onClick={toggleFavorite} disabled={favoriteBusy} aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"} title={favorite ? "Retirer des favoris" : "Ajouter aux favoris"} className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-border/80 bg-background/90 backdrop-blur transition-colors hover:border-gold hover:text-gold disabled:opacity-60">
+          <Heart className={`h-3.5 w-3.5 ${favorite ? "fill-current text-gold" : ""}`} />
         </button>
       </Link>
 
