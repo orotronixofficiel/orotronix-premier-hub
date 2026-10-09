@@ -124,15 +124,6 @@ function ShopPage() {
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <div className="mb-6 flex flex-wrap gap-2">
-          <CategoryChip active={!categorie} to={{}}>Toutes</CategoryChip>
-          {catalogCategories.map((c) => (
-            <CategoryChip key={c.slug} active={categorie === c.slug} to={{ categorie: c.slug }}>
-              {c.name}
-            </CategoryChip>
-          ))}
-        </div>
-
         <div className="min-w-0 flex-1">
           {/* Recherche + tri */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
