@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Home, Menu, MessageCircle, Search, ShoppingBag, Tag, UserRound } from "lucide-react";
+import { Menu, Search, ShoppingBag, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/cart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -115,14 +115,6 @@ export function Header() {
                 <span>{loggedIn ? "Mon compte" : "Se connecter / Créer un compte"}</span>
               </Link>
               <nav className="flex flex-col gap-1">
-                <Link
-                  to="/"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
-                >
-                  <Home className="h-5 w-5" />
-                  Accueil
-                </Link>
                 {navLinks.map((link) => (
                   <Link
                     key={link.label}
@@ -134,32 +126,6 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                <Link
-                  to="/boutique"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
-                >
-                  <Tag className="h-5 w-5" />
-                  Promotions
-                </Link>
-                <Link
-                  to="/panier"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
-                >
-                  <ShoppingBag className="h-5 w-5" />
-                  Mon panier
-                </Link>
-                <a
-                  href="https://wa.me/212656566366"
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
-                >
-                  <MessageCircle className="h-5 w-5" />
-                  Contact & WhatsApp
-                </a>
                 {isBoutiquePage && catalogCategories.map((category) => (
                   <Link
                     key={category.slug}
