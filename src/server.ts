@@ -73,7 +73,7 @@ export default {
       return new Response(SITEMAP_XML, {
         headers: {
           "content-type": "application/xml; charset=utf-8",
-          "cache-control": "public, max-age=3600",
+          "cache-control": "no-store, no-cache, must-revalidate",
         },
       });
     }
