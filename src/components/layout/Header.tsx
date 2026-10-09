@@ -11,8 +11,9 @@ import { getLanguage, setLanguage, type LanguageCode } from "@/lib/i18n";
 import { categories as fallbackCategories, loadRemoteCatalog } from "@/data/catalog";
 
 const navLinks = [
-  { to: "/boutique", label: "Boutique" },
+  { to: "/", label: "Accueil" },
   { to: "/reparation", label: "Réparation" },
+  { to: "/boutique", label: "Boutique" },
 ] as const;
 
 const languages = [
@@ -126,13 +127,6 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                <Link
-                  to="/"
-                  onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 font-display text-base text-foreground transition-colors hover:bg-surface hover:text-gold"
-                >
-                  Accueil
-                </Link>
                 <Link
                   to="/boutique"
                   search={{ categorie: "offres" }}
