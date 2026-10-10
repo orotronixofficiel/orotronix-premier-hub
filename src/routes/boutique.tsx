@@ -52,7 +52,7 @@ function ShopPage() {
   const [catalogProducts, setCatalogProducts] = useState(fallbackProducts);
   const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
   useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
-  const [sort, setSort] = useState("pertinence");
+  const [sort, setSort] = useState("");
   const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   const activeQuery = (q ?? "").toLowerCase();
@@ -128,7 +128,6 @@ function ShopPage() {
                   <SelectValue placeholder="Trier" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pertinence">Pertinence</SelectItem>
                   <SelectItem value="prix-croissant">Prix croissant</SelectItem>
                   <SelectItem value="prix-decroissant">Prix décroissant</SelectItem>
                   <SelectItem value="promos">Promotions</SelectItem>
