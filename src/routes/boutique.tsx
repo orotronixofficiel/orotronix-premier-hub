@@ -49,19 +49,30 @@ function ShopPage() {
   useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
 
-  const activeQuery = (q ?? "").toLowerCase();
+  const activeQuery = (q ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("fr")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
 
   const list = useMemo(() => {
     let result = catalogProducts.filter((p) => {
       if (categorie && p.category !== categorie) return false;
-      if (activeQuery) {
-        const haystack = `${p.name} ${p.brand} ${p.shortDescription}`.toLowerCase();
-        if (!haystack.includes(activeQuery)) return false;
+      if (activeQuery.length) {
+        const haystack = `${p.name ?? ""} ${p.brand ?? ""} ${p.shortDescription ?? ""}`
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLocaleLowerCase("fr")
+          .replace(/[^a-z0-9]+/g, " ");
+        if (!activeQuery.every((term) => haystack.includes(term))) return false;
       }
       return true;
     });
     return result;
-  }, [catalogProducts, categorie, activeQuery]);
+  }, [catalogProducts, categorie, activeQuery.join(" ")]);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
