@@ -6,11 +6,6 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { formatMAD } from "@/lib/format";
 
@@ -52,7 +47,6 @@ function ShopPage() {
   const [catalogProducts, setCatalogProducts] = useState(fallbackProducts);
   const [catalogCategories, setCatalogCategories] = useState(fallbackCategories);
   useEffect(() => { void loadRemoteCatalog().then((data) => { setCatalogProducts(data.products); setCatalogCategories(data.categories); }).catch(() => {}); }, []);
-  const [sort, setSort] = useState("");
   const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   const activeQuery = (q ?? "").toLowerCase();
@@ -66,11 +60,8 @@ function ShopPage() {
       }
       return true;
     });
-    if (sort === "prix-croissant") result = [...result].sort((a, b) => a.price - b.price);
-    if (sort === "prix-decroissant") result = [...result].sort((a, b) => b.price - a.price);
-    if (sort === "promos") result = [...result].sort((a, b) => Number(!!b.oldPrice) - Number(!!a.oldPrice));
     return result;
-  }, [catalogProducts, categorie, activeQuery, sort]);
+  }, [catalogProducts, categorie, activeQuery]);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,18 +113,6 @@ function ShopPage() {
                 className="bg-surface pl-9"
               />
             </form>
-            <div className="flex gap-2 sm:order-3">
-              <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger className="w-[170px] bg-surface">
-                  <SelectValue placeholder="Trier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="prix-croissant">Prix croissant</SelectItem>
-                  <SelectItem value="prix-decroissant">Prix décroissant</SelectItem>
-                  <SelectItem value="promos">Promotions</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           {categoriesOpen && (
             <div className="mt-4 rounded-2xl border border-border bg-card p-3 shadow-lg sm:p-4">
