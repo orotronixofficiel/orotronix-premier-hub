@@ -101,9 +101,6 @@ function ShopPage() {
 
       <header className="mt-4">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">
-            {current ? current.name : "Boutique"}
-          </h1>
           <Button
             type="button"
             variant="outline"
@@ -116,6 +113,9 @@ function ShopPage() {
             <span className="text-sm font-medium">Catégories</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
           </Button>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">
+            {current ? current.name : "Boutique"}
+          </h1>
         </div>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           {current ? current.description : "Tous nos smartphones, accessoires téléphone et TV, et offres spéciales."}
