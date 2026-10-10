@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, LayoutGrid, ChevronDown } from "lucide-react";
 import { categories as fallbackCategories, products as fallbackProducts, loadRemoteCatalog } from "@/data/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,7 @@ function ShopPage() {
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [sort, setSort] = useState("pertinence");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   const activeQuery = (q ?? "").toLowerCase();
 
@@ -99,12 +100,57 @@ function ShopPage() {
       </nav>
 
       <header className="mt-4">
-        <h1 className="font-display text-3xl font-bold sm:text-4xl">
-          {current ? current.name : "Boutique"}
-        </h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">
+            {current ? current.name : "Boutique"}
+          </h1>
+          <Button
+            type="button"
+            variant="outline"
+            aria-expanded={categoriesOpen}
+            aria-label={categoriesOpen ? "Masquer les catégories" : "Afficher les catégories"}
+            onClick={() => setCategoriesOpen((open) => !open)}
+            className="h-10 gap-2 rounded-xl border-border bg-card px-3 shadow-sm transition-colors hover:border-gold/60 hover:bg-gold/5"
+          >
+            <LayoutGrid className="h-4 w-4 text-gold" />
+            <span className="text-sm font-medium">Catégories</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
+          </Button>
+        </div>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           {current ? current.description : "Tous nos smartphones, accessoires téléphone et TV, et offres spéciales."}
         </p>
+        {categoriesOpen && (
+          <div className="mt-4 rounded-2xl border border-border bg-card p-3 shadow-lg sm:p-4">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => {
+                  navigate({ search: (prev) => ({ ...prev, categorie: undefined }) });
+                  setCategoriesOpen(false);
+                }}
+                className={`flex min-h-12 items-center justify-between rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors hover:border-gold/50 hover:bg-gold/5 ${!categorie ? "border-gold/60 bg-gold/5 text-gold" : "border-border"}`}
+              >
+                <span>Toutes les catégories</span>
+                {!categorie && <span aria-hidden="true">✓</span>}
+              </button>
+              {catalogCategories.map((category) => (
+                <button
+                  key={category.slug}
+                  type="button"
+                  onClick={() => {
+                    navigate({ search: (prev) => ({ ...prev, categorie: category.slug }) });
+                    setCategoriesOpen(false);
+                  }}
+                  className={`flex min-h-12 items-center justify-between rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-gold/50 hover:bg-gold/5 ${categorie === category.slug ? "border-gold/60 bg-gold/5 text-gold" : "border-border"}`}
+                >
+                  <span>{category.name}</span>
+                  {categorie === category.slug && <span aria-hidden="true">✓</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
