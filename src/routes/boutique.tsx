@@ -100,23 +100,7 @@ function ShopPage() {
       </nav>
 
       <header className="mt-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            aria-expanded={categoriesOpen}
-            aria-label={categoriesOpen ? "Masquer les catégories" : "Afficher les catégories"}
-            onClick={() => setCategoriesOpen((open) => !open)}
-            className="h-10 gap-2 rounded-xl border-border bg-card px-3 shadow-sm transition-colors hover:border-gold/60 hover:bg-gold/5"
-          >
-            <LayoutGrid className="h-4 w-4 text-gold" />
-            <span className="text-sm font-medium">Catégories</span>
-            <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
-          </Button>
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">
-            {current ? current.name : "Boutique"}
-          </h1>
-        </div>
+        <h1 className="font-display text-3xl font-bold sm:text-4xl">Boutique</h1>
         {categoriesOpen && (
           <div className="mt-4 rounded-2xl border border-border bg-card p-3 shadow-lg sm:p-4">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -154,15 +138,29 @@ function ShopPage() {
         <div className="min-w-0 flex-1">
           {/* Recherche + tri */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <form onSubmit={submitSearch} className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher un produit, une marque…"
-            className="bg-surface pl-9"
-          />
-        </form>
+        <div className="flex min-w-0 flex-1 gap-2">
+          <form onSubmit={submitSearch} className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher un produit, une marque…"
+              className="bg-surface pl-9"
+            />
+          </form>
+          <Button
+            type="button"
+            variant="outline"
+            aria-expanded={categoriesOpen}
+            aria-label={categoriesOpen ? "Masquer les catégories" : "Afficher les catégories"}
+            onClick={() => setCategoriesOpen((open) => !open)}
+            className="h-10 shrink-0 gap-2 rounded-xl border-border bg-card px-3 shadow-sm transition-colors hover:border-gold/60 hover:bg-gold/5"
+          >
+            <LayoutGrid className="h-4 w-4 text-gold" />
+            <span className="text-sm font-medium">Catégories</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
+          </Button>
+        </div>
         <div className="flex gap-2">
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger className="w-[170px] bg-surface">
