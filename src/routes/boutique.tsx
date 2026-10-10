@@ -117,9 +117,6 @@ function ShopPage() {
             {current ? current.name : "Boutique"}
           </h1>
         </div>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          {current ? current.description : "Tous nos smartphones, accessoires téléphone et TV, et offres spéciales."}
-        </p>
         {categoriesOpen && (
           <div className="mt-4 rounded-2xl border border-border bg-card p-3 shadow-lg sm:p-4">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
